@@ -1,0 +1,17 @@
+#summary The design of our project.
+
+= Introduction =
+
+Also see [Requirements].
+
+= Some thoughts =
+
+  * Model-View-Controller
+  * Treat View and Controllers as separate Threads.
+  * View:
+    * Displaying the rectangle and the particles
+  * Controllers:
+    * Adding particles
+    * Concurrency control
+    * Updating the model
+  * ...
