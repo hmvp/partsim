@@ -1,4 +1,4 @@
-#summary The design of our project.
+#summary The design of the project.
 
 = Introduction =
 
