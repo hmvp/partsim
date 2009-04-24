@@ -16,7 +16,7 @@ Also see [Requirements].
     * Adding particles
     * Concurrency control
     * Updating the model
-      * Multiple threads (number <= `P`)
+      * Multiple threads (<= `P`)
   * ...
 
 = Interface mockup =
