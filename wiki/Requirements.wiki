@@ -7,6 +7,8 @@
 
 == Summary ==
 
+*Hopefully the list below accurately depicts the requirements for the assignment.*
+
 *These quotations could be made a bit more concise!*
 
   * "There is a bounded rectangle R (of size 800 in the x-direction and 600 in the y-direction) containing N particles.  Each particle has a location within R, a direction of movement and a speed.  Particles behave naturally when they bounce at the boundary of R.  Particles have size 0, and (for reasons of ease) several particles may be on the same location.  The movement of one particle does not disturb the movement of other particles. Each particle has a (not necessarily unique) name: a lower case letter or an upper case letter."
