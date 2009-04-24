@@ -16,3 +16,7 @@ Also see [Requirements].
     * Concurrency control
     * Updating the model
   * ...
+
+= Interface mockup =
+
+http://picasaweb.google.com/lh/photo/Gb4DMAT9Ty-uBKGPov1Hdg?feat=directlink&bla=.jpg
