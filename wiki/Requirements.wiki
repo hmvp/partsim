@@ -1,5 +1,5 @@
 #summary The requirements for the project.
-#labels Featured,Phase-Requirements
+#labels Phase-Requirements
 
 = Requirements =
 
