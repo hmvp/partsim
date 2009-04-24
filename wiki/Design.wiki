@@ -19,4 +19,4 @@ Also see [Requirements].
 
 = Interface mockup =
 
-http://picasaweb.google.com/lh/photo/Gb4DMAT9Ty-uBKGPov1Hdg?feat=directlink&bla=.jpg
+http://picasaweb.google.com/lh/photo/Gb4DMAT9Ty-uBKGPov1Hdg?feat=directlink
