@@ -27,7 +27,7 @@ public class ConfigurationReader {
 					int dx = getNumber(st);
 					int dy = getNumber(st);
 					
-					particles.add(new Particle(name,x,y,dx,dy));
+					particles.add(new Particle(x,y,dx,dy,name.charAt(0)));
 					
 				}
 			}
