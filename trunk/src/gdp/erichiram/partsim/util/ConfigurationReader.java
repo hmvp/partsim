@@ -17,10 +17,10 @@ public class ConfigurationReader {
 		StreamTokenizer st = new StreamTokenizer(new FileReader(f));
 
 		try {
-			if (st.nextToken() == st.TT_NUMBER) {
+			if (st.nextToken() == StreamTokenizer.TT_NUMBER) {
 				particles = new ArrayList<Particle>((int) st.nval);
 
-				while (st.nextToken() == st.TT_WORD) {
+				while (st.nextToken() == StreamTokenizer.TT_WORD) {
 					String name = st.sval;
 					int x = getNumber(st);
 					int y = getNumber(st);
@@ -40,7 +40,7 @@ public class ConfigurationReader {
 	
 	private static int getNumber(StreamTokenizer st) throws IOException
 	{
-		if (st.nextToken() != st.TT_NUMBER)
+		if (st.nextToken() != StreamTokenizer.TT_NUMBER)
 			throw new IOException("wrong data format");
 		return (int) st.nval;
 	}
