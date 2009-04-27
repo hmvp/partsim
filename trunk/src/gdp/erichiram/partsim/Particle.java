@@ -86,4 +86,8 @@ public class Particle {
 	public long getThreadId() {
 		return threadId;
 	}
+	
+	public String toString() {
+		return name + "[" + x + ", " + y + "]";
+	}
 }
