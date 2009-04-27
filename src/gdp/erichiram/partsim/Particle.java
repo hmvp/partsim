@@ -15,7 +15,11 @@ public class Particle {
 		dx = (int) (Math.random() * (Main.rWidth * 2 - 1)) - Main.rWidth + 1;
 		dy = (int) (Math.random() * (Main.rHeight * 2 - 1)) - Main.rHeight + 1;
 		
-		name = (char) ('A' + Math.random() * 52);
+		if ( Math.random() > 0.5 ) {
+			name = (char) ('a' + Math.random() * 26);			
+		} else {
+			name = (char) ('A' + Math.random() * 26);
+		}
 	}
 	
 	public Particle(int x, int y, int dx, int dy, char name) {
