@@ -31,6 +31,8 @@ public class Gui implements Runnable, ActionListener {
 
 		canvas = new Canvas() {
 
+			private static final long serialVersionUID = 5772443503354772693L;
+
 			/**
 			 * @see java.awt.Canvas#paint(java.awt.Graphics)
 			 */
@@ -61,7 +63,6 @@ public class Gui implements Runnable, ActionListener {
 		initializeGui();
 	}
 
-	@Override
 	public void actionPerformed(ActionEvent e) {
 		canvas.repaint();
 	}
