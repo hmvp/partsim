@@ -1,6 +1,6 @@
 package gdp.erichiram.partsim;
 
-import java.util.ArrayDeque;
+import java.util.LinkedList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Queue;
@@ -9,16 +9,16 @@ public class SynchronizedQueue<T> implements Queue<T>{
 	private Queue<T> q;
 
 	public SynchronizedQueue() {
-		q = new ArrayDeque<T>();
+		q = new LinkedList<T>();
 	}
 	
 	public SynchronizedQueue(Collection<? extends T> c) {
-		q = new ArrayDeque<T>(c);
+		q = new LinkedList<T>(c);
 	}
 	
-	public SynchronizedQueue(int i) {
-		q = new ArrayDeque<T>(i);
-	}
+//	public SynchronizedQueue(int i) {
+//		q = new LinkedList<T>();
+//	}
 	
 	/**
 	 * @param arg0

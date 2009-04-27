@@ -1,6 +1,11 @@
 package gdp.erichiram.partsim;
 
+import gdp.erichiram.partsim.util.ConfigurationReader;
+
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Queue;
 
 public class Main {
@@ -51,16 +56,31 @@ public class Main {
 	{
 		gui = new Gui(this);
 		
+		// Load the particles.
+		q = new SynchronizedQueue<Particle>();		
+		
+		File file = new File("particles.txt");
+		try {
+			q.addAll(ConfigurationReader.readFile(file));
+		} catch (FileNotFoundException e) {
+			System.out.println("Het bestand 'particles.txt' kon niet worden gevonden.");
+			System.exit(1);
+		}
+		
+		// Fill the thread pool.
+//		pool = new HashSet<Thread>();
+//		pool.add(new Thread());
+		
 	}
 	
 	
 	public void runProgram(){
 		gui.start();
 		
-		for (Thread t : pool)
-		{
-			t.start();
-		}
+//		for (Thread t : pool)
+//		{
+//			t.start();
+//		}
 	}
 	
 	public static void main(String[] args){
