@@ -1,10 +1,12 @@
 package gdp.erichiram.partsim;
 
 import java.awt.Canvas;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Random;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -39,8 +41,9 @@ public class Gui implements Runnable, ActionListener {
 			@Override
 			public void paint(Graphics g) {
 				super.paint(g);
-				for (Particle p : m.getQ()) {
-					//System.out.println("Painting " + p);
+				for (Particle p : m.getQ()) {					
+					Random random = new Random(p.getThreadId());					
+					g.setColor(Color.getHSBColor(1.0f, random.nextFloat(), 1.0f));
 					g.fillRect(p.getX(), p.getY(), 2, 2);
 				}
 			}

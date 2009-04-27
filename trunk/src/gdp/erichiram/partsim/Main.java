@@ -62,27 +62,6 @@ public class Main {
 			System.exit(1);
 		}
 		
-		q.add(new Particle());
-		q.add(new Particle());
-		q.add(new Particle());
-		q.add(new Particle());
-		q.add(new Particle());
-		q.add(new Particle());
-		
-		q.add(new Particle());
-		q.add(new Particle());
-		q.add(new Particle());
-		q.add(new Particle());
-		q.add(new Particle());
-		q.add(new Particle());
-		
-		q.add(new Particle());
-		q.add(new Particle());
-		q.add(new Particle());
-		q.add(new Particle());
-		q.add(new Particle());
-		q.add(new Particle());
-		
 		// Fill the thread pool.
 		pool = new HashSet<Thread>();
 		pool.add(new Animation(this));
