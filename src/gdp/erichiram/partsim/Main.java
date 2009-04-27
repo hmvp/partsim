@@ -5,8 +5,9 @@ import gdp.erichiram.partsim.util.ConfigurationReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Queue;
+
+import javax.swing.SwingUtilities;
 
 public class Main {
 
@@ -41,11 +42,6 @@ public class Main {
 	private int t;
 	
 	/**
-	 * gui thread
-	 */
-	private Thread gui;
-	
-	/**
 	 * rectangle dimensions
 	 */
 	public static final int rWidth = 800;
@@ -53,9 +49,7 @@ public class Main {
 	
 	
 	public Main()
-	{
-		gui = new Gui(this);
-		
+	{		
 		// Load the particles.
 		q = new SynchronizedQueue<Particle>();		
 		
@@ -75,8 +69,8 @@ public class Main {
 	
 	
 	public void runProgram(){
-		gui.start();
-		
+		SwingUtilities.invokeLater(new Gui(this));
+
 //		for (Thread t : pool)
 //		{
 //			t.start();
