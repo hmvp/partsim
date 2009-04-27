@@ -8,6 +8,14 @@ public class Particle {
 	private int dy;
 	private char name;
 	
+	public Particle(int x, int y, int dx, int dy, char name) {
+		this.x = x;
+		this.y = y;
+		this.dx = dx;
+		this.dy = dy;
+		this.name = name;
+	}
+	
 	public Particle() {
 		x = (int) (Math.random() * Main.rWidth);
 		y = (int) (Math.random() * Main.rHeight);
@@ -22,13 +30,6 @@ public class Particle {
 		}
 	}
 	
-	public Particle(int x, int y, int dx, int dy, char name) {
-		this.x = x;
-		this.y = y;
-		this.dx = dx;
-		this.dy = dy;
-		this.name = name;
-	}
 	public int getX() {
 		return x;
 	}
