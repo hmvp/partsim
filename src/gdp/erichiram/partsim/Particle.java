@@ -8,12 +8,16 @@ public class Particle {
 	private int dy;
 	private char name;
 	
+	private long threadId;
+	
 	public Particle(int x, int y, int dx, int dy, char name) {
 		this.x = x;
 		this.y = y;
 		this.dx = dx;
 		this.dy = dy;
 		this.name = name;
+		
+		this.threadId = 0;
 	}
 	
 	public Particle() {
@@ -28,6 +32,15 @@ public class Particle {
 		} else {
 			name = (char) ('A' + Math.random() * 26);
 		}
+	}
+	
+	public void move() {
+		x += dx;
+		y += dy;
+		
+		// TODO bounce bounce code
+		
+		threadId = Thread.currentThread().getId();
 	}
 	
 	public int getX() {
@@ -68,5 +81,9 @@ public class Particle {
 
 	public void setName(char name) {
 		this.name = name;
+	}
+	
+	public long getThreadId() {
+		return threadId;
 	}
 }

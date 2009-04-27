@@ -68,4 +68,8 @@ public class Main {
 		m.runProgram();
 	}
 	
+	public Queue<Particle> getQ() {
+		return q;
+	}
+	
 }

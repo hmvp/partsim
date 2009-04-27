@@ -18,7 +18,12 @@ public class Gui extends Thread{
 	
 	public void run()
 	{
-		
+		while ( true ) {
+			for ( Particle p : m.getQ() ) {
+				p.getX();
+				p.getY();
+			}
+		}
 	}
 
 }
