@@ -40,9 +40,8 @@ public class Gui implements Runnable, ActionListener {
 			public void paint(Graphics g) {
 				super.paint(g);
 				for (Particle p : m.getQ()) {
-					System.out.println("Painting " + p);
-
-					g.drawRect(p.getX(), p.getY(), 2, 2);
+					//System.out.println("Painting " + p);
+					g.fillRect(p.getX(), p.getY(), 2, 2);
 				}
 			}
 

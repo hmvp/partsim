@@ -5,6 +5,7 @@ import gdp.erichiram.partsim.util.ConfigurationReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Queue;
 
 import javax.swing.SwingUtilities;
@@ -39,7 +40,7 @@ public class Main {
 	/**
 	 * time var to slow simulation down
 	 */
-	private int t;
+	private long t = 100;
 	
 	/**
 	 * rectangle dimensions
@@ -83,8 +84,11 @@ public class Main {
 		q.add(new Particle());
 		
 		// Fill the thread pool.
-//		pool = new HashSet<Thread>();
-//		pool.add(new Thread());
+		pool = new HashSet<Thread>();
+		pool.add(new Animation(this));
+		pool.add(new Animation(this));
+		pool.add(new Animation(this));
+
 		
 	}
 	
@@ -92,10 +96,10 @@ public class Main {
 	public void runProgram(){
 		SwingUtilities.invokeLater(new Gui(this));
 
-//		for (Thread t : pool)
-//		{
-//			t.start();
-//		}
+		for (Thread t : pool)
+		{
+			t.start();
+		}
 	}
 	
 	public static void main(String[] args){
@@ -105,6 +109,11 @@ public class Main {
 	
 	public Queue<Particle> getQ() {
 		return q;
+	}
+
+
+	public long getT() {
+		return t;
 	}
 	
 }
