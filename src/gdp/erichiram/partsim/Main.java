@@ -40,6 +40,12 @@ public class Main {
 	 */
 	private Thread gui;
 	
+	/**
+	 * rectangle dimensions
+	 */
+	public static final int rWidth = 800;
+	public static final int rHeight = 600;
+	
 	
 	public Main()
 	{
