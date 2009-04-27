@@ -39,6 +39,25 @@ public class Particle {
 		y += dy;
 		
 		// TODO bounce bounce code
+		if ( x < 0 ) {
+			x = -x;
+			dx = -dx;
+		}
+		
+		if ( y < 0 ) {
+			y = -y;
+			dy = -dy;
+		}
+		
+		if ( x > Main.rWidth ) {
+			x = Main.rWidth - (x - Main.rWidth); 
+			dx = -dx;
+		}
+		
+		if ( y > Main.rHeight ) {
+			y = Main.rHeight - (y - Main.rHeight);
+			dy = -dy;
+		}
 		
 		threadId = Thread.currentThread().getId();
 	}
