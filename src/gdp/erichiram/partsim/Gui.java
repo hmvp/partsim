@@ -109,6 +109,8 @@ public class Gui implements Runnable {
 				super.paint(g);
 				for (Particle p : m.getQ()) {
 					
+					// TODO Soms is p (particle) hier null... probleem met iterator!
+					
 					if ( colorMap.containsKey(p.getThreadId()) ) {
 						g.setColor(colorMap.get(p.getThreadId()));
 					} else {

@@ -8,6 +8,8 @@ public class Particle {
 	private int dy;
 	private final char name;
 	
+	private int round = 0;
+	
 	private long threadId;
 	
 	public Particle(int x, int y, int dx, int dy, char name) {
@@ -35,7 +37,7 @@ public class Particle {
 	}
 	
 	public void move() {
-		Main.debug("moving particle: "+ name);
+		Main.debug("moving particle: " + this);
 		
 		assert dx < Main.rWidth;
 		assert dy < Main.rHeight;
@@ -63,6 +65,8 @@ public class Particle {
 			y = Main.rHeight - (y - Main.rHeight);
 			dy = -dy;
 		}
+		
+		++round;
 		
 		threadId = Thread.currentThread().getId();
 	}
@@ -108,6 +112,6 @@ public class Particle {
 	}
 	
 	public String toString() {
-		return name + "[" + x + ", " + y + "]";
+		return name + "[" + x + ", " + y + "] ROUND=" + round;
 	}
 }
