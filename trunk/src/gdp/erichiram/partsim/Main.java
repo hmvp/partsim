@@ -23,7 +23,7 @@ public class Main {
 	/**
 	 * queue of particles waiting to be computed
 	 */
-	private Queue<Particle> q;
+	private LinkedBlockingQueue<Particle> q;
 	
 	/**
 	 * number of running threads
@@ -93,7 +93,7 @@ public class Main {
 		m.runProgram();
 	}
 	
-	public Queue<Particle> getQ() {
+	public LinkedBlockingQueue<Particle> getQ() {
 		return q;
 	}
 
