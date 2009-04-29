@@ -13,6 +13,7 @@ public class Animation extends Thread{
 			Particle current = m.getQ().poll();
 			if (current != null) {
 			current.move();
+			m.getQ().offer(current);
 			try {
 				sleep(m.getT());
 			} catch (InterruptedException ignore) {}}

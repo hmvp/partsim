@@ -35,10 +35,15 @@ public class Particle {
 	}
 	
 	public void move() {
+		System.out.println("moving particle: "+ name);
+		
+		assert dx < Main.rWidth;
+		assert dy < Main.rHeight;
+		
 		x += dx;
 		y += dy;
 		
-		// TODO bounce bounce code
+		
 		if ( x < 0 ) {
 			x = -x;
 			dx = -dx;
