@@ -7,7 +7,8 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Random;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -39,8 +40,6 @@ public class Gui implements Runnable {
 		panel.add(pMaxSpin);
 		panel.add(tSpin);
 
-		
-		
 		frame.add(canvas, BorderLayout.CENTER);
 		frame.add(panel,BorderLayout.LINE_START);
 
@@ -94,6 +93,8 @@ public class Gui implements Runnable {
 
 			private static final long serialVersionUID = 5772443503354772693L;
 
+			private Map<Long, Color> colorMap = new HashMap<Long, Color>();
+
 			{//Constructor
 				Timer timer = new Timer(Main.guiSpeed, new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
@@ -106,9 +107,16 @@ public class Gui implements Runnable {
 			@Override
 			public void paint(Graphics g) {
 				super.paint(g);
-				for (Particle p : m.getQ()) {					
-					Random random = new Random(p.getThreadId());					
-					g.setColor(Color.getHSBColor(1.0f, random.nextFloat(), 1.0f));
+				for (Particle p : m.getQ()) {
+					
+					if ( colorMap.containsKey(p.getThreadId()) ) {
+						g.setColor(colorMap.get(p.getThreadId()));
+					} else {
+						Color randomColor = new Color((float)Math.random(), (float)Math.random(), (float)Math.random());
+						colorMap.put(p.getThreadId(), randomColor);
+						g.setColor(randomColor);
+					}
+					
 					g.fillRect(p.getX(), p.getY(), 2, 2);
 				}
 			}
@@ -117,6 +125,9 @@ public class Gui implements Runnable {
 			
 
 		};
+		
+		canvas.setBackground(Color.BLACK);
+		
 		canvas.setPreferredSize(new Dimension(Main.rWidth, Main.rHeight));		
 		return canvas;
 	}
