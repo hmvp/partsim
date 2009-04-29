@@ -5,14 +5,22 @@ import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
+import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
+import javax.swing.JTextField;
+import javax.swing.SpinnerListModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.Timer;
 import javax.swing.event.ChangeEvent;
@@ -32,21 +40,110 @@ public class Gui implements Runnable {
 		frame = createFrame();
 
 		Canvas canvas = createCanvas();
-		JSpinner pMaxSpin = createPMaxSpinner();
-		JSpinner tSpin = createTSpinner();
-
+		JPanel p = new JPanel(new GridLayout(3,1));
+		JPanel pp = createParamPane();
+		JPanel ap = createAddPane();
+		JPanel rp = createRemovePane();
 		
-		JPanel panel = new JPanel();
-		panel.add(pMaxSpin);
-		panel.add(tSpin);
+		p.add(pp);
+		p.add(ap);
+		p.add(rp);
 
 		frame.add(canvas, BorderLayout.CENTER);
-		frame.add(panel,BorderLayout.LINE_START);
+		frame.add(p,BorderLayout.LINE_START);
 
 		// Display the window.
 		frame.pack();
 		frame.setVisible(true);
 	
+	}
+
+	private JPanel createRemovePane() {
+		JPanel p = new JPanel(); 
+		char[] array = {'a','b','c'};
+		final JSpinner name = new JSpinner(new SpinnerListModel(Arrays.asList(array)));
+		JButton remove = new JButton("Remove particle");
+		remove.addActionListener(new ActionListener(){
+
+			public void actionPerformed(ActionEvent e) {
+				Collection<Particle> set = new HashSet<Particle>();
+				for ( Particle p : m.getQ())
+				{
+					if(p.getName() == ((Character) name.getValue()))
+					{
+						set.add(p);
+					}
+				}
+				m.getQ().removeAll(set);
+			}
+			
+		});
+		p.add(remove);
+		p.add(name);
+		return p;
+	}
+
+	private JPanel createAddPane() {
+		JPanel p = new JPanel(); 
+		
+		final JSpinner xspin = new JSpinner(new SpinnerNumberModel(0,0,1000,1));
+		final JSpinner yspin = new JSpinner(new SpinnerNumberModel(0,0,1000,1));
+		final JSpinner dxspin = new JSpinner(new SpinnerNumberModel(0,0,1000,1));
+		final JSpinner dyspin = new JSpinner(new SpinnerNumberModel(0,0,1000,1));
+		final JTextField name = new JTextField("A",1);
+		JButton addnew = new JButton("Add new Particle");
+		addnew.addActionListener(new ActionListener(){
+
+			public void actionPerformed(ActionEvent e) {
+				m.getQ().add(new Particle(
+						((Number) xspin.getValue()).intValue(), 
+						((Number) yspin.getValue()).intValue(), 
+						((Number) dxspin.getValue()).intValue(), 
+						((Number) dyspin.getValue()).intValue(), 
+						( name.getText().charAt(0))
+				));
+			}
+			
+		});
+		
+		JButton addrand = new JButton("Add new random Particle");
+		addrand.addActionListener(new ActionListener(){
+
+			public void actionPerformed(ActionEvent e) {
+				m.getQ().add(new Particle());
+			}
+			
+		});
+
+		//p.getRootPane().setDefaultButton(addnew);		
+		p.add(xspin);
+		p.add(yspin);
+		p.add(dxspin);
+		p.add(dyspin);
+		p.add(name);
+		p.add(addnew);
+		p.add(addrand);
+
+
+		
+		
+		return p;
+	}
+
+	private JPanel createParamPane() {
+		JPanel panel = new JPanel(new GridLayout(2,2));
+		JPanel p = new JPanel();
+		p.add(panel);
+		
+		JSpinner pMaxSpin = createPMaxSpinner();
+		JSpinner tSpin = createTSpinner();
+		
+		panel.add(new JLabel("P"));
+		panel.add(pMaxSpin);
+		
+		panel.add(new JLabel("t"));
+		panel.add(tSpin);
+		return p;
 	}
 
 	private JSpinner createTSpinner() {
