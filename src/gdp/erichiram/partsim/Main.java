@@ -7,10 +7,13 @@ import java.io.FileNotFoundException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Queue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import javax.swing.SwingUtilities;
 
 public class Main {
+	
+
 
 	/**
 	 * max number of threads
@@ -47,12 +50,23 @@ public class Main {
 	 */
 	public static final int rWidth = 800;
 	public static final int rHeight = 600;
+	public static final int guiSpeed = 100 ;
+
 	
 	
 	public Main()
 	{		
+		q = new LinkedBlockingQueue<Particle>();		
+		pool = new HashSet<Thread>();
+
+		
+	}
+	
+	
+	public void runProgram(){
+		SwingUtilities.invokeLater(new Gui(this));
+		
 		// Load the particles.
-		q = new SynchronizedQueue<Particle>();		
 		
 		File file = new File("particles.txt");
 		try {
@@ -63,18 +77,11 @@ public class Main {
 		}
 		
 		// Fill the thread pool.
-		pool = new HashSet<Thread>();
 		pool.add(new Animation(this));
 		pool.add(new Animation(this));
 		pool.add(new Animation(this));
-
 		
-	}
-	
-	
-	public void runProgram(){
-		SwingUtilities.invokeLater(new Gui(this));
-
+		
 		for (Thread t : pool)
 		{
 			t.start();
@@ -93,6 +100,23 @@ public class Main {
 
 	public long getT() {
 		return t;
+	}
+
+
+	public void setPMax(int pMax) {
+		this.pMax = pMax;
+		debug("PMax changed to: "+ pMax);
+	}
+	
+	public static void debug(String message)
+	{
+		System.out.println(Thread.currentThread().getId()+":"+message);
+	}
+
+
+	public void setT(int t) {
+		this.t = t;
+		debug("T changed to: "+t);
 	}
 	
 }
