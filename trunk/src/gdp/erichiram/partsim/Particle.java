@@ -6,7 +6,7 @@ public class Particle {
 	private int y;
 	private int dx;
 	private int dy;
-	private char name;
+	private final char name;
 	
 	private long threadId;
 	
@@ -35,7 +35,7 @@ public class Particle {
 	}
 	
 	public void move() {
-		System.out.println("moving particle: "+ name);
+		Main.debug("moving particle: "+ name);
 		
 		assert dx < Main.rWidth;
 		assert dy < Main.rHeight;
@@ -101,10 +101,6 @@ public class Particle {
 
 	public char getName() {
 		return name;
-	}
-
-	public void setName(char name) {
-		this.name = name;
 	}
 	
 	public long getThreadId() {
