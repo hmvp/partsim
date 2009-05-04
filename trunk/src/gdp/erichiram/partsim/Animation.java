@@ -1,5 +1,8 @@
 package gdp.erichiram.partsim;
 
+import java.util.LinkedList;
+import java.util.Queue;
+
 public class Animation extends Thread {
 	private Main m;
 
@@ -11,29 +14,30 @@ public class Animation extends Thread {
 		while (true) {
 			Particle current = null;
 
-			// try {
+			// get a particle from the queue
 			current = m.getQ().poll();
-			// } catch (InterruptedException e) {
-			// System.err.println("Animation thread with id [" + getId() +
-			// "] was interrupted!");
-			// }
 
-			/*
-			 * TODO
-			 * Maintain a queue Q of N particles and let at the beginning of a
-			 * round each thread take k particles from Q. If the thread has done
-			 * the computation for the assigned particles, it puts them back
-			 * into Q, and if some particles must still be dealt with in this
-			 * round, the thread proceeds with at least one of them. Make sure
-			 * that all particles are dealt with in a given round.
-			 */
-
+			// check for empty queue
 			if (current != null) {
-				current.move();
+
+				// move a particle if it's in the current round
+				if ( m.getRound() == current.getRound() ) { // || (m.getRound() - 1) == current.getRound() ) {
+					current.move();
+				} else {
+					// let the main method know we're going to the next round,
+					// if all is well this happens once per round (TODO echhhttt???)
+					m.nextRound();
+				}
+
+				// whatever happens put the particle back into the queue
 				m.getQ().offer(current);
+				
+
+				// have some sleep
 				try {
 					sleep(m.getT());
 				} catch (InterruptedException ignore) {
+
 				}
 			}
 		}

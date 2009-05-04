@@ -51,8 +51,18 @@ public class Main {
 	public static final int rHeight = 600;
 	public static final int guiSpeed = 100 ;
 
+	/**
+	 * current executing round
+	 */
+	public static final int initialRound = 0;
+	private int round = initialRound;
 	
 	
+	public int getRound() {
+		return round;
+	}
+
+
 	public Main()
 	{		
 		q = new LinkedBlockingQueue<Particle>();		
@@ -116,6 +126,13 @@ public class Main {
 	public void setT(int t) {
 		this.t = t;
 		debug("T changed to: "+t);
+	}
+
+
+	public void nextRound() {
+		
+		++round;
+		debug("============== Round " + round + " ===================");
 	}
 	
 }

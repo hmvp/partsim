@@ -8,11 +8,11 @@ public class Particle {
 	private int dy;
 	private final char name;
 	
-	private int round = 0;
+	private int round;
 	
 	private long threadId;
 	
-	public Particle(int x, int y, int dx, int dy, char name) {
+	public Particle(int x, int y, int dx, int dy, char name, int round) {
 		this.x = x;
 		this.y = y;
 		this.dx = dx;
@@ -20,9 +20,10 @@ public class Particle {
 		this.name = name;
 		
 		this.threadId = 0;
+		this.round = round;
 	}
 	
-	public Particle() {
+	public Particle(int round) {
 		x = (int) (Math.random() * Main.rWidth);
 		y = (int) (Math.random() * Main.rHeight);
 
@@ -34,6 +35,9 @@ public class Particle {
 		} else {
 			name = (char) ('A' + Math.random() * 26);
 		}
+		
+		this.round = round;
+		
 	}
 	
 	public void move() {
@@ -113,5 +117,9 @@ public class Particle {
 	
 	public String toString() {
 		return name + "[" + x + ", " + y + "] ROUND=" + round;
+	}
+
+	public int getRound() {
+		return round;
 	}
 }

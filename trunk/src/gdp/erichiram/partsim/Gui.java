@@ -69,7 +69,9 @@ public class Gui implements Runnable {
 				Collection<Particle> set = new HashSet<Particle>();
 				for ( Particle p : m.getQ())
 				{
-					if(p.getName() == ((Character) name.getValue()))
+					
+					// TODO this never returns true because the String value is a memory addres
+					if(p.getName() == (name.getValue().toString()).charAt(0))
 					{
 						set.add(p);
 					}
@@ -95,12 +97,15 @@ public class Gui implements Runnable {
 		addnew.addActionListener(new ActionListener(){
 
 			public void actionPerformed(ActionEvent e) {
+
+				Main.debug("Adding parametrized particle!");
 				m.getQ().add(new Particle(
 						((Number) xspin.getValue()).intValue(), 
 						((Number) yspin.getValue()).intValue(), 
 						((Number) dxspin.getValue()).intValue(), 
 						((Number) dyspin.getValue()).intValue(), 
-						( name.getText().charAt(0))
+						(name.getText().charAt(0)),
+						m.getRound() + 1
 				));
 			}
 			
@@ -110,7 +115,8 @@ public class Gui implements Runnable {
 		addrand.addActionListener(new ActionListener(){
 
 			public void actionPerformed(ActionEvent e) {
-				m.getQ().add(new Particle());
+				Main.debug("Adding random particle!");
+				m.getQ().add(new Particle(m.getRound()+1));
 			}
 			
 		});
@@ -204,9 +210,11 @@ public class Gui implements Runnable {
 			@Override
 			public void paint(Graphics g) {
 				super.paint(g);
-				for (Particle p : m.getQ()) {
+				for (Object o : m.getQ().toArray()) {
 					
 					// TODO Soms is p (particle) hier null... probleem met iterator!
+					
+					Particle p = (Particle)o;
 					
 					if ( colorMap.containsKey(p.getThreadId()) ) {
 						g.setColor(colorMap.get(p.getThreadId()));

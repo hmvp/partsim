@@ -1,5 +1,6 @@
 package gdp.erichiram.partsim.util;
 
+import gdp.erichiram.partsim.Main;
 import gdp.erichiram.partsim.Particle;
 
 import java.io.File;
@@ -26,9 +27,9 @@ public class ConfigurationReader {
 					int y = getNumber(st);
 					int dx = getNumber(st);
 					int dy = getNumber(st);
-					
-					particles.add(new Particle(x,y,dx,dy,name.charAt(0)));
-					
+
+					Main.debug("Adding particle from file!");
+					particles.add(new Particle(x,y,dx,dy,name.charAt(0), Main.initialRound));
 				}
 			}
 		} catch (IOException e) {
