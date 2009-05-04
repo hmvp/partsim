@@ -226,6 +226,8 @@ public class Gui implements Runnable {
 					
 					g.fillRect(p.getX(), p.getY(), 2, 2);
 				}
+				g.setColor(Color.white);
+				g.drawString("p: "+String.valueOf(m.getP()), 1, 20);
 			}
 			
 

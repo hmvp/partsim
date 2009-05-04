@@ -5,13 +5,14 @@ import java.util.Queue;
 
 public class Animation extends Thread {
 	private Main m;
+	private boolean run = true;
 
 	public Animation(Main main) {
 		m = main;
 	}
 
 	public void run() {
-		while (true) {
+		while (run) {
 			Particle current = null;
 
 			// get a particle from the queue
@@ -41,5 +42,10 @@ public class Animation extends Thread {
 				}
 			}
 		}
+		m.getPool().removeThread(this);
+	}
+
+	public void finish() {
+		run = false;
 	}
 }

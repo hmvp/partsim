@@ -17,7 +17,7 @@ public class Main {
 	/**
 	 * max number of threads
 	 */
-	private int pMax;
+	private int pMax = 0;
 	
 	/**
 	 * queue of particles waiting to be computed
@@ -27,7 +27,7 @@ public class Main {
 	/**
 	 * number of running threads
 	 */
-	private int p;
+	private int p = 0;
 	
 	/**
 	 * number of particles
@@ -37,12 +37,12 @@ public class Main {
 	/**
 	 * collection of threads
 	 */
-	private Collection<Thread> pool;
+	private ThreadPool pool = new ThreadPool(this);
 	
 	/**
 	 * time var to slow simulation down
 	 */
-	private long t = 100;
+	private volatile long t = 0;
 	
 	/**
 	 * rectangle dimensions
@@ -66,9 +66,6 @@ public class Main {
 	public Main()
 	{		
 		q = new LinkedBlockingQueue<Particle>();		
-		pool = new HashSet<Thread>();
-
-		
 	}
 	
 	
@@ -85,16 +82,8 @@ public class Main {
 			System.exit(1);
 		}
 		
-		// Fill the thread pool.
-		pool.add(new Animation(this));
-		pool.add(new Animation(this));
-		pool.add(new Animation(this));
+		//setPMax(4);
 		
-		
-		for (Thread t : pool)
-		{
-			t.start();
-		}
 	}
 	
 	public static void main(String[] args){
@@ -111,10 +100,13 @@ public class Main {
 		return t;
 	}
 
+	public int getP()
+	{
+		return pool.size();
+	}
 
 	public void setPMax(int pMax) {
-		this.pMax = pMax;
-		debug("PMax changed to: "+ pMax);
+		pool.setPmax(pMax);
 	}
 	
 	public static void debug(String message)
@@ -133,6 +125,11 @@ public class Main {
 		
 		++round;
 		debug("============== Round " + round + " ===================");
+	}
+
+
+	public ThreadPool getPool() {
+		return pool;
 	}
 	
 }
