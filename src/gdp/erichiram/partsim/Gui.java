@@ -26,6 +26,8 @@ import javax.swing.Timer;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import com.sun.tools.javac.code.Attribute.Array;
+
 public class Gui implements Runnable {
 
 	private Main m;
@@ -60,7 +62,15 @@ public class Gui implements Runnable {
 
 	private JPanel createRemovePane() {
 		JPanel p = new JPanel(); 
-		char[] array = {'a','b','c'};
+		String[] array = new String[52];
+		for(char c = 'a'; c <= 'z'; ++c) {
+			array[c - 'a'] = String.valueOf(c);
+		}
+		for(char c = 'A'; c <= 'Z'; ++c) {
+			array[c - 'A' + 26] = String.valueOf(c);
+		}
+		System.out.println(Arrays.toString(array));
+		
 		final JSpinner name = new JSpinner(new SpinnerListModel(Arrays.asList(array)));
 		JButton remove = new JButton("Remove particle");
 		remove.addActionListener(new ActionListener(){
@@ -69,8 +79,6 @@ public class Gui implements Runnable {
 				Collection<Particle> set = new HashSet<Particle>();
 				for ( Particle p : m.getQ())
 				{
-					
-					// TODO this never returns true because the String value is a memory addres
 					if(p.getName() == (name.getValue().toString()).charAt(0))
 					{
 						set.add(p);
