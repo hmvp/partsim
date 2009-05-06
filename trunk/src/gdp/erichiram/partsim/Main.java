@@ -4,8 +4,6 @@ import gdp.erichiram.partsim.util.ConfigurationReader;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import javax.swing.SwingUtilities;
@@ -14,20 +12,12 @@ public class Main {
 	
 
 
-	/**
-	 * max number of threads
-	 */
-	private int pMax = 0;
+
 	
 	/**
 	 * queue of particles waiting to be computed
 	 */
 	private LinkedBlockingQueue<Particle> q;
-	
-	/**
-	 * number of running threads
-	 */
-	private int p = 0;
 	
 	/**
 	 * number of particles
