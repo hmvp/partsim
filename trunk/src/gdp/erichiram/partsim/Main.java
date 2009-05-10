@@ -4,6 +4,8 @@ import gdp.erichiram.partsim.util.ConfigurationReader;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import javax.swing.SwingUtilities;
@@ -66,7 +68,9 @@ public class Main {
 		
 		File file = new File("particles.txt");
 		try {
-			q.addAll(ConfigurationReader.readFile(file));
+			Collection<Particle> particles = ConfigurationReader.readFile(file);
+			n = particles.size();
+			q.addAll(particles);
 		} catch (FileNotFoundException e) {
 			System.out.println("Het bestand 'particles.txt' kon niet worden gevonden.");
 			System.exit(1);
@@ -111,15 +115,64 @@ public class Main {
 	}
 
 
+
+
+	/**
+	 * go to the next round if all particles are in the queue
+	 * (not currently being updated by a thread), wait otherwise
+	 */
 	public void nextRound() {
 		
-		++round;
-		debug("============== Round " + round + " ===================");
+		
+		if ( q.size() == n ) {
+			++round;
+			debug("============== Round " + round + " ===================");
+		} else {
+			debug("-------------- Just wait a bit! --------------------");
+		}
 	}
 
 
 	public ThreadPool getPool() {
 		return pool;
+	}
+	public boolean queueIsFilled() {
+		// the queue is "filled" when all particles are in it
+		Main.debug("q.size()="+q.size()+" n=" +n);
+		
+		return q.size() == n;
+	}
+	
+	
+	
+	/**
+	 * adds a particle object to the queue and increases n accordingly
+	 * @param particle the particle object to be added
+	 */
+	public void addParticle(Particle particle) {
+		q.add(particle);		
+		++n;
+	}
+
+
+	/**
+	 * removes all particles named name and decreases n accordingly
+	 * @param name the name of the particles to be removed
+	 */
+	public void removeParticles(char name) {
+		Collection<Particle> set = new HashSet<Particle>();
+		for ( Particle p : q)
+		{
+			if(p.getName() == name)
+			{
+				set.add(p);
+			}
+		}
+
+		n -= set.size();
+		
+		q.removeAll(set);
+		
 	}
 	
 }
