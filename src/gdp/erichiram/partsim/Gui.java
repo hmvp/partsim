@@ -26,8 +26,6 @@ import javax.swing.Timer;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import com.sun.tools.javac.code.Attribute.Array;
-
 public class Gui implements Runnable {
 
 	private Main m;
@@ -38,11 +36,10 @@ public class Gui implements Runnable {
 	}
 
 	private void initializeGui() {
-		// TODO Auto-generated method stub
 		frame = createFrame();
 
 		Canvas canvas = createCanvas();
-		JPanel p = new JPanel(new GridLayout(3,1));
+		JPanel p = new JPanel(new GridLayout(3, 1));
 		JPanel pp = createParamPane();
 		JPanel ap = createAddPane();
 		JPanel rp = createRemovePane();
@@ -220,8 +217,9 @@ public class Gui implements Runnable {
 				super.paint(g);
 				for (Object o : m.getQ().toArray()) {
 					
-					// TODO Soms is p (particle) hier null... probleem met iterator!
-					
+					// FIXME Toen Queue.toArray() nog niet werd gebruikt was p
+					// (particle) hier soms null. Misschien kan het toch mooier
+					// dan dit.
 					Particle p = (Particle)o;
 					
 					if ( colorMap.containsKey(p.getThreadId()) ) {
