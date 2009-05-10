@@ -1,8 +1,5 @@
 package gdp.erichiram.partsim;
 
-import java.util.LinkedList;
-import java.util.Queue;
-
 public class Animation extends Thread {
 	private Main m;
 	private boolean run = true;
@@ -15,23 +12,38 @@ public class Animation extends Thread {
 		while (run) {
 			Particle current = null;
 
-			// get a particle from the queue
-			current = m.getQ().poll();
+			// check the first particle in the queue
+			current = m.getQ().peek();
 
-			// check for empty queue
+			// check if it was there
 			if (current != null) {
 
 				// move a particle if it's in the current round
-				if ( m.getRound() == current.getRound() ) { // || (m.getRound() - 1) == current.getRound() ) {
-					current.move();
-				} else {
-					// let the main method know we're going to the next round,
-					// if all is well this happens once per round (TODO echhhttt???)
-					m.nextRound();
-				}
+				if ( m.getRound() == current.getRound() ) {
 
-				// whatever happens put the particle back into the queue
-				m.getQ().offer(current);
+					// get the particle from the queue
+					current = m.getQ().poll();
+					
+					// check if the queue has gone empty in the mean time
+					if ( current != null ) {
+						
+						// update the particle
+						current.move();
+					}
+
+					// put the particle back into the queue
+					m.getQ().offer(current);
+					
+				} else {
+					// if all particles have been put back into the queue
+					// let the main method know we're going to the next round
+					m.nextRound();
+					
+					// TODO there is a bug here where we go to the next round
+					// when the particles for the current round haven't been updated
+					// most likely when nextRound gets called multiple times from different threads
+					// within the same round => need synchronizing
+				}
 				
 
 				// have some sleep
@@ -40,6 +52,8 @@ public class Animation extends Thread {
 				} catch (InterruptedException ignore) {
 
 				}
+			} else {
+				Main.debug("Queue is empty when peeking!");
 			}
 		}
 		m.getPool().removeThread(this);

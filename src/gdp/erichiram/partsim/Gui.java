@@ -73,15 +73,8 @@ public class Gui implements Runnable {
 		remove.addActionListener(new ActionListener(){
 
 			public void actionPerformed(ActionEvent e) {
-				Collection<Particle> set = new HashSet<Particle>();
-				for ( Particle p : m.getQ())
-				{
-					if(p.getName() == (name.getValue().toString()).charAt(0))
-					{
-						set.add(p);
-					}
-				}
-				m.getQ().removeAll(set);
+				char myName = (name.getValue().toString()).charAt(0);
+				m.removeParticles(myName);
 			}
 			
 		});
@@ -104,7 +97,7 @@ public class Gui implements Runnable {
 			public void actionPerformed(ActionEvent e) {
 
 				Main.debug("Adding parametrized particle!");
-				m.getQ().add(new Particle(
+				m.addParticle(new Particle(
 						((Number) xspin.getValue()).intValue(), 
 						((Number) yspin.getValue()).intValue(), 
 						((Number) dxspin.getValue()).intValue(), 
@@ -121,7 +114,7 @@ public class Gui implements Runnable {
 
 			public void actionPerformed(ActionEvent e) {
 				Main.debug("Adding random particle!");
-				m.getQ().add(new Particle(m.getRound()+1));
+				m.addParticle(new Particle(m.getRound()+1));
 			}
 			
 		});
@@ -235,10 +228,6 @@ public class Gui implements Runnable {
 				g.setColor(Color.white);
 				g.drawString("p: "+String.valueOf(m.getP()), 1, 20);
 			}
-			
-
-			
-
 		};
 		
 		canvas.setBackground(Color.BLACK);
