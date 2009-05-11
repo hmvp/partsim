@@ -8,18 +8,18 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.StreamTokenizer;
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class ConfigurationReader {
 	public static Collection<Particle> readFile(File f)
 			throws FileNotFoundException {
-		Collection<Particle> particles = new ArrayList<Particle>(0);
+		Collection<Particle> particles = new LinkedBlockingQueue<Particle>();
 		StreamTokenizer st = new StreamTokenizer(new FileReader(f));
 
 		try {
 			if (st.nextToken() == StreamTokenizer.TT_NUMBER) {
-				particles = new ArrayList<Particle>((int) st.nval);
+				particles = new LinkedBlockingQueue<Particle>();
 
 				while (st.nextToken() == StreamTokenizer.TT_WORD) {
 					String name = st.sval;

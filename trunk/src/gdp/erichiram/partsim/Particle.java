@@ -11,6 +11,7 @@ public class Particle {
 	private int round;
 	
 	private long threadId;
+	private boolean dead = false;
 	
 	public Particle(int x, int y, int dx, int dy, char name, int round) {
 		this.x = x;
@@ -121,5 +122,13 @@ public class Particle {
 
 	public int getRound() {
 		return round;
+	}
+
+	public void die() {
+		dead = true;
+	}
+	public boolean process()
+	{
+		return !dead;
 	}
 }

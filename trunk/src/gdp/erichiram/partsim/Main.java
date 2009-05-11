@@ -5,7 +5,6 @@ import gdp.erichiram.partsim.util.ConfigurationReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import javax.swing.SwingUtilities;
@@ -25,6 +24,8 @@ public class Main {
 	 * number of particles
 	 */
 	private int n;
+	
+	private Collection<Particle> particles;
 	
 	/**
 	 * collection of threads
@@ -68,7 +69,7 @@ public class Main {
 		
 		File file = new File("particles.txt");
 		try {
-			Collection<Particle> particles = ConfigurationReader.readFile(file);
+			particles = ConfigurationReader.readFile(file);
 			n = particles.size();
 			q.addAll(particles);
 		} catch (FileNotFoundException e) {
@@ -149,9 +150,10 @@ public class Main {
 	 * adds a particle object to the queue and increases n accordingly
 	 * @param particle the particle object to be added
 	 */
-	public void addParticle(Particle particle) {
-		q.add(particle);		
-		++n;
+	public void addParticle(Particle particle){
+		q.offer(particle);
+		particles.add(particle);
+		n++;
 	}
 
 
@@ -159,20 +161,22 @@ public class Main {
 	 * removes all particles named name and decreases n accordingly
 	 * @param name the name of the particles to be removed
 	 */
-	public void removeParticles(char name) {
-		Collection<Particle> set = new HashSet<Particle>();
-		for ( Particle p : q)
+	public synchronized void removeParticles(char name) {
+		for ( Particle p : particles)
 		{
 			if(p.getName() == name)
 			{
-				set.add(p);
+				p.die();
+				particles.remove(p);
+				n--;
 			}
 		}
+	}
 
-		n -= set.size();
-		
-		q.removeAll(set);
-		
+
+
+	public  Collection<Particle> getParticles() {
+		return particles;
 	}
 	
 }
