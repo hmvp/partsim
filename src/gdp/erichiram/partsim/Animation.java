@@ -1,5 +1,6 @@
 package gdp.erichiram.partsim;
 
+
 public class Animation extends Thread {
 	private Main m;
 	private boolean run = true;
@@ -13,28 +14,31 @@ public class Animation extends Thread {
 			Particle current = null;
 
 			// check the first particle in the queue
-			current = m.getQ().peek();
+			current = m.getQ().poll();
 
 			// check if it was there
 			if (current != null) {
+				
+				//check if particle isn't already 'dead', ifso do nothing with it and go to next
+				if(!current.process())
+				{
+					continue;
+				}
 
 				// move a particle if it's in the current round
-				if ( m.getRound() == current.getRound() ) {
+				if ( m.getRound() >= current.getRound() ) {
 
-					// get the particle from the queue
-					current = m.getQ().poll();
-					
-					// check if the queue has gone empty in the mean time
-					if ( current != null ) {
-						
+			
 						// update the particle
 						current.move();
-					}
+						// put the particle back into the queue
+					
+	
 
-					// put the particle back into the queue
-					m.getQ().offer(current);
+						m.getQ().offer(current);
 					
 				} else {
+					m.getQ().offer(current);
 					// if all particles have been put back into the queue
 					// let the main method know we're going to the next round
 					m.nextRound();

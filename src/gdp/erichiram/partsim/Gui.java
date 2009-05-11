@@ -9,9 +9,7 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 
 import javax.swing.JButton;
@@ -19,7 +17,6 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
-import javax.swing.JTextField;
 import javax.swing.SpinnerListModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.Timer;
@@ -59,6 +56,25 @@ public class Gui implements Runnable {
 
 	private JPanel createRemovePane() {
 		JPanel p = new JPanel(); 
+		JButton remove = new JButton("Remove particle");
+		final JSpinner name = createNameSpinner();
+		
+		remove.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e) {
+				char myName = (name.getValue().toString()).charAt(0);
+				m.removeParticles(myName);
+			}
+			
+		});
+		
+		p.add(remove);
+		p.add(name);
+		
+		return p;
+	}
+	
+	private JSpinner createNameSpinner()
+	{
 		String[] array = new String[52];
 		for(char c = 'a'; c <= 'z'; ++c) {
 			array[c - 'a'] = String.valueOf(c);
@@ -68,41 +84,34 @@ public class Gui implements Runnable {
 		}
 		System.out.println(Arrays.toString(array));
 		
-		final JSpinner name = new JSpinner(new SpinnerListModel(Arrays.asList(array)));
-		JButton remove = new JButton("Remove particle");
-		remove.addActionListener(new ActionListener(){
-
-			public void actionPerformed(ActionEvent e) {
-				char myName = (name.getValue().toString()).charAt(0);
-				m.removeParticles(myName);
-			}
-			
-		});
-		p.add(remove);
-		p.add(name);
-		return p;
+		return new JSpinner(new SpinnerListModel(Arrays.asList(array)));
 	}
 
 	private JPanel createAddPane() {
-		JPanel p = new JPanel(); 
+		JPanel p = new JPanel();
+		p.setPreferredSize(new Dimension(200,100));
+		
+		JPanel p1 = new JPanel();
+		p1.setPreferredSize(new Dimension(200,200));
+
 		
 		final JSpinner xspin = new JSpinner(new SpinnerNumberModel(0,0,1000,1));
 		final JSpinner yspin = new JSpinner(new SpinnerNumberModel(0,0,1000,1));
 		final JSpinner dxspin = new JSpinner(new SpinnerNumberModel(0,0,1000,1));
 		final JSpinner dyspin = new JSpinner(new SpinnerNumberModel(0,0,1000,1));
-		final JTextField name = new JTextField("A",1);
+		final JSpinner name = createNameSpinner();
+		
 		JButton addnew = new JButton("Add new Particle");
 		addnew.addActionListener(new ActionListener(){
 
 			public void actionPerformed(ActionEvent e) {
-
 				Main.debug("Adding parametrized particle!");
 				m.addParticle(new Particle(
 						((Number) xspin.getValue()).intValue(), 
 						((Number) yspin.getValue()).intValue(), 
 						((Number) dxspin.getValue()).intValue(), 
 						((Number) dyspin.getValue()).intValue(), 
-						(name.getText().charAt(0)),
+						((String) name.getValue()).charAt(0),
 						m.getRound() + 1
 				));
 			}
@@ -120,12 +129,13 @@ public class Gui implements Runnable {
 		});
 
 		//p.getRootPane().setDefaultButton(addnew);		
-		p.add(xspin);
-		p.add(yspin);
-		p.add(dxspin);
-		p.add(dyspin);
-		p.add(name);
-		p.add(addnew);
+		p1.add(xspin);
+		p1.add(yspin);
+		p1.add(dxspin);
+		p1.add(dyspin);
+		p1.add(name);
+		p1.add(addnew);
+		p.add(p1);
 		p.add(addrand);
 
 
@@ -208,13 +218,7 @@ public class Gui implements Runnable {
 			@Override
 			public void paint(Graphics g) {
 				super.paint(g);
-				for (Object o : m.getQ().toArray()) {
-					
-					// FIXME Toen Queue.toArray() nog niet werd gebruikt was p
-					// (particle) hier soms null. Misschien kan het toch mooier
-					// dan dit.
-					Particle p = (Particle)o;
-					
+				for (Particle p : m.getParticles()) {
 					if ( colorMap.containsKey(p.getThreadId()) ) {
 						g.setColor(colorMap.get(p.getThreadId()));
 					} else {
@@ -227,6 +231,8 @@ public class Gui implements Runnable {
 				}
 				g.setColor(Color.white);
 				g.drawString("p: "+String.valueOf(m.getP()), 1, 20);
+				g.drawString("n: "+String.valueOf(m.getParticles().size()), 1, 35);
+				
 			}
 		};
 		
