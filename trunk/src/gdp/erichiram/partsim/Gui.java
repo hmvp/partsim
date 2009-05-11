@@ -89,10 +89,10 @@ public class Gui implements Runnable {
 
 	private JPanel createAddPane() {
 		JPanel p = new JPanel();
-		p.setPreferredSize(new Dimension(200,100));
+		p.setPreferredSize(new Dimension(200,150));
 		
 		JPanel p1 = new JPanel();
-		p1.setPreferredSize(new Dimension(200,200));
+		p1.setPreferredSize(new Dimension(200,100));
 
 		
 		final JSpinner xspin = new JSpinner(new SpinnerNumberModel(0,0,1000,1));
