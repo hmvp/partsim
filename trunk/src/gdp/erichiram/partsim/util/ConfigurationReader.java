@@ -17,6 +17,9 @@ public class ConfigurationReader {
 		Collection<Particle> particles = new LinkedBlockingQueue<Particle>();
 		StreamTokenizer st = new StreamTokenizer(new FileReader(f));
 
+		// TODO the number of particles in the particle file is ignored, but it
+		// should be used
+		
 		try {
 			if (st.nextToken() == StreamTokenizer.TT_NUMBER) {
 				particles = new LinkedBlockingQueue<Particle>();
