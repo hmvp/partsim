@@ -1,0 +1,59 @@
+19:moving particle: a[799, 0] ROUND=0
+19:============== Round 1 ===================
+19:moving particle: a[724, 455] ROUND=1
+RY=310
+19:============== Round 2 ===================
+19:moving particle: a[647, 290] ROUND=2
+19:============== Round 3 ===================
+19:moving particle: a[570, 165] ROUND=3
+RY=20
+19:============== Round 4 ===================
+19:moving particle: a[493, 580] ROUND=4
+19:============== Round 5 ===================
+19:moving particle: a[416, 125] ROUND=5
+19:============== Round 6 ===================
+19:moving particle: a[339, 580] ROUND=6
+RY=435
+19:============== Round 7 ===================
+19:moving particle: a[262, 165] ROUND=7
+19:============== Round 8 ===================
+19:moving particle: a[185, 290] ROUND=8
+RY=145
+19:============== Round 9 ===================
+19:moving particle: a[108, 455] ROUND=9
+19:============== Round 10 ===================
+19:moving particle: a[31, 0] ROUND=10
+RX=754
+19:============== Round 11 ===================
+19:moving particle: a[46, 455] ROUND=11
+RX=-677
+RY=310
+19:============== Round 12 ===================
+19:moving particle: a[123, 290] ROUND=12
+RX=-600
+19:============== Round 13 ===================
+19:moving particle: a[200, 165] ROUND=13
+RX=-523
+RY=20
+19:============== Round 14 ===================
+19:moving particle: a[277, 580] ROUND=14
+RX=-446
+19:============== Round 15 ===================
+19:moving particle: a[354, 125] ROUND=15
+RX=-369
+19:============== Round 16 ===================
+19:moving particle: a[431, 580] ROUND=16
+RX=-292
+RY=435
+19:============== Round 17 ===================
+19:moving particle: a[508, 165] ROUND=17
+RX=-215
+19:============== Round 18 ===================
+19:moving particle: a[585, 290] ROUND=18
+RX=-138
+RY=145
+19:============== Round 19 ===================
+19:moving particle: a[662, 455] ROUND=19
+RX=-61
+19:============== Round 20 ===================
+19:moving particle: a[739, 0] ROUND=20

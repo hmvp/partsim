@@ -238,7 +238,7 @@ public class Gui implements Runnable {
 		
 		canvas.setBackground(Color.BLACK);
 		
-		canvas.setPreferredSize(new Dimension(Main.rWidth, Main.rHeight));		
+		canvas.setPreferredSize(new Dimension(Main.width, Main.height));		
 		return canvas;
 	}
 
