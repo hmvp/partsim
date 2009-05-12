@@ -25,11 +25,11 @@ public class Particle {
 	}
 	
 	public Particle(int round) {
-		x = (int) (Math.random() * Main.rWidth);
-		y = (int) (Math.random() * Main.rHeight);
+		x = (int) (Math.random() * Main.width);
+		y = (int) (Math.random() * Main.height);
 
-		dx = (int) (Math.random() * (Main.rWidth * 2 - 1)) - Main.rWidth + 1;
-		dy = (int) (Math.random() * (Main.rHeight * 2 - 1)) - Main.rHeight + 1;
+		dx = (int) (Math.random() * (Main.width * 2 - 1)) - Main.width + 1;
+		dy = (int) (Math.random() * (Main.height * 2 - 1)) - Main.height + 1;
 		
 		if ( Math.random() > 0.5 ) {
 			name = (char) ('a' + Math.random() * 26);			
@@ -42,33 +42,34 @@ public class Particle {
 	}
 	
 	public void move() {
-		Main.debug("moving particle: " + this);
+		Main.debug("Moving particle " + this);
+
+		// change x and dx
+		x += dx;		
+		int rx = x % Main.width;				
+		int ax = (x - rx) / Main.width;
+		x = Math.abs(rx);
+		dx = Math.abs(dx);
 		
-		assert dx < Main.rWidth;
-		assert dy < Main.rHeight;
-		
-		x += dx;
+		if ( (ax & 1) == 1 ) {
+			x = Main.width - x;			
+			if ( dx > 0 ) {
+				dx = -dx;
+			}
+		}		
+
+		// change y and dy
 		y += dy;
+		int ry = y % Main.height;
+		int ay = (y - ry) / Main.height;
+		y = Math.abs(ry);
+		dy = Math.abs(dy);
 		
-		
-		if ( x < 0 ) {
-			x = -x;
-			dx = -dx;
-		}
-		
-		if ( y < 0 ) {
-			y = -y;
-			dy = -dy;
-		}
-		
-		if ( x > Main.rWidth ) {
-			x = Main.rWidth - (x - Main.rWidth); 
-			dx = -dx;
-		}
-		
-		if ( y > Main.rHeight ) {
-			y = Main.rHeight - (y - Main.rHeight);
-			dy = -dy;
+		if ( (ay & 1) == 1 ) {
+			y = Main.height - y;			
+			if ( dy > 0 ) {
+				dy = -dy;
+			}
 		}
 		
 		++round;
@@ -117,7 +118,7 @@ public class Particle {
 	}
 	
 	public String toString() {
-		return name + "[" + x + ", " + y + "] ROUND=" + round;
+		return "\""+ name + "\"@(" + x + "," + y + ")/" + round;
 	}
 
 	public int getRound() {

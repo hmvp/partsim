@@ -40,8 +40,8 @@ public class Main {
 	/**
 	 * rectangle dimensions
 	 */
-	public static final int rWidth = 800;
-	public static final int rHeight = 600;
+	public static final int width = 800;
+	public static final int height = 600;
 	public static final int guiSpeed = 100 ;
 
 	/**
@@ -106,7 +106,7 @@ public class Main {
 	
 	public static void debug(String message)
 	{
-		System.out.println(Thread.currentThread().getId()+":"+message);
+		System.out.println(Thread.currentThread().getId()+": "+message);
 	}
 
 
