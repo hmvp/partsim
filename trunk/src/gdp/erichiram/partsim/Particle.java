@@ -40,36 +40,38 @@ public class Particle {
 		this.round = round;
 		
 	}
-	
+		
 	public void move() {
 		Main.debug("Moving particle " + this);
 
 		// change x and dx
 		x += dx;		
+		
 		int rx = x % Main.width;				
 		int ax = (x - rx) / Main.width;
+		
 		x = Math.abs(rx);
 		dx = Math.abs(dx);
 		
+		// if ax is odd
 		if ( (ax & 1) == 1 ) {
-			x = Main.width - x;			
-			if ( dx > 0 ) {
-				dx = -dx;
-			}
-		}		
+			x = Main.width - x;
+			dx = -dx;
+		}
 
-		// change y and dy
+		// change y and dy (should be equivalent, mutatis mutandi to the code block above)
 		y += dy;
+		
 		int ry = y % Main.height;
 		int ay = (y - ry) / Main.height;
+		
 		y = Math.abs(ry);
 		dy = Math.abs(dy);
 		
+		// if ay is odd
 		if ( (ay & 1) == 1 ) {
 			y = Main.height - y;			
-			if ( dy > 0 ) {
-				dy = -dy;
-			}
+			dy = -dy;
 		}
 		
 		++round;

@@ -21,10 +21,8 @@ public class Main {
 	private LinkedBlockingQueue<Particle> q;
 	
 	/**
-	 * number of particles
-	 */
-	private int n;
-	
+	 * collection of particles
+	 */	
 	private Collection<Particle> particles;
 	
 	/**
@@ -70,7 +68,6 @@ public class Main {
 		File file = new File("particles.txt");
 		try {
 			particles = ConfigurationReader.readFile(file);
-			n = particles.size();
 			q.addAll(particles);
 		} catch (FileNotFoundException e) {
 			System.out.println("Het bestand 'particles.txt' kon niet worden gevonden.");
@@ -125,7 +122,7 @@ public class Main {
 	public void nextRound() {
 		
 		
-		if ( q.size() == n ) {
+		if ( q.size() == particles.size() ) {
 			++round;
 			debug("============== Round " + round + " ===================");
 		} else {
@@ -139,9 +136,9 @@ public class Main {
 	}
 	public boolean queueIsFilled() {
 		// the queue is "filled" when all particles are in it
-		Main.debug("q.size()="+q.size()+" n=" +n);
+		Main.debug("q.size()="+q.size()+" n=" +particles.size());
 		
-		return q.size() == n;
+		return q.size() == particles.size();
 	}
 	
 	
@@ -153,7 +150,6 @@ public class Main {
 	public void addParticle(Particle particle){
 		q.offer(particle);
 		particles.add(particle);
-		n++;
 	}
 
 
@@ -168,7 +164,6 @@ public class Main {
 			{
 				p.die();
 				particles.remove(p);
-				n--;
 			}
 		}
 	}
