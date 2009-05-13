@@ -21,11 +21,13 @@ public class Animation extends Thread {
 				if(p != null && p.process())
 				{
 					workingset.add(p);
+					Main.debug("got particle" + p);
 				}
 			}
 			
-			boolean nextround = false;
+			boolean nextround = workingset.isEmpty();
 			
+			int nextroundnr = 0;
 			// check the first particle in the queue
 			for(Particle current : workingset)
 			{
@@ -35,6 +37,7 @@ public class Animation extends Thread {
 					current.move();
 				} else {
 					nextround  = true;
+					nextroundnr = current.getRound();
 				}
 				
 				// have some sleep
@@ -44,8 +47,9 @@ public class Animation extends Thread {
 			}
 			
 			m.getQ().addAll(workingset);
+			Main.debug("done working on particles");
 			if(nextround)
-				m.nextRound();
+				m.nextRound(nextroundnr);
 		}
 		m.getPool().removeThread(this);
 	}
