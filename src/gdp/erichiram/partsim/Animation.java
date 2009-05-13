@@ -1,5 +1,8 @@
 package gdp.erichiram.partsim;
 
+import java.util.Collection;
+import java.util.LinkedList;
+
 
 public class Animation extends Thread {
 	private Main m;
@@ -11,54 +14,38 @@ public class Animation extends Thread {
 
 	public void run() {
 		while (run) {
-			Particle current = null;
-
-			// check the first particle in the queue
-			current = m.getQ().poll();
-
-			// check if it was there
-			if (current != null) {
-				
-				//check if particle isn't already 'dead', ifso do nothing with it and go to next
-				if(!current.process())
+			Collection<Particle> workingset = new LinkedList<Particle>();
+			for(int i = m.getK();i>0;i--)
+			{
+				Particle p = m.getQ().poll();
+				if(p != null && p.process())
 				{
-					continue;
+					workingset.add(p);
 				}
-
-				// move a particle if it's in the current round
-				if ( m.getRound() >= current.getRound() ) {
-
+			}
 			
+			boolean nextround = false;
+			
+			// check the first particle in the queue
+			for(Particle current : workingset)
+			{
+				// move a particle if it's in the current round
+				if ( m.getRound().isCurrentRound(current)) {
 						// update the particle
 						current.move();
-						// put the particle back into the queue
-					
-	
-
-						m.getQ().offer(current);
-					
 				} else {
-					m.getQ().offer(current);
-					// if all particles have been put back into the queue
-					// let the main method know we're going to the next round
-					m.nextRound();
-					
-					// TODO there is a bug here where we go to the next round
-					// when the particles for the current round haven't been updated
-					// most likely when nextRound gets called multiple times from different threads
-					// within the same round => need synchronizing
+					nextround  = true;
 				}
 				
-
 				// have some sleep
 				try {
 					sleep(m.getT());
-				} catch (InterruptedException ignore) {
-
-				}
-			} else {
-				Main.debug("Queue is empty when peeking!");
+				} catch (InterruptedException ignore) {}
 			}
+			
+			m.getQ().addAll(workingset);
+			if(nextround)
+				m.nextRound();
 		}
 		m.getPool().removeThread(this);
 	}

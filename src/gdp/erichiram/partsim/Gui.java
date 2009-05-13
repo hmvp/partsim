@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -89,10 +90,10 @@ public class Gui implements Runnable {
 
 	private JPanel createAddPane() {
 		JPanel p = new JPanel();
-		p.setPreferredSize(new Dimension(200,150));
+		p.setLayout(new BoxLayout(p,BoxLayout.Y_AXIS));
 		
 		JPanel p1 = new JPanel();
-		p1.setPreferredSize(new Dimension(200,100));
+		p1.setPreferredSize(new Dimension(100,100));
 
 		
 		final JSpinner xspin = new JSpinner(new SpinnerNumberModel(0,0,1000,1));
@@ -106,14 +107,14 @@ public class Gui implements Runnable {
 
 			public void actionPerformed(ActionEvent e) {
 				Main.debug("Adding parametrized particle!");
-				m.addParticle(new Particle(
+				m.addParticle(
 						((Number) xspin.getValue()).intValue(), 
 						((Number) yspin.getValue()).intValue(), 
 						((Number) dxspin.getValue()).intValue(), 
 						((Number) dyspin.getValue()).intValue(), 
-						((String) name.getValue()).charAt(0),
-						m.getRound() + 1
-				));
+						((String) name.getValue()).charAt(0)
+						
+				);
 			}
 			
 		});
@@ -123,7 +124,7 @@ public class Gui implements Runnable {
 
 			public void actionPerformed(ActionEvent e) {
 				Main.debug("Adding random particle!");
-				m.addParticle(new Particle(m.getRound()+1));
+				m.addRandomParticle();
 			}
 			
 		});
@@ -217,7 +218,6 @@ public class Gui implements Runnable {
 			
 			@Override
 			public void paint(Graphics g) {
-				super.paint(g);
 				for (Particle p : m.getParticles()) {
 					if ( colorMap.containsKey(p.getThreadId()) ) {
 						g.setColor(colorMap.get(p.getThreadId()));
