@@ -10,8 +10,12 @@ public class Round {
 		this.m = m;
 	}
 
-	public synchronized void nextRound() {
-		if ( m.getQ().size() == m.getParticles().size() ) {
+	public synchronized void nextRound(int nextroundnr) {
+		if(round == nextroundnr)
+		{
+			return;
+		}
+		if ( m.getQ().size() >= m.getParticles().size()) {
 			round = m.getQ().peek().getRound();
 			notifyAll();
 			Main.debug("================= Round " + round + " ====================");

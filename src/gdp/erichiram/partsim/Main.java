@@ -49,7 +49,7 @@ public class Main {
 	public static final int initialRound = 0;
 	private Round round = new Round(this);
 
-	private int k = 1;
+	private int k = 3;
 	
 	
 	public Round getRound() {
@@ -121,9 +121,10 @@ public class Main {
 	/**
 	 * go to the next round if all particles are in the queue
 	 * (not currently being updated by a thread), wait otherwise
+	 * @param nextroundnr 
 	 */
-	public void nextRound() {
-		round.nextRound();
+	public void nextRound(int nextroundnr) {
+		round.nextRound(nextroundnr);
 	}
 
 
