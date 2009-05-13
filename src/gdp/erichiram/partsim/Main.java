@@ -184,7 +184,6 @@ public class Main {
 
 
 	public int getK() {
-		// TODO Auto-generated method stub
 		return k ;
 	}
 	

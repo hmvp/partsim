@@ -17,13 +17,11 @@ public class ConfigurationReader {
 		Collection<Particle> particles = new LinkedBlockingQueue<Particle>();
 		StreamTokenizer st = new StreamTokenizer(new FileReader(f));
 
-		// TODO the number of particles in the particle file is ignored, but it
-		// should be used
-		
 		try {
 			if (st.nextToken() == StreamTokenizer.TT_NUMBER) {
 				particles = new LinkedBlockingQueue<Particle>();
-
+				int numParticles = (int)st.nval;
+				
 				while (st.nextToken() == StreamTokenizer.TT_WORD) {
 					String name = st.sval;
 					int x = getNumber(st);
@@ -34,6 +32,12 @@ public class ConfigurationReader {
 					Main.debug("Adding particle from file!");
 					particles.add(new Particle(x,y,dx,dy,name.charAt(0), Main.initialRound));
 				}
+				
+				if ( particles.size() != numParticles ) {
+					// TODO beter bericht
+					System.err.println("Number of particles in input file (" + particles.size() + ") doesn't match the specified number (" + numParticles + ").");
+				}
+				
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
