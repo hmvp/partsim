@@ -5,6 +5,7 @@ import gdp.erichiram.partsim.util.ConfigurationReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Collection;
+import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import javax.swing.SwingUtilities;
@@ -18,7 +19,7 @@ public class Main {
 	/**
 	 * queue of particles waiting to be computed
 	 */
-	private LinkedBlockingQueue<Particle> q;
+	private Queue<Particle> q;
 	
 	/**
 	 * collection of particles
@@ -85,7 +86,7 @@ public class Main {
 		m.runProgram();
 	}
 	
-	public LinkedBlockingQueue<Particle> getQ() {
+	public Queue<Particle> getQ() {
 		return q;
 	}
 
@@ -172,12 +173,12 @@ public class Main {
 
 	public void addParticle(int x, int y, int dx, int dy, char name)
 	{
-		addParticle(new Particle(x,y,dx,dy,name,round.getRoundNumber()));
+		addParticle(new Particle(x,y,dx,dy,name,round.getRoundNumber()+1));
 	}
 
 
 	public void addRandomParticle() {
-		addParticle(new Particle(round.getRoundNumber()));
+		addParticle(new Particle(round.getRoundNumber()+1));
 	}
 
 
