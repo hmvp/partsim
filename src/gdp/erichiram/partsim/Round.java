@@ -14,18 +14,13 @@ public class Round {
 		if ( m.getQ().size() == m.getParticles().size() ) {
 			round = m.getQ().peek().getRound();
 			notifyAll();
-			Main.debug("============== Round " + round + " ===================");
+			Main.debug("================= Round " + round + " ====================");
 		} else {
 			Main.debug("-------------- Just wait a bit! --------------------");
 			try {
 				wait();
 			} catch (InterruptedException e) {}
 		}
-	}
-
-	public boolean isCurrentRound(Particle p) {
-		// TODO Auto-generated method stub
-		return round == p.getRound();
 	}
 
 	public int getRoundNumber() {

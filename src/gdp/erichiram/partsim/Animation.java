@@ -30,9 +30,9 @@ public class Animation extends Thread {
 			for(Particle current : workingset)
 			{
 				// move a particle if it's in the current round
-				if ( m.getRound().isCurrentRound(current)) {
-						// update the particle
-						current.move();
+				if ( m.getRound().getRoundNumber() == current.getRound() ) {
+					// update the particle
+					current.move();
 				} else {
 					nextround  = true;
 				}
