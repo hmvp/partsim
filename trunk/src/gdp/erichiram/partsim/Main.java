@@ -46,10 +46,12 @@ public class Main {
 	 * current executing round
 	 */
 	public static final int initialRound = 0;
-	private int round = initialRound;
+	private Round round = new Round(this);
+
+	private int k = 1;
 	
 	
-	public int getRound() {
+	public Round getRound() {
 		return round;
 	}
 
@@ -120,14 +122,7 @@ public class Main {
 	 * (not currently being updated by a thread), wait otherwise
 	 */
 	public void nextRound() {
-		
-		
-		if ( q.size() == particles.size() ) {
-			++round;
-			debug("============== Round " + round + " ===================");
-		} else {
-			debug("-------------- Just wait a bit! --------------------");
-		}
+		round.nextRound();
 	}
 
 
@@ -172,6 +167,23 @@ public class Main {
 
 	public  Collection<Particle> getParticles() {
 		return particles;
+	}
+
+
+	public void addParticle(int x, int y, int dx, int dy, char name)
+	{
+		addParticle(new Particle(x,y,dx,dy,name,round.getRoundNumber()));
+	}
+
+
+	public void addRandomParticle() {
+		addParticle(new Particle(round.getRoundNumber()));
+	}
+
+
+	public int getK() {
+		// TODO Auto-generated method stub
+		return k ;
 	}
 	
 }
