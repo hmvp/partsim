@@ -28,11 +28,13 @@ public class Particle {
 		x = (int) (Math.random() * Main.width);
 		y = (int) (Math.random() * Main.height);
 
+		// minimum value = -799
+		// maximum value = 799
 		dx = (int) (Math.random() * (Main.width * 2 - 1)) - Main.width + 1;
 		dy = (int) (Math.random() * (Main.height * 2 - 1)) - Main.height + 1;
 		
 		if ( Math.random() > 0.5 ) {
-			name = (char) ('a' + Math.random() * 26);			
+			name = (char) ('a' + Math.random() * 26);
 		} else {
 			name = (char) ('A' + Math.random() * 26);
 		}
@@ -42,38 +44,44 @@ public class Particle {
 	}
 		
 	public void move() {
-		Main.debug("Moving particle " + this);
 
-		// change x and dx
+		Main.debug("Moving particle " + this);
+		
+		////// change x and dx
 		x += dx;		
 		
+		// get "remainder" of x (rx) and the "number of bounces" (nx) using %
 		int rx = x % Main.width;				
-		int ax = (x - rx) / Main.width;
+		int nx = (x - rx) / Main.width;
 		
 		x = Math.abs(rx);
 		dx = Math.abs(dx);
 		
 		// if ax is odd
-		if ( (ax & 1) == 1 ) {
-			x = Main.width - x;
+		if ( (nx & 1) == 1 ) {
+			// the direction is flipped and the position is mirrored
+			x = (Main.width - 1) - x;
 			dx = -dx;
 		}
 
-		// change y and dy (should be equivalent, mutatis mutandi to the code block above)
+		////// change y and dy
+		// (should be equivalent, mutatis mutandi, to the code block above)
 		y += dy;
 		
+		// get "remainder" of y (ry) and the "number of bounces" (ny) using % 
 		int ry = y % Main.height;
-		int ay = (y - ry) / Main.height;
+		int ny = (y - ry) / Main.height;
 		
 		y = Math.abs(ry);
 		dy = Math.abs(dy);
 		
 		// if ay is odd
-		if ( (ay & 1) == 1 ) {
-			y = Main.height - y;			
+		if ( (ny & 1) == 1 ) {
+			// the direction is flipped and the position is mirrored
+			y = (Main.height - 1) - y;			
 			dy = -dy;
 		}
-		
+	
 		++round;
 		
 		threadId = Thread.currentThread().getId();
