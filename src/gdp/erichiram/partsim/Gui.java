@@ -226,7 +226,8 @@ public class Gui implements Runnable {
 					if ( colorMap.containsKey(p.getThreadId()) ) {
 						g.setColor(colorMap.get(p.getThreadId()));
 					} else {
-						Color randomColor = new Color((float)Math.random(), (float)Math.random(), (float)Math.random());
+						Color randomColor = Color.getHSBColor((float)Math.random(), Math.min(1.0f, (float)Math.random() + 0.8f), Math.min(1.0f, (float)Math.random() + 0.8f));
+						
 						colorMap.put(p.getThreadId(), randomColor);
 						g.setColor(randomColor);
 					}
