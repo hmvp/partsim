@@ -30,9 +30,8 @@ import javax.swing.event.ChangeListener;
 
 public class Gui implements Runnable {
 
-	private Main main;
-	private JFrame frame;
-	private ThreadPool pool;
+	private final Main main;
+	private final ThreadPool pool;
 	
 	private final static int SpinnerMax = Integer.MAX_VALUE;
 	
@@ -42,7 +41,7 @@ public class Gui implements Runnable {
 	}
 
 	private void initializeGui() {
-		frame = createFrame();
+		JFrame frame = createFrame();
 
 		Canvas canvas = createCanvas();
 		JPanel p = new JPanel(new GridLayout(3, 1));

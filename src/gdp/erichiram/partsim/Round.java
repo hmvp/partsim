@@ -7,7 +7,7 @@ package gdp.erichiram.partsim;
 public class Round {
 	
 	private volatile int round = Main.initialRound;
-	private Main m;
+	private final Main m;
 	
 	public Round(Main m)
 	{

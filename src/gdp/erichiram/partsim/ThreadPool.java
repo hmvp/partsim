@@ -13,17 +13,17 @@ public class ThreadPool extends Thread {
 	/**
 	 * collection of animation threads
 	 */
-	private Collection<Animation> pool = new LinkedList<Animation>();
+	private final Collection<Animation> pool = new LinkedList<Animation>();
 	
 	/**
 	 * maximum number of animation threads in this pool
 	 */
-	private int pMax = 0;
+	private volatile int pMax = 0;
 
 	/**
 	 * reference to main program used to pass on to animation threads
 	 */
-	private Main main;
+	private final Main main;
 
 	/**
 	 * default constructor

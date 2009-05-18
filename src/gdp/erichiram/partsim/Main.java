@@ -22,17 +22,17 @@ public class Main {
 	/**
 	 * queue of particles waiting to be computed
 	 */
-	private Queue<Particle> q = new BlockingQueue<Particle>();
+	private final Queue<Particle> q = new BlockingQueue<Particle>();
 	
 	/**
 	 * collection of particles
 	 */	
-	private Collection<Particle> particles;
+	private final Collection<Particle> particles;
 	
 	/**
 	 * collection of threads
 	 */
-	private ThreadPool pool = new ThreadPool(this);
+	private final ThreadPool pool = new ThreadPool(this);
 	
 	/**
 	 * time var to slow simulation down
@@ -48,31 +48,29 @@ public class Main {
 	public static final int guiSpeed = 100 ;
 	public static final int k = 1;
 
-	/**
-	 * current executing round
-	 */
 	public static final int initialRound = 0;
+
+	private static final boolean DEBUG = false;
 	
 	
-	protected Round round = new Round(this);	
+	protected final Round round = new Round(this);	
 	
-	public Main(){
+	public Main(Collection<Particle> particles){
 		SwingUtilities.invokeLater(new Gui(this,pool));
-		
-		// Load the particles.
-		
-		File file = new File("particles.txt");
-		try {
-			particles = ConfigurationReader.readFile(file);
-			q.addAll(particles);
-		} catch (FileNotFoundException e) {
-			System.out.println("Het bestand 'particles.txt' kon niet worden gevonden.");
-			System.exit(1);
-		}		
+		this.particles = particles;
+		q.addAll(particles);
 	}
 	
 	public static void main(String[] args){
-		new Main();
+		
+		// Load the particles.
+		File file = new File("particles.txt");
+		try {
+			new Main(ConfigurationReader.readFile(file));
+		} catch (FileNotFoundException e) {
+			System.out.println("Het bestand 'particles.txt' kon niet worden gevonden.");
+			System.exit(1);
+		}	
 	}
 	
 	public Queue<Particle> getQ() {
@@ -134,6 +132,9 @@ public class Main {
 	
 	public static void debug(String message)
 	{
-		System.out.println(Thread.currentThread().getId()+": "+message);
+		if (DEBUG)
+		{
+			System.out.println(Thread.currentThread().getId()+": "+message);
+		}
 	}
 }
