@@ -10,7 +10,7 @@ import java.util.LinkedList;
 
 public class Animation extends Thread {
 	private Main main;
-	private boolean run = true;
+	private volatile boolean run = true;
 	private ThreadPool pool;
 	private Round round;
 
