@@ -151,6 +151,7 @@ public class Main {
 	public void addParticle(Particle particle){
 		q.offer(particle);
 		particles.add(particle);
+		pool.update();
 	}
 
 
