@@ -6,16 +6,16 @@ package gdp.erichiram.partsim;
 
 public class Particle {
 
-	private int x;
-	private int y;
-	private int dx;
-	private int dy;
+	private volatile int x;
+	private volatile int y;
+	private volatile int dx;
+	private volatile int dy;
 	private final char name;
 	
-	private int round;
+	private volatile int round;
 	
-	private long threadId;
-	private boolean dead = false;
+	private volatile long threadId;
+	private volatile boolean dead = false;
 	
 	public Particle(int x, int y, int dx, int dy, char name, int round) {
 		this.x = x;
@@ -47,7 +47,7 @@ public class Particle {
 		
 	}
 		
-	public void move() {
+	public synchronized void move() {
 
 		Main.debug("Moving particle " + this);
 		
@@ -127,7 +127,7 @@ public class Particle {
 		return name;
 	}
 	
-	public long getThreadId() {
+	public synchronized long getThreadId() {
 		return threadId;
 	}
 	

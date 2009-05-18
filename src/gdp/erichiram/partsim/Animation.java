@@ -9,19 +9,23 @@ import java.util.LinkedList;
 
 
 public class Animation extends Thread {
-	private Main m;
+	private Main main;
 	private boolean run = true;
+	private ThreadPool pool;
+	private Round round;
 
-	public Animation(Main main) {
-		m = main;
+	public Animation(Main main, ThreadPool pool) {
+		this.main = main;
+		this.pool = pool;
+		this.round = main.round;
 	}
 
 	public void run() {
 		while (run) {
 			Collection<Particle> workingset = new LinkedList<Particle>();
-			for(int i = m.getK();i>0;i--)
+			for(int i = Main.k;i>0;i--)
 			{
-				Particle p = m.getQ().poll();
+				Particle p = main.getQ().poll();
 				if(p != null && p.process())
 				{
 					workingset.add(p);
@@ -36,7 +40,7 @@ public class Animation extends Thread {
 			for(Particle current : workingset)
 			{
 				// move a particle if it's in the current round
-				if ( m.getRound().getRoundNumber() == current.getRound() ) {
+				if ( round.getRoundNumber() == current.getRound() ) {
 					// update the particle
 					current.move();
 				} else {
@@ -46,16 +50,16 @@ public class Animation extends Thread {
 				
 				// have some sleep
 				try {
-					sleep(m.getT());
+					sleep(main.getT());
 				} catch (InterruptedException ignore) {}
 			}
 			
-			m.getQ().addAll(workingset);
+			main.getQ().addAll(workingset);
 			Main.debug("done working on particles");
 			if(nextround)
-				m.nextRound(nextroundnr);
+				round.nextRound(nextroundnr);
 		}
-		m.getPool().removeThread(this);
+		pool.removeThread(this);
 	}
 
 	public void finish() {
