@@ -38,8 +38,7 @@ public class ConfigurationReader {
 				}
 				
 				if ( particles.size() != numParticles ) {
-					// TODO beter bericht
-					System.err.println("Number of particles in input file (" + particles.size() + ") doesn't match the specified number (" + numParticles + ").");
+					System.err.println("Number of particles found in input file (" + particles.size() + ") doesn't match specified number (" + numParticles + ").");
 				}
 				
 			}
