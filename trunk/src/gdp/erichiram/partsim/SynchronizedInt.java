@@ -1,3 +1,7 @@
+/**
+ * @author Hiram van Paassen, Eric Broersma
+ */
+
 package gdp.erichiram.partsim;
 
 public class SynchronizedInt {
