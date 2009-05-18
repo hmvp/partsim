@@ -6,7 +6,7 @@ package gdp.erichiram.partsim;
 
 public class Round {
 	
-	private int round;
+	private volatile int round = Main.initialRound;
 	private Main m;
 	
 	public Round(Main m)
@@ -14,6 +14,11 @@ public class Round {
 		this.m = m;
 	}
 
+	/**
+	 * go to the next round if all particles are in the queue
+	 * (not currently being updated by a thread), wait otherwise
+	 * @param nextroundnr 
+	 */
 	public synchronized void nextRound(int nextroundnr) {
 		if(round == nextroundnr)
 		{

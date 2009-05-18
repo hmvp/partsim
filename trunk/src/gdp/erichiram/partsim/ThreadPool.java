@@ -38,7 +38,7 @@ public class ThreadPool extends Thread {
 	 * set the maximum number of threads
 	 * @param i the maximum number of threads
 	 */
-	public synchronized void setPmax(int i) {
+	public synchronized void setPMax(int i) {
 		Main.debug("Pmax changed to:" + i);
 		pMax = i;
 		notify();
@@ -61,7 +61,7 @@ public class ThreadPool extends Thread {
 			} else {
 				Main.debug("update p, increase threads: " + order);
 				for (; order > 0 && pool.size() < main.getParticles().size(); order--) {
-					Animation a = new Animation(main);
+					Animation a = new Animation(main, this);
 					pool.add(a);
 					a.start();
 				}

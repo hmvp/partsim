@@ -30,11 +30,15 @@ import javax.swing.event.ChangeListener;
 
 public class Gui implements Runnable {
 
-	private Main m;
+	private Main main;
 	private JFrame frame;
-
-	public Gui(Main m) {
-		this.m = m;
+	private ThreadPool pool;
+	
+	private final static int SpinnerMax = Integer.MAX_VALUE;
+	
+	public Gui(Main main, ThreadPool pool) {
+		this.main = main;
+		this.pool = pool;
 	}
 
 	private void initializeGui() {
@@ -67,7 +71,7 @@ public class Gui implements Runnable {
 		remove.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
 				char myName = (name.getValue().toString()).charAt(0);
-				m.removeParticles(myName);
+				main.removeParticles(myName);
 			}
 			
 		});
@@ -100,10 +104,10 @@ public class Gui implements Runnable {
 		p1.setPreferredSize(new Dimension(100,100));
 
 		
-		final JSpinner xspin = new JSpinner(new SpinnerNumberModel(0,0,1000,1));
-		final JSpinner yspin = new JSpinner(new SpinnerNumberModel(0,0,1000,1));
-		final JSpinner dxspin = new JSpinner(new SpinnerNumberModel(0,0,1000,1));
-		final JSpinner dyspin = new JSpinner(new SpinnerNumberModel(0,0,1000,1));
+		final JSpinner xspin = new JSpinner(new SpinnerNumberModel(0,0,SpinnerMax,1));
+		final JSpinner yspin = new JSpinner(new SpinnerNumberModel(0,0,SpinnerMax,1));
+		final JSpinner dxspin = new JSpinner(new SpinnerNumberModel(0,0,SpinnerMax,1));
+		final JSpinner dyspin = new JSpinner(new SpinnerNumberModel(0,0,SpinnerMax,1));
 		final JSpinner name = createNameSpinner();
 		
 		JButton addnew = new JButton("Add new Particle");
@@ -111,7 +115,7 @@ public class Gui implements Runnable {
 
 			public void actionPerformed(ActionEvent e) {
 				Main.debug("Adding parametrized particle!");
-				m.addParticle(
+				main.addParticle(
 						((Number) xspin.getValue()).intValue(), 
 						((Number) yspin.getValue()).intValue(), 
 						((Number) dxspin.getValue()).intValue(), 
@@ -128,7 +132,7 @@ public class Gui implements Runnable {
 
 			public void actionPerformed(ActionEvent e) {
 				Main.debug("Adding random particle!");
-				m.addRandomParticle();
+				main.addParticle();
 			}
 			
 		});
@@ -166,13 +170,13 @@ public class Gui implements Runnable {
 	}
 
 	private JSpinner createTSpinner() {
-		final SpinnerNumberModel snm = new SpinnerNumberModel(0,0,1000,1);
+		final SpinnerNumberModel snm = new SpinnerNumberModel(0,0,SpinnerMax,1);
 		
 		JSpinner spin = new JSpinner(snm);
 		spin.addChangeListener(new ChangeListener(){
 
 			public void stateChanged(ChangeEvent e) {
-				m.setT(snm.getNumber().intValue());
+				main.setT(snm.getNumber().intValue());
 			}
 			
 		});
@@ -182,13 +186,13 @@ public class Gui implements Runnable {
 	}
 
 	private JSpinner createPMaxSpinner() {
-		final SpinnerNumberModel snm = new SpinnerNumberModel(0,0,1000,1);
+		final SpinnerNumberModel snm = new SpinnerNumberModel(0,0,SpinnerMax,1);
 		
 		JSpinner spin = new JSpinner(snm);
 		spin.addChangeListener(new ChangeListener(){
 
 			public void stateChanged(ChangeEvent e) {
-				m.setPMax(snm.getNumber().intValue());
+				pool.setPMax(snm.getNumber().intValue());
 			}
 			
 		});
@@ -222,7 +226,7 @@ public class Gui implements Runnable {
 			
 			@Override
 			public void paint(Graphics g) {
-				for (Particle p : m.getParticles()) {
+				for (Particle p : main.getParticles()) {
 					if ( colorMap.containsKey(p.getThreadId()) ) {
 						g.setColor(colorMap.get(p.getThreadId()));
 					} else {
@@ -235,8 +239,8 @@ public class Gui implements Runnable {
 					g.fillRect(p.getX(), p.getY(), 2, 2);
 				}
 				g.setColor(Color.white);
-				g.drawString("p: "+String.valueOf(m.getP()), 1, 20);
-				g.drawString("n: "+String.valueOf(m.getParticles().size()), 1, 35);
+				g.drawString("p: "+String.valueOf(pool.size()), 1, 20);
+				g.drawString("n: "+String.valueOf(main.getParticles().size()), 1, 35);
 				
 			}
 		};
