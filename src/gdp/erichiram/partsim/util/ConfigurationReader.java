@@ -4,6 +4,7 @@
 
 package gdp.erichiram.partsim.util;
 
+import gdp.erichiram.partsim.BlockingQueue;
 import gdp.erichiram.partsim.Main;
 import gdp.erichiram.partsim.Particle;
 
@@ -18,7 +19,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class ConfigurationReader {
 	public static Collection<Particle> readFile(File f)
 			throws FileNotFoundException {
-		Collection<Particle> particles = new LinkedBlockingQueue<Particle>();
+		Collection<Particle> particles = new BlockingQueue<Particle>();
 		StreamTokenizer st = new StreamTokenizer(new FileReader(f));
 
 		try {

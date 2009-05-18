@@ -23,7 +23,7 @@ public class Main {
 	/**
 	 * queue of particles waiting to be computed
 	 */
-	private Queue<Particle> q;
+	private Queue<Particle> q = new BlockingQueue<Particle>();
 	
 	/**
 	 * collection of particles
@@ -63,7 +63,7 @@ public class Main {
 
 	public Main()
 	{		
-		q = new LinkedBlockingQueue<Particle>();		
+			
 	}
 	
 	
