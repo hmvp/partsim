@@ -14,7 +14,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.StreamTokenizer;
 import java.util.Collection;
-import java.util.concurrent.LinkedBlockingQueue;
 
 public class ConfigurationReader {
 	public static Collection<Particle> readFile(File f)
@@ -24,7 +23,7 @@ public class ConfigurationReader {
 
 		try {
 			if (st.nextToken() == StreamTokenizer.TT_NUMBER) {
-				particles = new LinkedBlockingQueue<Particle>();
+				particles = new BlockingQueue<Particle>();
 				int numParticles = (int)st.nval;
 				
 				while (st.nextToken() == StreamTokenizer.TT_WORD) {

@@ -33,15 +33,28 @@ public class BlockingQueue<T> implements Queue<T> {
 		return q.peek();
 	}
 
+	public synchronized boolean add(T o) {
+		return offer(o);
+	}
+	
+
+	public synchronized Iterator<T> iterator() {
+		return q.iterator();
+	}
+	
+	public synchronized Object[] toArray() {
+		return q.toArray();
+	}
+
+	public synchronized <U> U[] toArray(U[] a) {
+		return q.toArray(a); 
+	}
+	
 	public T element() {
 		throw new UnsupportedOperationException();
 	}
 
 	public T remove() {
-		throw new UnsupportedOperationException();
-	}
-
-	public boolean add(T o) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -65,11 +78,6 @@ public class BlockingQueue<T> implements Queue<T> {
 		
 	}
 
-	public Iterator<T> iterator() {
-		throw new UnsupportedOperationException();
-		
-	}
-
 	public boolean remove(Object o) {
 		throw new UnsupportedOperationException();
 		
@@ -81,16 +89,6 @@ public class BlockingQueue<T> implements Queue<T> {
 	}
 
 	public boolean retainAll(Collection<?> c) {
-		throw new UnsupportedOperationException();
-		
-	}
-
-	public Object[] toArray() {
-		throw new UnsupportedOperationException();
-		
-	}
-
-	public <U> U[] toArray(U[] a) {
 		throw new UnsupportedOperationException();
 		
 	}
