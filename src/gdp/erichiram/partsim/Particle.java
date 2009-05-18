@@ -56,12 +56,14 @@ public class Particle {
 		
 		// get "remainder" of x (rx) and the "number of bounces" (nx) using %
 		int rx = x % Main.width;				
+		
+		// TODO this is probably borked when dx is negative and x > 0 at this point
 		int nx = (x - rx) / Main.width;
 		
 		x = Math.abs(rx);
 		dx = Math.abs(dx);
 		
-		// if ax is odd
+		// if nx is odd
 		if ( (nx & 1) == 1 ) {
 			// the direction is flipped and the position is mirrored
 			x = (Main.width - 1) - x;
@@ -79,7 +81,7 @@ public class Particle {
 		y = Math.abs(ry);
 		dy = Math.abs(dy);
 		
-		// if ay is odd
+		// if ny is odd
 		if ( (ny & 1) == 1 ) {
 			// the direction is flipped and the position is mirrored
 			y = (Main.height - 1) - y;			
