@@ -85,15 +85,19 @@ public class Gui implements Runnable {
 		});
 		
 		GridBagConstraints c = new GridBagConstraints();
-		c.gridy = c.gridx = 0;
+		c.gridy = 1;
+		c.gridx = 0;
 		
-		c.gridwidth++;
-		p.add(name,c);
-		c.gridwidth--;
+
 		c.gridy++;
 		p.add(remove,c);
 		c.gridx++;
 		p.add(nameSpin,c);
+		
+		c.gridy = 0;
+		c.gridwidth++;
+		c.insets = new Insets(0,0,10,0);
+		p.add(name,c);
 		
 		return p;
 	}
@@ -223,6 +227,10 @@ public class Gui implements Runnable {
 		JLabel tLabel = new JLabel("t");
 		tLabel.setLabelFor(tSpin);
 		
+		JSpinner kSpin = createKSpinner();
+		JLabel kLabel = new JLabel("k");
+		tLabel.setLabelFor(tSpin);
+		
 		JLabel name = new JLabel("Pas parameters aan");
 		
 		GridBagConstraints c = new GridBagConstraints();
@@ -240,6 +248,12 @@ public class Gui implements Runnable {
 		panel.add(tLabel,c);
 		c.gridx++;
 		panel.add(tSpin,c);
+		
+		c.gridy++;
+		c.gridx = 0;
+		panel.add(kLabel,c);
+		c.gridx++;
+		panel.add(kSpin,c);
 
 		c.gridwidth = 2;
 		c.gridy = 0;
@@ -262,6 +276,22 @@ public class Gui implements Runnable {
 		});
 		
 		spin.setToolTipText("Set the delay for the worker threads here.");
+		return spin;
+	}
+	
+	private JSpinner createKSpinner() {
+		final SpinnerNumberModel snm = new SpinnerNumberModel(0,0,SpinnerMax,1);
+		
+		JSpinner spin = new JSpinner(snm);
+		spin.addChangeListener(new ChangeListener(){
+
+			public void stateChanged(ChangeEvent e) {
+				main.setK(snm.getNumber().intValue());
+			}
+			
+		});
+		
+		spin.setToolTipText("Set the number of particles the worker threads get here.");
 		return spin;
 	}
 
