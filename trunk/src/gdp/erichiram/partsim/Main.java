@@ -59,6 +59,10 @@ public class Main {
 		SwingUtilities.invokeLater(new Gui(this,pool));
 		this.particles = particles;
 		q.addAll(particles);
+		
+		for ( int x = 0; x < Main.width; x++ )		
+			for ( int y = 0; y < Main.height; y++ )
+				addParticle(x, y, 0, 1,'a');
 	}
 	
 	public static void main(String[] args){
@@ -70,7 +74,7 @@ public class Main {
 		} catch (FileNotFoundException e) {
 			System.out.println("Het bestand 'particles.txt' kon niet worden gevonden.");
 			System.exit(1);
-		}	
+		}
 	}
 	
 	public Queue<Particle> getQ() {
