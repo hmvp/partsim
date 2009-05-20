@@ -42,7 +42,7 @@ public class Animation extends Thread {
 				// move a particle if it's in the current round
 				if ( round.getRoundNumber() == current.getRound() ) {
 					// update the particle
-					current.move();
+					current.stupidMove();
 				} else {
 					nextround  = true;
 					nextroundnr = current.getRound();

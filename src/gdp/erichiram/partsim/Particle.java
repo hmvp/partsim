@@ -28,6 +28,17 @@ public class Particle {
 		this.round = round;
 	}
 	
+	public Particle(Particle other) {
+		this.x = other.x;
+		this.y = other.y;
+		this.dx = other.dx;
+		this.dy = other.dy;
+		this.name = other.name;
+		
+		this.threadId = 0;
+		this.round = other.round;
+	}
+	
 	public Particle(int round) {
 		x = (int) (Math.random() * Main.width);
 		y = (int) (Math.random() * Main.height);
@@ -87,6 +98,51 @@ public class Particle {
 			y = (Main.height - 1) - y;			
 			dy = -dy;
 		}
+	
+		++round;
+		
+		threadId = Thread.currentThread().getId();
+	}
+	
+	public synchronized void stupidMove() {
+
+		Main.debug("sMoving particle " + this);
+		
+		////// change x and dx
+		int rdx = dx;
+		
+		do {
+			x += rdx;
+			
+			if ( x < 0 ) {
+				rdx = -x + 1;
+				x = -1;
+				dx = -dx;
+			} else if ( x >= Main.width ) {
+				rdx = - (x - (Main.width - 2));
+				x = Main.width;
+				dx = -dx;
+			}
+			
+		} while ( x < 0 || x >= Main.width );
+
+		////// change y and dy
+		int rdy = dy;
+		
+		do {
+			y += rdy;
+			
+			if ( y < 0 ) {
+				rdy = -y + 1;
+				y = -1;
+				dy = -dy;
+			} else if ( y >= Main.height ) {
+				rdy = - (y - (Main.height - 2));
+				y = Main.height;
+				dy = -dy;
+			}
+			
+		} while ( y < 0 || y >= Main.height );
 	
 		++round;
 		
