@@ -9,18 +9,19 @@ import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.GridLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.swing.BorderFactory;
 import javax.swing.Box;
-import javax.swing.BorderFactory; 
-import javax.swing.border.EtchedBorder;
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -28,6 +29,7 @@ import javax.swing.JSpinner;
 import javax.swing.SpinnerListModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.Timer;
+import javax.swing.border.EtchedBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -36,7 +38,7 @@ public class Gui implements Runnable {
 	private final Main main;
 	private final ThreadPool pool;
 	
-	private final static int SpinnerMax = Integer.MAX_VALUE;
+	private final static int SpinnerMax = 9999;
 	
 	public Gui(Main main, ThreadPool pool) {
 		this.main = main;
@@ -44,23 +46,7 @@ public class Gui implements Runnable {
 	}
 
 	private void initializeGui() {
-		JFrame frame = createFrame();
-
-		Canvas canvas = createCanvas();
-		JPanel p = new JPanel();
-		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-		JPanel pp = createParamPane();
-		JPanel ap = createAddPane();
-		JPanel rp = createRemovePane();
-		
-		p.add(pp);
-		p.add(ap);
-		p.add(rp);
-		p.add(Box.createVerticalGlue());
-		p.setPreferredSize(new Dimension(150,0));
-
-		frame.add(canvas, BorderLayout.CENTER);
-		frame.add(p,BorderLayout.LINE_START);
+		JFrame frame = createFrame();		
 
 		// Display the window.
 		frame.pack();
@@ -68,21 +54,46 @@ public class Gui implements Runnable {
 	
 	}
 
+	private JComponent createSidePane() {
+		JPanel x = new JPanel(new BorderLayout());
+		JComponent p = Box.createVerticalBox();
+		p.add(createParamPane());
+		p.add(Box.createVerticalGlue());
+		p.add(createAddPane());
+		p.add(Box.createVerticalGlue());
+		p.add(createRemovePane());
+		p.add(Box.createVerticalGlue());
+		x.add(p,BorderLayout.NORTH);
+		return x;
+	}
+
 	private JPanel createRemovePane() {
-		JPanel p = new JPanel(); 
+		JPanel p = new JPanel(new GridBagLayout()); 
+		p.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
+		
+		
+		JLabel name = new JLabel("Verwijder ŽŽn of meer particles");
 		JButton remove = new JButton("Remove particle");
-		final JSpinner name = createNameSpinner();
+		final JSpinner nameSpin = createNameSpinner();
 		
 		remove.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
-				char myName = (name.getValue().toString()).charAt(0);
+				char myName = (nameSpin.getValue().toString()).charAt(0);
 				main.removeParticles(myName);
 			}
 			
 		});
 		
-		p.add(remove);
-		p.add(name);
+		GridBagConstraints c = new GridBagConstraints();
+		c.gridy = c.gridx = 0;
+		
+		c.gridwidth++;
+		p.add(name,c);
+		c.gridwidth--;
+		c.gridy++;
+		p.add(remove,c);
+		c.gridx++;
+		p.add(nameSpin,c);
 		
 		return p;
 	}
@@ -90,23 +101,39 @@ public class Gui implements Runnable {
 	private JSpinner createNameSpinner()
 	{
 		String[] array = new String[52];
-		for(char c = 'a'; c <= 'z'; ++c) {
+		for(char c = 'a'; c <= 'z'; ++c)
+		{
 			array[c - 'a'] = String.valueOf(c);
 		}
-		for(char c = 'A'; c <= 'Z'; ++c) {
+		for(char c = 'A'; c <= 'Z'; ++c)
+		{
 			array[c - 'A' + 26] = String.valueOf(c);
 		}
-		
 		return new JSpinner(new SpinnerListModel(Arrays.asList(array)));
 	}
 
-	private JPanel createAddPane() {
+	private JComponent createAddPane() {
 		
-		final JSpinner xspin = new JSpinner(new SpinnerNumberModel(0,0,SpinnerMax,1));
-		final JSpinner yspin = new JSpinner(new SpinnerNumberModel(0,0,SpinnerMax,1));
-		final JSpinner dxspin = new JSpinner(new SpinnerNumberModel(0,0,SpinnerMax,1));
-		final JSpinner dyspin = new JSpinner(new SpinnerNumberModel(0,0,SpinnerMax,1));
-		final JSpinner name = createNameSpinner();
+
+		JLabel name = new JLabel("Voeg een particle toe");
+
+		final JSpinner xSpin = new JSpinner(new SpinnerNumberModel(0,0,SpinnerMax,1));
+		final JSpinner ySpin = new JSpinner(new SpinnerNumberModel(0,0,SpinnerMax,1));
+		final JSpinner dxSpin = new JSpinner(new SpinnerNumberModel(0,0,SpinnerMax,1));
+		final JSpinner dySpin = new JSpinner(new SpinnerNumberModel(0,0,SpinnerMax,1));
+		final JSpinner nameSpin = createNameSpinner();
+		
+		JLabel xLabel = new JLabel("X");
+		xLabel.setLabelFor(xSpin);
+		JLabel yLabel = new JLabel("Y");
+		yLabel.setLabelFor(ySpin);
+		JLabel dxLabel = new JLabel("dX");
+		dxLabel.setLabelFor(dxSpin);
+		JLabel dyLabel = new JLabel("dY");
+		dyLabel.setLabelFor(dySpin);
+		JLabel nameLabel = new JLabel("Name");
+		nameLabel.setLabelFor(nameSpin);
+
 		
 		JButton addnew = new JButton("Add new Particle");
 		addnew.addActionListener(new ActionListener(){
@@ -114,11 +141,11 @@ public class Gui implements Runnable {
 			public void actionPerformed(ActionEvent e) {
 				Main.debug("Adding parametrized particle!");
 				main.addParticle(
-						((Number) xspin.getValue()).intValue(), 
-						((Number) yspin.getValue()).intValue(), 
-						((Number) dxspin.getValue()).intValue(), 
-						((Number) dyspin.getValue()).intValue(), 
-						((String) name.getValue()).charAt(0)
+						((Number) xSpin.getValue()).intValue(), 
+						((Number) ySpin.getValue()).intValue(), 
+						((Number) dxSpin.getValue()).intValue(), 
+						((Number) dySpin.getValue()).intValue(), 
+						((String) nameSpin.getValue()).charAt(0)
 						
 				);
 			}
@@ -135,79 +162,89 @@ public class Gui implements Runnable {
 			
 		});
 		
-		JPanel p1 = new JPanel();
-		p1.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
-		p1.setLayout(new BoxLayout(p1, BoxLayout.Y_AXIS));
-		
-		JPanel xPanel = new JPanel();
-		JLabel xLabel = new JLabel("X");
-		xLabel.setLabelFor(dyspin);
-		xPanel.add(xLabel);
-		xPanel.add(xspin);
-		p1.add(xPanel);
-		
-		JPanel yPanel = new JPanel();
-		JLabel yLabel = new JLabel("Y");
-		yLabel.setLabelFor(dyspin);
-		yPanel.add(yLabel);
-		yPanel.add(yspin);
-		p1.add(yPanel);
-		
-		JPanel dXPanel = new JPanel();
-		JLabel dXLabel = new JLabel("dX");
-		dXLabel.setLabelFor(dyspin);
-		dXPanel.add(dXLabel);
-		dXPanel.add(dxspin);
-		p1.add(dXPanel);
-		
-		JPanel dYPanel = new JPanel();
-		JLabel dyLabel = new JLabel("dY");
-		dyLabel.setLabelFor(dyspin);
-		dYPanel.add(dyLabel);
-		dYPanel.add(dyspin);
-		p1.add(dYPanel);
-		
-		JPanel namePanel = new JPanel();
-		namePanel.add(new JLabel("Name"));
-		namePanel.add(name);
-		p1.add(namePanel);		
-		p1.add(addnew);
-		
-		JPanel p2 = new JPanel();
-		p2.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
-		p2.add(addrand);
-
-		JPanel p = new JPanel();
+		JPanel p = new JPanel(new GridBagLayout());
 		p.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
-		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-		p.add(p1);
-		p.add(p2);
+
+		GridBagConstraints c = new GridBagConstraints();
+		GridBagConstraints c1 = new GridBagConstraints();
+		c1.fill = GridBagConstraints.HORIZONTAL;
+		c1.gridx = 1;
+		c.gridx = 0;
+		c.gridy = c1.gridy = 1;
+		c.weightx = c1.weightx = 0.1;		
+
+		
+		
+		p.add(xLabel,c);
+		p.add(xSpin,c1);
+		
+		c1.gridy = ++c.gridy;
+		p.add(yLabel,c);
+		p.add(ySpin,c1);
+		
+		c1.gridy = ++c.gridy;
+		p.add(dxLabel,c);
+		p.add(dxSpin,c1);
+		
+		c1.gridy = ++c.gridy;
+		p.add(dyLabel,c);
+		p.add(dySpin,c1);
+		
+		c1.gridy = ++c.gridy;
+		p.add(nameLabel,c);
+		p.add(nameSpin,c1);
+		c.fill = GridBagConstraints.NONE;
+		
+		c.gridy++;
+		c.gridwidth = GridBagConstraints.REMAINDER;
+		p.add(addnew,c);
+
+		c.gridy++;
+		c.weighty = 0.5;
+		c.insets = new Insets(10,0,0,0);
+		p.add(addrand,c);
+		
+		c.gridy = 0;
+		c.insets = new Insets(0,0,10,0);
+		p.add(name,c);
 		
 		return p;
 	}
 
 	private JPanel createParamPane() {
-		JPanel panel = new JPanel();
-		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+		JPanel panel = new JPanel(new GridBagLayout());
 		panel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
 
-		JPanel pMaxSpinPanel = new JPanel();
 		JSpinner pMaxSpin = createPMaxSpinner();
 		JLabel pMaxLabel = new JLabel("P");
-		pMaxLabel.setLabelFor(pMaxSpin);		
-		pMaxSpinPanel.add(pMaxLabel);
-		pMaxSpinPanel.add(pMaxSpin);
-		panel.add(pMaxSpinPanel);
-
-		JPanel tSpinPanel = new JPanel();
+		pMaxLabel.setLabelFor(pMaxSpin);	
+		
 		JSpinner tSpin = createTSpinner();
 		JLabel tLabel = new JLabel("t");
 		tLabel.setLabelFor(tSpin);
-		tSpinPanel.add(tLabel);
-		tSpinPanel.add(tSpin);
-		panel.add(tSpinPanel);
+		
+		JLabel name = new JLabel("Pas parameters aan");
+		
+		GridBagConstraints c = new GridBagConstraints();
+		c.gridx = 0;
+		c.gridy = 1;
+		
 
-		panel.add(Box.createVerticalGlue());
+		
+		panel.add(pMaxLabel,c);
+		c.gridx++;
+		panel.add(pMaxSpin,c);	
+		
+		c.gridy++;
+		c.gridx = 0;
+		panel.add(tLabel,c);
+		c.gridx++;
+		panel.add(tSpin,c);
+
+		c.gridwidth = 2;
+		c.gridy = 0;
+		c.insets = new Insets(0,0,10,0);
+		panel.add(name,c);
 
 		return panel;
 	}
@@ -248,6 +285,9 @@ public class Gui implements Runnable {
 		JFrame frame = new JFrame();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setLayout(new BorderLayout());
+		
+		frame.add(createCanvas(), BorderLayout.CENTER);
+		frame.add(createSidePane(),BorderLayout.LINE_START);
 		return frame;
 	}
 
