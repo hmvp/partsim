@@ -23,7 +23,7 @@ public class Animation extends Thread {
 	public void run() {
 		while (run) {
 			Collection<Particle> workingset = new LinkedList<Particle>();
-			for(int i = Main.k;i>0;i--)
+			for(int i = main.getK();i>0;i--)
 			{
 				Particle p = main.getQ().poll();
 				if(p != null && p.process())
