@@ -96,7 +96,6 @@ public class Gui implements Runnable {
 		for(char c = 'A'; c <= 'Z'; ++c) {
 			array[c - 'A' + 26] = String.valueOf(c);
 		}
-		System.out.println(Arrays.toString(array));
 		
 		return new JSpinner(new SpinnerListModel(Arrays.asList(array)));
 	}
