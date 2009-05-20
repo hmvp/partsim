@@ -66,13 +66,14 @@ public class Particle {
 		x += dx;		
 		
 		// get "remainder" of x (rx) and the "number of bounces" (nx) using %
-		int rx = x % Main.width;				
+		int rx = x % (Main.width - 1);
+		int nx = (x - rx) / (Main.width - 1);
 		
-		// TODO this is probably borked when dx is negative and x > 0 at this point
-		int nx = (x - rx) / Main.width;
+		if ( x < 0 ) {
+			dx = Math.abs(dx);
+		}
 		
 		x = Math.abs(rx);
-		dx = Math.abs(dx);
 		
 		// if nx is odd
 		if ( (nx & 1) == 1 ) {
@@ -86,11 +87,14 @@ public class Particle {
 		y += dy;
 		
 		// get "remainder" of y (ry) and the "number of bounces" (ny) using % 
-		int ry = y % Main.height;
-		int ny = (y - ry) / Main.height;
+		int ry = y % (Main.height - 1);	
+		int ny = (y - ry) / (Main.height - 1);
+
+		if ( y < 0 ) {
+			dy = Math.abs(dy);
+		}
 		
 		y = Math.abs(ry);
-		dy = Math.abs(dy);
 		
 		// if ny is odd
 		if ( (ny & 1) == 1 ) {
@@ -149,6 +153,62 @@ public class Particle {
 		threadId = Thread.currentThread().getId();
 	}
 	
+	public synchronized void smartMove() {
+
+		Main.debug("Moving particle " + this);
+		
+		////// change x and dx
+		x += dx;		
+		
+		if ( x < 0 || x >= Main.width ) {
+			
+			// get "remainder" of x (rx) and the "number of bounces" (nx) using %
+			int rx = x % (Main.width - 1);
+			int nx = (x - rx) / (Main.width - 1);
+			
+			if ( x < 0 ) {
+				dx = Math.abs(dx);
+			}
+			
+			x = Math.abs(rx);
+			
+			// if nx is odd
+			if ( (nx & 1) == 1 ) {
+				// the direction is flipped and the position is mirrored
+				x = (Main.width - 1) - x;
+				dx = -dx;
+			}
+		}
+		
+		////// change y and dy
+		// (should be equivalent, mutatis mutandi, to the code block above)
+		y += dy;
+		
+		if ( y < 0 || y >= Main.height ) {
+				
+			// get "remainder" of y (ry) and the "number of bounces" (ny) using % 
+			int ry = y % (Main.height - 1);	
+			int ny = (y - ry) / (Main.height - 1);
+	
+			if ( y < 0 ) {
+				dy = Math.abs(dy);
+			}
+			
+			y = Math.abs(ry);
+			
+			// if ny is odd
+			if ( (ny & 1) == 1 ) {
+				// the direction is flipped and the position is mirrored
+				y = (Main.height - 1) - y;			
+				dy = -dy;
+			}
+		}
+	
+		++round;
+		
+		threadId = Thread.currentThread().getId();
+	}
+	
 	public int getX() {
 		return x;
 	}
@@ -190,7 +250,7 @@ public class Particle {
 	}
 	
 	public String toString() {
-		return "\""+ name + "\"@(" + x + "," + y + ")/" + round;
+		return "\""+ name + "\"@(" + x + "," + y + ")+(" + dx + "," + dy + ")/" + round;
 	}
 
 	public int getRound() {

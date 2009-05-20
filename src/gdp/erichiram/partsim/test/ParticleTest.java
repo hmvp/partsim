@@ -12,12 +12,12 @@ import org.junit.Test;
 
 
 public class ParticleTest {
-
-		
+	
+	
 	@Test
 	public void testRandomParticle() {
 		
-		for (int i = 0; i < 10000; i++ ) {
+		for (int i = 0; i < 100000; i++ ) {
 			Particle p = new Particle(i);
 			Assert.assertTrue(p.getDx() >= -799 && p.getDx() <= 799 );
 			Assert.assertTrue(p.getDy() >= -599 && p.getDy() <= 599 );
@@ -27,9 +27,9 @@ public class ParticleTest {
 	@Test
 	public void testParticleMove() {
 		
-		for (int i = 0; i < 1000; i++ ) {
+		for (int i = 0; i < 200; i++ ) {
 			Particle p = new Particle(i);
-			for ( int j = 0; j < 100; j++ ) {
+			for ( int j = 0; j < 10000; j++ ) {
 				p.move();
 				Assert.assertTrue(p.getX() >= 0 && p.getX() < 800 );
 				Assert.assertTrue(p.getY() >= 0 && p.getY() < 600 );
@@ -40,10 +40,23 @@ public class ParticleTest {
 	@Test
 	public void testParticleStupidMove() {
 		
-		for (int i = 0; i < 1000; i++ ) {
+		for (int i = 0; i < 200; i++ ) {
 			Particle p = new Particle(i);
-			for ( int j = 0; j < 100; j++ ) {
+			for ( int j = 0; j < 10000; j++ ) {
 				p.stupidMove();
+				Assert.assertTrue(p.getX() >= 0 && p.getX() < 800 );
+				Assert.assertTrue(p.getY() >= 0 && p.getY() < 600 );
+			}
+		}
+	}
+	
+	@Test
+	public void testParticleSmartMove() {
+		
+		for (int i = 0; i < 200; i++ ) {
+			Particle p = new Particle(i);
+			for ( int j = 0; j < 10000; j++ ) {
+				p.smartMove();
 				Assert.assertTrue(p.getX() >= 0 && p.getX() < 800 );
 				Assert.assertTrue(p.getY() >= 0 && p.getY() < 600 );
 			}
@@ -53,11 +66,11 @@ public class ParticleTest {
 	@Test
 	public void testParticleBigDMove() {
 		
-		for (int i = 0; i < 1000; i++ ) {
+		for (int i = 0; i < 200; i++ ) {
 			Particle p = new Particle(i);
 			p.setDx((int) (Math.random() * 10000 - 5000));
 			p.setDy((int) (Math.random() * 10000 - 5000));
-			for ( int j = 0; j < 100; j++ ) {
+			for ( int j = 0; j < 10000; j++ ) {
 				p.move();
 				Assert.assertTrue(p.getX() >= 0 && p.getX() < 800 );
 				Assert.assertTrue(p.getY() >= 0 && p.getY() < 600 );
@@ -68,12 +81,46 @@ public class ParticleTest {
 	@Test
 	public void testParticleBigDStupidMove() {
 		
-		for (int i = 0; i < 1000; i++ ) {
+		for (int i = 0; i < 200; i++ ) {
 			Particle p = new Particle(i);
 			p.setDx((int) (Math.random() * 10000 - 5000));
 			p.setDy((int) (Math.random() * 10000 - 5000));
-			for ( int j = 0; j < 100; j++ ) {
+			for ( int j = 0; j < 10000; j++ ) {
 				p.stupidMove();
+				Assert.assertTrue(p.getX() >= 0 && p.getX() < 800 );
+				Assert.assertTrue(p.getY() >= 0 && p.getY() < 600 );
+			}
+		}
+	}
+	
+	@Test
+	public void testParticleBigDCombiMove() {
+		
+		for (int i = 0; i < 200; i++ ) {
+			Particle p = new Particle(i);
+			p.setDx((int) (Math.random() * 10000 - 5000));
+			p.setDy((int) (Math.random() * 10000 - 5000));
+			for ( int j = 0; j < 10000; j++ ) {
+				if ( Math.abs(p.getDx()) + Math.abs(p.getDy()) > 800  ) {
+					p.move();
+				} else {
+					p.stupidMove();
+				}
+				Assert.assertTrue(p.getX() >= 0 && p.getX() < 800 );
+				Assert.assertTrue(p.getY() >= 0 && p.getY() < 600 );
+			}
+		}
+	}
+	
+	@Test
+	public void testParticleBigDSmartMove() {
+		
+		for (int i = 0; i < 200; i++ ) {
+			Particle p = new Particle(i);
+			p.setDx((int) (Math.random() * 10000 - 5000));
+			p.setDy((int) (Math.random() * 10000 - 5000));
+			for ( int j = 0; j < 10000; j++ ) {
+				p.smartMove();
 				Assert.assertTrue(p.getX() >= 0 && p.getX() < 800 );
 				Assert.assertTrue(p.getY() >= 0 && p.getY() < 600 );
 			}
@@ -176,9 +223,26 @@ public class ParticleTest {
 			p.setDx((int) (Math.random() * 10000 - 5000));
 			p.setDy((int) (Math.random() * 10000 - 5000));
 			Particle q = new Particle(p);
-			for ( int j = 0; j < 100; j++ ) {
+			for ( int j = 0; j < 1000; j++ ) {
 				p.stupidMove();
 				q.move();
+				Assert.assertEquals(p.getX(), q.getX());
+				Assert.assertEquals(p.getY(), q.getY());
+			}
+		}
+	}
+	
+	@Test
+	public void testParticleStupidMoveVsSmartMove() {
+				
+		for (int i = 0; i < 1000; i++ ) {
+			Particle p = new Particle(i);
+			p.setDx((int) (Math.random() * 10000 - 5000));
+			p.setDy((int) (Math.random() * 10000 - 5000));
+			Particle q = new Particle(p);
+			for ( int j = 0; j < 1000; j++ ) {
+				p.stupidMove();
+				q.smartMove();
 				Assert.assertEquals(p.getX(), q.getX());
 				Assert.assertEquals(p.getY(), q.getY());
 			}
