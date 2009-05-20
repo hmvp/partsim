@@ -38,7 +38,9 @@ public class Main {
 	 * time var to slow simulation down
 	 */
 	private volatile int t = 0;
-	
+	public volatile int k = 1;
+
+
 	/**
 	 * rectangle dimensions
 	 */
@@ -46,7 +48,6 @@ public class Main {
 	public static final int height = 600;
 	
 	public static final int guiSpeed = 100 ;
-	public static final int k = 1;
 
 	public static final int initialRound = 0;
 
@@ -59,10 +60,6 @@ public class Main {
 		SwingUtilities.invokeLater(new Gui(this,pool));
 		this.particles = particles;
 		q.addAll(particles);
-		
-		for ( int x = 0; x < Main.width; x++ )		
-			for ( int y = 0; y < Main.height; y++ )
-				addParticle(x, y, 0, 1,'a');
 	}
 	
 	public static void main(String[] args){
@@ -74,7 +71,7 @@ public class Main {
 		} catch (FileNotFoundException e) {
 			System.out.println("Het bestand 'particles.txt' kon niet worden gevonden.");
 			System.exit(1);
-		}
+		}	
 	}
 	
 	public Queue<Particle> getQ() {
@@ -96,6 +93,20 @@ public class Main {
 		return t;
 	}
 
+	/**
+	 * @return the k
+	 */
+	public int getK() {
+		return k;
+	}
+
+	/**
+	 * @param k the k to set
+	 */
+	public void setK(int k) {
+		this.k = k;
+	}
+	
 	
 	/**
 	 * adds a particle object to the queue and increases n accordingly
