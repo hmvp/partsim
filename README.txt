@@ -67,7 +67,7 @@ Hieronder volgt een beschrijving van de globale structuur van het programma.
 
 gdp.erichiram.partsim:
 	Main		- Entry-punt van het programma; start ConfigurationReader, BlockingQueue, Gui en ThreadPool.
-	ThreadPool	- Start of beëindigt Animation-threads op basis van P (het maximum aantal threads). 
+	ThreadPool	- Start of beï¿½indigt Animation-threads op basis van P (het maximum aantal threads). 
 	Gui			- Geeft het venster met het menu en het uitvoerpaneel weer en tekent de deeltjes.
 	Animation	- Een subklasse van Thread, verplaatst elke ronde k deeltjes uit de queue en alle deeltjes die daarna nog overblijven.   
 	Round		- Houdt gesynchroniseerd de huidige ronde bij zodat Animation-threads synchroon lopen.
@@ -90,7 +90,7 @@ The queue is added by the
 3.x
 NotifyAll
 
-We gebruiken ŽŽn keer in het programma notifyAll, dat is omdat op het moment dat die aangroepen wordt alle min ŽŽn Animation threads aan het wachten zijn tot de volgende ronde begint. De laatste thread start de nieuwe rond en maakt alle threads weer wakker. Dit zorgt ervoor dat threads niet onnodig resources innemen als er niet meer te doen valt.
+We gebruiken Ã©Ã©n keer in het programma notifyAll, dat is omdat op het moment dat die aangroepen wordt alle min Ã©Ã©n Animation threads aan het wachten zijn tot de volgende ronde begint. De laatste thread start de nieuwe rond en maakt alle threads weer wakker. Dit zorgt ervoor dat threads niet onnodig resources innemen als er niet meer te doen valt.
 
 
 "Even better: give arguments why your program is correct, using the techniques taught in the lectures."
