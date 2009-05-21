@@ -11,6 +11,7 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Image;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -46,7 +47,7 @@ public class Gui implements Runnable {
 	}
 
 	private void initializeGui() {
-		JFrame frame = createFrame();		
+		JFrame frame = createFrame();	
 
 		// Display the window.
 		frame.pack();
@@ -94,8 +95,8 @@ public class Gui implements Runnable {
 		c.gridx++;
 		p.add(nameSpin,c);
 		
-		c.gridy = 0;
-		c.gridwidth++;
+		c.gridy = c.gridx = 0;
+		c.gridwidth = 2;
 		c.insets = new Insets(0,0,10,0);
 		p.add(name,c);
 		
@@ -121,8 +122,8 @@ public class Gui implements Runnable {
 
 		JLabel name = new JLabel("Voeg een particle toe");
 
-		final JSpinner xSpin = new JSpinner(new SpinnerNumberModel(0,0,SpinnerMax,1));
-		final JSpinner ySpin = new JSpinner(new SpinnerNumberModel(0,0,SpinnerMax,1));
+		final JSpinner xSpin = new JSpinner(new SpinnerNumberModel(0,0,Main.width-1,1));
+		final JSpinner ySpin = new JSpinner(new SpinnerNumberModel(0,0,Main.height-1,1));
 		final JSpinner dxSpin = new JSpinner(new SpinnerNumberModel(0,0,SpinnerMax,1));
 		final JSpinner dySpin = new JSpinner(new SpinnerNumberModel(0,0,SpinnerMax,1));
 		final JSpinner nameSpin = createNameSpinner();
@@ -328,7 +329,11 @@ public class Gui implements Runnable {
 
 			private Map<Long, Color> colorMap = new HashMap<Long, Color>();
 
-			{//Constructor
+			private Image offscreenImage;
+			private Graphics offscreenGraphics;
+
+
+			{//Constructor				
 				Timer timer = new Timer(Main.guiSpeed, new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 						repaint();
@@ -339,22 +344,32 @@ public class Gui implements Runnable {
 			
 			@Override
 			public void paint(Graphics g) {
+				if(offscreenImage == null)
+				{
+					offscreenImage = createImage(getSize().width, getSize().height);
+					
+				}
+				offscreenGraphics = offscreenImage.getGraphics();
+				
+				
 				for (Particle p : main.getParticles()) {
 					if ( colorMap.containsKey(p.getThreadId()) ) {
-						g.setColor(colorMap.get(p.getThreadId()));
+						offscreenGraphics.setColor(colorMap.get(p.getThreadId()));
 					} else {
 						Color randomColor = Color.getHSBColor((float)Math.random(), Math.min(1.0f, (float)Math.random() + 0.8f), Math.min(1.0f, (float)Math.random() + 0.8f));
 						
 						colorMap.put(p.getThreadId(), randomColor);
-						g.setColor(randomColor);
+						offscreenGraphics.setColor(randomColor);
 					}
 					
-					g.fillRect(p.getX(), p.getY(), 2, 2);
+					offscreenGraphics.fillRect(p.getX(), p.getY(), 2, 2);
 				}
-				g.setColor(Color.white);
-				g.drawString("p: "+String.valueOf(pool.size()), 1, 20);
-				g.drawString("n: "+String.valueOf(main.getParticles().size()), 1, 35);
-				
+				offscreenGraphics.setColor(Color.WHITE);
+				offscreenGraphics.drawString("p: "+String.valueOf(pool.size()), 1, 20);
+				offscreenGraphics.drawString("n: "+String.valueOf(main.getParticles().size()), 1, 35);
+				g.drawImage(offscreenImage, 0, 0, this);
+				offscreenGraphics.setColor(Color.BLACK);
+				offscreenGraphics.fillRect(0, 0, getSize().width, getSize().height);
 			}
 		};
 		
