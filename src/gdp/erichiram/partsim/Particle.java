@@ -4,6 +4,14 @@
 
 package gdp.erichiram.partsim;
 
+
+/**
+ * Particle is the class that represents a particle in the simulation.
+ * it is very simple. 
+ * It can be accessed concurrently by the animation threads that move it
+ * and by the Gui for rendering.
+ *
+ */
 public class Particle {
 
 	/**
