@@ -4,6 +4,7 @@
 
 package gdp.erichiram.partsim;
 
+import gdp.erichiram.partsim.util.BlockingQueue;
 import gdp.erichiram.partsim.util.ConfigurationReader;
 
 import java.io.File;

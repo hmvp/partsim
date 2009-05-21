@@ -63,21 +63,19 @@ De kleur van een deeltje wordt bepaald door het ID van de thread dat het deeltje
 
 2. GLOBALE STRUCTUUR VAN HET PROGRAMMA
 
-"Description of the global structure of the program."
+Hieronder volgt een beschrijving van de globale structuur van het programma.
 
-partsim
-	Animation
-	BlockingQueue
-	Gui
-	Main
-	Particle
-	Round
-	ThreadPool
+gdp.erichiram.partsim:
+	Main		- Entry-punt van het programma; start ConfigurationReader, BlockingQueue, Gui en ThreadPool.
+	ThreadPool	- Start of beëindigt Animation-threads op basis van P (het maximum aantal threads). 
+	Gui			- Geeft het venster met het menu en het uitvoerpaneel weer en tekent de deeltjes.
+	Animation	- Een subklasse van Thread, verplaatst elke ronde k deeltjes uit de queue en alle deeltjes die daarna nog overblijven.   
+	Round		- Houdt gesynchroniseerd de huidige ronde bij zodat Animation-threads synchroon lopen.
+	Particle	- Een deeltje, bevat X-, Y-, dX-, dY-properties en de move-method voor het verplaatsen van een deeltje.
 
-partsim.util
-	ConfigurationReader
-
-"we expect a main class, an animation class, a class which encapsulates all the graphics, a class which contains the integer monitor, a class for the queue,"
+gdp.erichiram.partsim.util:
+	ConfigurationReader	- Leest een initiele deeltjesconfiguratie uit een bestand.
+	BlockingQueue		- Een gesynchroniseerde queue-implementatie.
 
 
 
