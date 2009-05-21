@@ -10,7 +10,10 @@ package gdp.erichiram.partsim;
  * it is very simple. 
  * It can be accessed concurrently by the animation threads that move it
  * and by the Gui for rendering.
- *
+ * the funny thing is that although none of the fields need the synchronized statements
+ * (all read and writes to volatile fields or simple types (except long and double) are atomic)
+ * we do need the synchronization to keep the particle from displaying strange
+ * e.g. gui shows old X with new Y 
  */
 public class Particle {
 
