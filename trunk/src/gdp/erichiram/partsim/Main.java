@@ -14,23 +14,34 @@ import java.util.Queue;
 
 import javax.swing.SwingUtilities;
 
+/**
+ * Main class, entry point for execution and the place to get the shared data
+ *
+ */
 public class Main {
-	
-
-
-
 	
 	/**
 	 * queue of particles waiting to be computed
+	 * this queue is special, instead of being a normal synchronized queue 
+	 * this one overrides poll and takes care of dead particles 
+	 * and particles that are to new
 	 */
 	public final Queue<Particle> q = new BlockingQueue<Particle>()
 	{
+		/**
+		 * overiden poll method to make sure threads cannot take particles not in this round
+		 * or dead
+		 */
 		public synchronized Particle poll(){
+			
+			//if peek is null or particle not in round return null
 			if(peek() == null || round.getRoundNumber() != peek().getRound())
 			{
 				return null;
 			}
 			
+			//get the particle, check if its processable 
+			//if not try this method again to make sure we get a particle if it is there
 			Particle p = super.poll();
 			if(!p.process())
 			{
@@ -45,17 +56,17 @@ public class Main {
 	/**
 	 * collection of particles
 	 */	
-	public final Collection<Particle> particles;
+	protected final Collection<Particle> particles = new BlockingQueue<Particle>();
 	
 	/**
 	 * collection of threads
 	 */
-	public final ThreadPool pool = new ThreadPool(this);
+	protected final ThreadPool pool = new ThreadPool(this);
 	
 	/**
 	 * keeps track of the rounds, makes sure threads dont work on particles for next round
 	 */
-	public final Round round = new Round(this);	
+	protected final Round round = new Round(this);	
 	
 	/**
 	 * time var to slow simulation down
@@ -77,7 +88,7 @@ public class Main {
 	/**
 	 * timer speed for gui updates
 	 */
-	public static final int guiSpeed = 100 ;
+	protected static final int guiSpeed = 100 ;
 
 	/**
 	 * starting round
@@ -89,12 +100,22 @@ public class Main {
 	 */
 	private static final boolean DEBUG = true;
 		
+	/**
+	 * constructor
+	 * Starts up Gui and needs an collection of particles
+	 * @param particles
+	 */
 	public Main(Collection<Particle> particles){
 		SwingUtilities.invokeLater(new Gui(this));
-		this.particles = particles;
+		this.particles.addAll(particles);
 		q.addAll(particles);
 	}
 	
+	/**
+	 * Startup method
+	 * arguments are not used
+	 * @param args
+	 */
 	public static void main(String[] args){
 		
 		// Load the particles.
@@ -107,16 +128,25 @@ public class Main {
 		}	
 	}
 	
+	/**
+	 * @see Main#t t
+	 * @param t the new number
+	 */
 	public void setT(int t) {
 		this.t = t;
 		debug("T changed to: "+t);
 	}
 
+	/**
+	 * @see Main#t t
+	 * @return the number
+	 */
 	public long getT() {
 		return t;
 	}
 
 	/**
+	 * @see Main#k k
 	 * @return the k
 	 */
 	public int getK() {
@@ -124,15 +154,18 @@ public class Main {
 	}
 
 	/**
+	 * @see Main#k k
 	 * @param k the k to set
 	 */
 	public void setK(int k) {
 		this.k = k;
+		debug("K changed to: "+k);
 	}
 	
 	
 	/**
-	 * adds a particle object to the queue and increases n accordingly
+	 * adds a particle object to the queue and the particle pool
+	 * also tells the threadpool to check if it needs start new threads
 	 * @param particle the particle object to be added
 	 */
 	private void addParticle(Particle particle){
@@ -141,12 +174,27 @@ public class Main {
 		pool.update();
 	}
 
+	/**
+	 * add new parameterized {@link Particle}
+	 * @param x
+	 * @param y
+	 * @param dx
+	 * @param dy
+	 * @param name
+	 * @see Particle#Particle(int, int, int, int, char, int)
+	 * @see Main#addParticle(Particle)
+	 */
 	public void addParticle(int x, int y, int dx, int dy, char name)
 	{
 		addParticle(new Particle(x,y,dx,dy,name,round.getRoundNumber()+1));
 	}
 
 
+	/**
+	 * add new random {@link Particle}
+	 * @see Particle#Particle(int)
+	 * @see Main#addParticle(Particle)
+	 */
 	public void addParticle() {
 		addParticle(new Particle(round.getRoundNumber()+1));
 	}
@@ -167,7 +215,10 @@ public class Main {
 		}
 	}
 	
-	
+	/**
+	 * debug messages switchable with DEBUG boolean
+	 * @param message
+	 */
 	public static void debug(String message)
 	{
 		if (DEBUG)

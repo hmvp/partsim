@@ -93,4 +93,7 @@ We gebruiken één keer in het programma notifyAll, dat is omdat op het moment d
 
 4. EXTRA LOAD BALANCING EN SYNCHRONISATIE
 
+4.1 Zeer efficiente thread management
+De manier waarop we het maken en stoppen van threads regelen is zeer efficient. Bovendien vermijd het allerlei vervelende race condities waarbij meerdere threads tegelijkertijd proberen uit te vinden of ze weg moeten
+
 [TODO Besides the basic behavior as explained above, you are allowed to do some nice and extra on the simulation of systems of particles and/or the load balancing and synchronization.  This may lead top a bonus on your grade (which will not exceed 10), but this bonus will only be assigned for something with regard to load balancing and/or synchronization.  Explain your approach in the documentation.]

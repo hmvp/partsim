@@ -7,40 +7,53 @@ package gdp.erichiram.partsim;
 import java.util.Collection;
 import java.util.LinkedList;
 
+/**
+ * Worker thread which updates the particles 
+ *
+ */
 public class Animation extends Thread {
+	
+	/**
+	 * reference to main, needed for the shared data
+	 */
 	private Main main;
+	
+	/**
+	 * boolean used to determine if the thread needs to keep running
+	 */
 	private volatile boolean run = true;
-	private ThreadPool pool;
-	private Round round;
 
-	public Animation(Main main, ThreadPool pool) {
+	/**
+	 * constructor needs a reference to main
+	 * @see Animation#main
+	 * @param main
+	 */
+	public Animation(Main main) {
 		this.main = main;
-		this.pool = pool;
-		this.round = main.round;
 	}
 
 	/**
 	 * Main animation method, updates the particles
+	 * runs while run is true. 
+	 * As soon as it is false it finishes its business and removes itself from the threadpool
 	 */
 	public void run() {
-		while (run) {
-			Collection<Particle> workingset = new LinkedList<Particle>();
-			boolean nextround = true;
+		Collection<Particle> workingset;
+		
+		while (run) {			
+			//create an workingset and iterate over k until we have enough particles
+			workingset = new LinkedList<Particle>();
 			for (int i = main.getK(); i > 0; i--) {
 				Particle p = main.q.poll();
+				
+				//check if its null add to the queue otherwise
 				if (p != null) {
-					nextround = false;
-
 					workingset.add(p);
 					Main.debug("got particle" + p);
 				}
 			}
-			if(main.getK() > workingset.size())
-			{
-				nextround = true;
-			}
 			
-			// check the first particle in the queue
+			//iterate over the particles to do the moves
 			for (Particle current : workingset) {
 				// update the particle
 				current.move();
@@ -57,13 +70,18 @@ public class Animation extends Thread {
 			main.q.addAll(workingset);
 			Main.debug("done working on particles");
 			
-			//call for next round if we didn't get any particles
-			if (nextround)
-				round.nextRound(nextroundnr);
+			//call for next round if we didn't get k particles
+			if (main.getK() > workingset.size())
+				main.round.nextRound(nextroundnr);
 		}
-		pool.removeThread(this);
+		
+		//where finished, do cleanup
+		main.pool.removeThread(this);
 	}
 
+	/**
+	 * use this to kill this {@link Animation} thread
+	 */
 	public void finish() {
 		run = false;
 	}
