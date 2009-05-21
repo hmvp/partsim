@@ -37,13 +37,11 @@ import javax.swing.event.ChangeListener;
 public class Gui implements Runnable {
 
 	private final Main main;
-	private final ThreadPool pool;
 	
 	private final static int SpinnerMax = 9999;
 	
-	public Gui(Main main, ThreadPool pool) {
+	public Gui(Main main) {
 		this.main = main;
-		this.pool = pool;
 	}
 
 	private void initializeGui() {
@@ -303,7 +301,7 @@ public class Gui implements Runnable {
 		spin.addChangeListener(new ChangeListener(){
 
 			public void stateChanged(ChangeEvent e) {
-				pool.setPMax(snm.getNumber().intValue());
+				main.pool.setPMax(snm.getNumber().intValue());
 			}
 			
 		});
@@ -352,7 +350,7 @@ public class Gui implements Runnable {
 				offscreenGraphics = offscreenImage.getGraphics();
 				
 				
-				for (Particle p : main.getParticles()) {
+				for (Particle p : main.particles) {
 					if ( colorMap.containsKey(p.getThreadId()) ) {
 						offscreenGraphics.setColor(colorMap.get(p.getThreadId()));
 					} else {
@@ -365,8 +363,8 @@ public class Gui implements Runnable {
 					offscreenGraphics.fillRect(p.getX(), p.getY(), 2, 2);
 				}
 				offscreenGraphics.setColor(Color.WHITE);
-				offscreenGraphics.drawString("p: "+String.valueOf(pool.size()), 1, 20);
-				offscreenGraphics.drawString("n: "+String.valueOf(main.getParticles().size()), 1, 35);
+				offscreenGraphics.drawString("p: "+String.valueOf(main.pool.size()), 1, 20);
+				offscreenGraphics.drawString("n: "+String.valueOf(main.particles.size()), 1, 35);
 				g.drawImage(offscreenImage, 0, 0, this);
 				offscreenGraphics.setColor(Color.BLACK);
 				offscreenGraphics.fillRect(0, 0, getSize().width, getSize().height);

@@ -60,7 +60,7 @@ public class ThreadPool extends Thread {
 
 			} else {
 				Main.debug("update p, increase threads: " + order);
-				for (; order > 0 && pool.size() < main.getParticles().size(); order--) {
+				for (; order > 0 && pool.size() < main.particles.size(); order--) {
 					Animation a = new Animation(main, this);
 					pool.add(a);
 					a.start();

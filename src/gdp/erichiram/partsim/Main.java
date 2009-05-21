@@ -23,23 +23,49 @@ public class Main {
 	/**
 	 * queue of particles waiting to be computed
 	 */
-	private final Queue<Particle> q = new BlockingQueue<Particle>();
+	public final Queue<Particle> q = new BlockingQueue<Particle>()
+	{
+		public synchronized Particle poll(){
+			if(peek() == null || round.getRoundNumber() != peek().getRound())
+			{
+				return null;
+			}
+			
+			Particle p = super.poll();
+			if(!p.process())
+			{
+				return poll();
+			}
+			
+			
+			return p;
+		}
+	};
 	
 	/**
 	 * collection of particles
 	 */	
-	private final Collection<Particle> particles;
+	public final Collection<Particle> particles;
 	
 	/**
 	 * collection of threads
 	 */
-	private final ThreadPool pool = new ThreadPool(this);
+	public final ThreadPool pool = new ThreadPool(this);
+	
+	/**
+	 * keeps track of the rounds, makes sure threads dont work on particles for next round
+	 */
+	public final Round round = new Round(this);	
 	
 	/**
 	 * time var to slow simulation down
 	 */
 	private volatile int t = 0;
-	public volatile int k = 1;
+	
+	/**
+	 * number of particles a thread takes from the queue
+	 */
+	private volatile int k = 1;
 
 
 	/**
@@ -48,17 +74,23 @@ public class Main {
 	public static final int width = 800;
 	public static final int height = 600;
 	
+	/**
+	 * timer speed for gui updates
+	 */
 	public static final int guiSpeed = 100 ;
 
+	/**
+	 * starting round
+	 */
 	public static final int initialRound = 0;
 
-	private static final boolean DEBUG = false;
-	
-	
-	protected final Round round = new Round(this);	
-	
+	/**
+	 * display debug statements
+	 */
+	private static final boolean DEBUG = true;
+		
 	public Main(Collection<Particle> particles){
-		SwingUtilities.invokeLater(new Gui(this,pool));
+		SwingUtilities.invokeLater(new Gui(this));
 		this.particles = particles;
 		q.addAll(particles);
 	}
@@ -75,16 +107,6 @@ public class Main {
 		}	
 	}
 	
-	public Queue<Particle> getQ() {
-		return q;
-	}
-
-	public  Collection<Particle> getParticles() {
-		return particles;
-	}
-
-
-
 	public void setT(int t) {
 		this.t = t;
 		debug("T changed to: "+t);
