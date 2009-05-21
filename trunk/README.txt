@@ -4,7 +4,7 @@ Hiram van Paassen (xxxxxxx)
 Eric Broersma (xxxxxxx)
 
 
-*Parallelle Deeltjessimulator*
+DE PARALLELLE DEELTJESSIMULATOR
 
 
 0. INDEX
