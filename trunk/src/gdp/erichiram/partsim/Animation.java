@@ -77,6 +77,12 @@ public class Animation extends Thread {
 		
 		//where finished, do cleanup
 		main.pool.removeThread(this);
+		
+		//there is a possibility that this is the last thread not sleeping. 
+		//just to make sure we wake one
+		synchronized (main.round) {
+			main.round.notify();
+		}
 	}
 
 	/**

@@ -5,15 +5,16 @@
 package gdp.erichiram.partsim;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
 
 public class ThreadPool extends Thread {
 
 	/**
 	 * collection of animation threads
+	 * not thread safe but since where inside this monitor all is fine
 	 */
-	private final Collection<Animation> pool = new LinkedList<Animation>();
+	private final Collection<Animation> pool = new HashSet<Animation>();
 	
 	/**
 	 * maximum number of animation threads in this pool

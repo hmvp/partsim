@@ -23,6 +23,7 @@ public class Main {
 	/**
 	 * queue of particles waiting to be computed
 	 * this queue is special, instead of being a normal synchronized queue 
+	 * like we use as particle store (the one we did build ourself)
 	 * this one overrides poll and takes care of dead particles 
 	 * and particles that are to new
 	 */
@@ -70,11 +71,15 @@ public class Main {
 	
 	/**
 	 * time var to slow simulation down
+	 * its thread safe since we only write or read and 
+	 * those are atomic on (volatile) integers 
 	 */
 	private volatile int t = 0;
 	
 	/**
 	 * number of particles a thread takes from the queue
+	 * its thread safe since we only write or read and 
+	 * those are atomic on (volatile) integers 
 	 */
 	private volatile int k = 1;
 
