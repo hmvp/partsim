@@ -38,8 +38,29 @@ public class BlockingQueue<T> implements Queue<T> {
 	}
 	
 
+	@SuppressWarnings("unchecked")
 	public synchronized Iterator<T> iterator() {
-		return q.iterator();
+		return new Iterator<T>(){
+			
+			private T[] array;
+			private int pointer = 0;
+
+			{
+				array = (T[]) q.toArray();
+			}
+			
+			public boolean hasNext() {
+				return pointer < array.length;
+			}
+
+			public T next() {
+				return array[pointer++];
+			}
+
+			public void remove() {
+				throw new UnsupportedOperationException();
+			}
+		};
 	}
 	
 	public synchronized Object[] toArray() {
@@ -48,6 +69,10 @@ public class BlockingQueue<T> implements Queue<T> {
 
 	public synchronized <U> U[] toArray(U[] a) {
 		return q.toArray(a); 
+	}
+	
+	public synchronized boolean remove(Object o) {
+		return q.remove(o);
 	}
 	
 	public T element() {
@@ -78,11 +103,6 @@ public class BlockingQueue<T> implements Queue<T> {
 		
 	}
 
-	public boolean remove(Object o) {
-		throw new UnsupportedOperationException();
-		
-	}
-
 	public boolean removeAll(Collection<?> c) {
 		throw new UnsupportedOperationException();
 		
@@ -91,5 +111,10 @@ public class BlockingQueue<T> implements Queue<T> {
 	public boolean retainAll(Collection<?> c) {
 		throw new UnsupportedOperationException();
 		
+	}
+	
+	public synchronized String toString()
+	{
+		return q.toString();
 	}
 }
