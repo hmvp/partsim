@@ -6,17 +6,59 @@ package gdp.erichiram.partsim;
 
 public class Particle {
 
+	/**
+	 * private vars of particle
+	 */
+	
+	/**
+	 * the x coordinate
+	 */
 	private volatile int x;
+	
+	/**
+	 * the y coordinate
+	 */
 	private volatile int y;
+	
+	/**
+	 * the speed in x direction (horizontal)
+	 */
 	private volatile int dx;
+	
+	/**
+	 * the speed in y direction (vertical)
+	 */
 	private volatile int dy;
+	
+	/**
+	 * the not so unique name of the particle
+	 */
 	private final char name;
 	
+	/**
+	 * the round the particle is in atm.
+	 */
 	private volatile int round;
 	
+	/**
+	 * the id of the last thread that has moved this particle
+	 */
 	private volatile long threadId;
+	
+	/**
+	 * boolean that tells if the particle is pending for removal and thus should be removed
+	 */
 	private volatile boolean dead = false;
 	
+	/**
+	 * create particle with every parameter possible
+	 * @param x coordinate
+	 * @param y coordinate
+	 * @param dx the speed in horizontal direction
+	 * @param dy the speed in vertical direction
+	 * @param name of the particle
+	 * @param round the particle starts in
+	 */
 	public Particle(int x, int y, int dx, int dy, char name, int round) {
 		this.x = x;
 		this.y = y;
@@ -28,6 +70,10 @@ public class Particle {
 		this.round = round;
 	}
 	
+	/**
+	 * create a particle form another particle
+	 * @param other particle
+	 */
 	public Particle(Particle other) {
 		this.x = other.x;
 		this.y = other.y;
@@ -39,6 +85,10 @@ public class Particle {
 		this.round = other.round;
 	}
 	
+	/**
+	 * create a random particle
+	 * @param round the particle is starting in
+	 */
 	public Particle(int round) {
 		x = (int) (Math.random() * Main.width);
 		y = (int) (Math.random() * Main.height);
@@ -58,6 +108,11 @@ public class Particle {
 		
 	}
 		
+	/**
+	 * the move of this particle, 
+	 * this method updates almost every bit of this particle
+	 * some heavy math is going on here ;-)
+	 */
 	public synchronized void move() {
 
 		Main.debug("Moving particle " + this);
@@ -108,6 +163,11 @@ public class Particle {
 		threadId = Thread.currentThread().getId();
 	}
 	
+	/**
+	 * another {@link Particle#move() move} operation 
+	 * this one uses a loop to calculate
+	 * @see Particle#move() move
+	 */
 	public synchronized void stupidMove() {
 
 		Main.debug("sMoving particle " + this);
@@ -153,6 +213,12 @@ public class Particle {
 		threadId = Thread.currentThread().getId();
 	}
 	
+	/**
+	 * another move operation
+	 * this one is very similar to {@link Particle#move() move} 
+	 * but uses an extra test to check if all the heavy math is needed
+	 * @see Particle#move() move
+	 */
 	public synchronized void smartMove() {
 
 		Main.debug("Moving particle " + this);
@@ -241,9 +307,17 @@ public class Particle {
 		return round;
 	}
 
+	/**
+	 * mark particle for removal
+	 */
 	public void die() {
 		dead = true;
 	}
+	
+	/**
+	 * check if particle is not pending for removal
+	 * @return true if the particle is alive and needs to be processed
+	 */
 	public boolean process()
 	{
 		return !dead;
