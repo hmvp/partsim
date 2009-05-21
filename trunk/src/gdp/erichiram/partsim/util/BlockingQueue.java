@@ -2,7 +2,7 @@
  * @author Hiram van Paassen, Eric Broersma
  */
 
-package gdp.erichiram.partsim;
+package gdp.erichiram.partsim.util;
 
 import java.util.Collection;
 import java.util.Iterator;

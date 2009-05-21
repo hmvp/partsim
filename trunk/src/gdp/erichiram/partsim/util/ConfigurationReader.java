@@ -4,7 +4,6 @@
 
 package gdp.erichiram.partsim.util;
 
-import gdp.erichiram.partsim.BlockingQueue;
 import gdp.erichiram.partsim.Main;
 import gdp.erichiram.partsim.Particle;
 
