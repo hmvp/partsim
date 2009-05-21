@@ -50,27 +50,30 @@ public class ThreadPool extends Thread {
 	public synchronized void run() {
 		while (true) {
 			
+			//check of we wat moeten doen, order is het aantal threads dat er bij of af moet
 			int order = pMax - pool.size();
 
+			//moeten er threads af? iterate over the threads until we killed enough
 			if (order <= 0) {
 				Main.debug("update p, decrease threads: " + order);
 				for (Iterator<Animation> iter = pool.iterator(); order < 0 && iter.hasNext(); order++) {
 					iter.next().finish();
 				}
-
+			//moeten er threads bij? maak er net zoveel aan tot we genoeg hebben of
+			//we aan het aantal particles zitten
 			} else {
 				Main.debug("update p, increase threads: " + order);
 				for (; order > 0 && pool.size() < main.particles.size(); order--) {
-					Animation a = new Animation(main, this);
+					Animation a = new Animation(main);
 					pool.add(a);
 					a.start();
 				}
 			}
+			
+			//ready? sleep until someone tells us to wake
 			try {
 				wait();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+			} catch (InterruptedException e) {}
 
 		}
 	}

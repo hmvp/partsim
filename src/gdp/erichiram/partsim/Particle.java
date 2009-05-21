@@ -291,10 +291,18 @@ public class Particle {
 		return y;
 	}
 
+	public synchronized void setDx(int dx) {
+		this.dx = dx;
+	}
+	
 	public synchronized int getDx() {
 		return dx;
 	}
-
+	
+	public synchronized void setDy(int dy) {
+		this.dy = dy;
+	}
+	
 	public synchronized int getDy() {
 		return dy;
 	}

@@ -44,6 +44,9 @@ public class Gui implements Runnable {
 		this.main = main;
 	}
 
+	/**
+	 * initalize the Gui, 
+	 */
 	private void initializeGui() {
 		JFrame frame = createFrame();	
 
@@ -71,7 +74,7 @@ public class Gui implements Runnable {
 		p.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
 		
 		
-		JLabel name = new JLabel("Verwijder ŽŽn of meer particles");
+		JLabel name = new JLabel("Verwijder ï¿½ï¿½n of meer particles");
 		JButton remove = new JButton("Remove particle");
 		final JSpinner nameSpin = createNameSpinner();
 		

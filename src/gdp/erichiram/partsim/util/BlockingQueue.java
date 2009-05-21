@@ -9,6 +9,14 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Queue;
 
+
+/**
+ * synchornized wrapper for linkedlist
+ * nothing special just the methods we need and except {@link BlockingQueue#iterator()}
+ * @author hiram
+ *
+ * @param <T>
+ */
 public class BlockingQueue<T> implements Queue<T> {
 	private Queue<T> q = new LinkedList<T>();
 
@@ -39,6 +47,9 @@ public class BlockingQueue<T> implements Queue<T> {
 	
 
 	@SuppressWarnings("unchecked")
+	/**
+	 * slow call to iterator, this is ok since there is only one use for it
+	 */
 	public synchronized Iterator<T> iterator() {
 		return new Iterator<T>(){
 			
