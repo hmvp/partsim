@@ -209,36 +209,20 @@ public class Particle {
 		threadId = Thread.currentThread().getId();
 	}
 	
-	public int getX() {
+	public synchronized int getX() {
 		return x;
 	}
 
-	public void setX(int x) {
-		this.x = x;
-	}
-
-	public int getY() {
+	public synchronized int getY() {
 		return y;
 	}
 
-	public void setY(int y) {
-		this.y = y;
-	}
-
-	public int getDx() {
+	public synchronized int getDx() {
 		return dx;
 	}
 
-	public void setDx(int dx) {
-		this.dx = dx;
-	}
-
-	public int getDy() {
+	public synchronized int getDy() {
 		return dy;
-	}
-
-	public void setDy(int dy) {
-		this.dy = dy;
 	}
 
 	public char getName() {
@@ -249,11 +233,11 @@ public class Particle {
 		return threadId;
 	}
 	
-	public String toString() {
+	public synchronized String toString() {
 		return "\""+ name + "\"@(" + x + "," + y + ")+(" + dx + "," + dy + ")/" + round;
 	}
 
-	public int getRound() {
+	public synchronized int getRound() {
 		return round;
 	}
 
