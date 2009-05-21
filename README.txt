@@ -1,4 +1,4 @@
-!!!Each file (both source and documentation) should have both names and student numbers of the responsible students at the top!!!
+[TODO Each file (both source and documentation) should have both names and student numbers of the responsible students at the top!]
 
 Hiram van Paassen (xxxxxxx)
 Eric Broersma (xxxxxxx)
@@ -67,7 +67,7 @@ Hieronder volgt een beschrijving van de globale structuur van het programma.
 
 gdp.erichiram.partsim:
 	Main		- Entry-punt van het programma; start ConfigurationReader, BlockingQueue, Gui en ThreadPool.
-	ThreadPool	- Start of be�indigt Animation-threads op basis van P (het maximum aantal threads). 
+	ThreadPool	- Start of beëindigt Animation-threads op basis van P (het maximum aantal threads). 
 	Gui			- Geeft het venster met het menu en het uitvoerpaneel weer en tekent de deeltjes.
 	Animation	- Een subklasse van Thread, verplaatst elke ronde k deeltjes uit de queue en alle deeltjes die daarna nog overblijven.   
 	Round		- Houdt gesynchroniseerd de huidige ronde bij zodat Animation-threads synchroon lopen.
@@ -79,24 +79,18 @@ gdp.erichiram.partsim.util:
 
 
 
-3. CONCURRENCY OF THE PROGRAM
+3. CONCURRENCY VAN HET PROGRAMMA
 
-"In the documentation we expect reasoning about the concurrency of your program. As you know, a program may contain concurrency control features and nevertheless be totally sequential in nature. Make sure that your reasoning is concise and clear."
+[TODO In the documentation we expect reasoning about the concurrency of your program. As you know, a program may contain concurrency control features and nevertheless be totally sequential in nature. Make sure that your reasoning is concise and clear. Even better: give arguments why your program is correct, using the techniques taught in the lectures.]
 
-The queue is added by the 
+[Concurrency control is verdeeld over Animation en Round.]
 
-"Be sure to use the proper form of notify/notifyAll.  Only use notifyAll when notify is not sufficient.  Explain in your README file why your choice is correct."
+3.1 Thread.notify versus Thread.notifyAll
 
-3.x
-NotifyAll
-
-We gebruiken één keer in het programma notifyAll, dat is omdat op het moment dat die aangroepen wordt alle min één Animation threads aan het wachten zijn tot de volgende ronde begint. De laatste thread start de nieuwe rond en maakt alle threads weer wakker. Dit zorgt ervoor dat threads niet onnodig resources innemen als er niet meer te doen valt.
-
-
-"Even better: give arguments why your program is correct, using the techniques taught in the lectures."
+We gebruiken één keer in het programma notifyAll, dat is omdat op het moment dat die aangroepen wordt alle min één Animation threads aan het wachten zijn tot de volgende ronde begint. Op het moment dat een Animation-thread het laatste deeltje terugstopt in de queue begint een volgende ronde en wordt de rest van de threads weer wakker gemaakt met Thread.notifyAll. Dit zorgt ervoor dat threads niet onnodig resources innemen als er niets meer te doen valt. [TODO "Explain why notify is not sufficient."]
 
 
 
-4. EXTRA LOAD BALANCING AND SYNCHRONIZATION
+4. EXTRA LOAD BALANCING EN SYNCHRONISATIE
 
-"Besides the basic behavior as explained above, you are allowed to do some nice and extra on the simulation of systems of particles and/or the load balancing and synchronization.  This may lead top a bonus on your grade (which will not exceed 10), but this bonus will only be assigned for something with regard to load balancing and/or synchronization.  Explain your approach in the documentation."
+[TODO Besides the basic behavior as explained above, you are allowed to do some nice and extra on the simulation of systems of particles and/or the load balancing and synchronization.  This may lead top a bonus on your grade (which will not exceed 10), but this bonus will only be assigned for something with regard to load balancing and/or synchronization.  Explain your approach in the documentation.]
