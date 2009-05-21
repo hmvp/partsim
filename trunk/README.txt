@@ -87,6 +87,12 @@ The queue is added by the
 
 "Be sure to use the proper form of notify/notifyAll.  Only use notifyAll when notify is not sufficient.  Explain in your README file why your choice is correct."
 
+3.x
+NotifyAll
+
+We gebruiken ŽŽn keer in het programma notifyAll, dat is omdat op het moment dat die aangroepen wordt alle min ŽŽn Animation threads aan het wachten zijn tot de volgende ronde begint. De laatste thread start de nieuwe rond en maakt alle threads weer wakker. Dit zorgt ervoor dat threads niet onnodig resources innemen als er niet meer te doen valt.
+
+
 "Even better: give arguments why your program is correct, using the techniques taught in the lectures."
 
 
