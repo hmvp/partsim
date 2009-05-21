@@ -8,6 +8,7 @@ public class Round {
 	
 	private volatile int round = Main.initialRound;
 	private final Main m;
+	private int sleepers = 0;
 	
 	public Round(Main m)
 	{
@@ -24,15 +25,17 @@ public class Round {
 		{
 			return;
 		}
-		if ( m.getQ().size() >= m.getParticles().size()) {
-			round = m.getQ().peek().getRound();
+		if (sleepers+1 == m.pool.size()) {
+			round = m.q.peek().getRound();
 			notifyAll();
 			Main.debug("================= Round " + round + " ====================");
 		} else {
 			Main.debug("-------------- Just wait a bit! --------------------");
+			sleepers++;
 			try {
 				wait();
 			} catch (InterruptedException e) {}
+			sleepers--;
 		}
 	}
 

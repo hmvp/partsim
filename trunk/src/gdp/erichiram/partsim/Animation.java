@@ -27,28 +27,23 @@ public class Animation extends Thread {
 			Collection<Particle> workingset = new LinkedList<Particle>();
 			boolean nextround = true;
 			for (int i = main.getK(); i > 0; i--) {
-				Particle p = main.getQ().poll();
+				Particle p = main.q.poll();
 				if (p != null) {
 					nextround = false;
-					if (p.process()) {
-						workingset.add(p);
-						Main.debug("got particle" + p);
-					}
+
+					workingset.add(p);
+					Main.debug("got particle" + p);
 				}
 			}
-
-			int nextroundnr = 0;
+			if(main.getK() > workingset.size())
+			{
+				nextround = true;
+			}
+			
 			// check the first particle in the queue
 			for (Particle current : workingset) {
-				// move a particle if it's in the current round
-				if (round.getRoundNumber() == current.getRound()) {
-					// update the particle
-					current.stupidMove();
-				} else {
-					nextround = true;
-					nextroundnr = current.getRound();
-				}
-
+				// update the particle
+				current.move();
 				// have some sleep
 				try {
 					sleep(main.getT());
@@ -56,8 +51,13 @@ public class Animation extends Thread {
 				}
 			}
 
-			main.getQ().addAll(workingset);
+			//save the round number for the next round
+			int nextroundnr = main.round.getRoundNumber()+1;
+			
+			main.q.addAll(workingset);
 			Main.debug("done working on particles");
+			
+			//call for next round if we didn't get any particles
 			if (nextround)
 				round.nextRound(nextroundnr);
 		}
