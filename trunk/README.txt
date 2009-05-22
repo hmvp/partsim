@@ -130,6 +130,7 @@ Als er dan nog deeltjes voor deze ronden in de queue zitten, probeert de Animati
 4. EXTRA LOAD BALANCING EN SYNCHRONISATIE
 
 4.1 Efficiënt thread-management
-De manier waarop het maken en stoppen van threads is geregeld is zeer efficiënt. Bovendien vermijd het race-condities waarbij meerdere threads tegelijkertijd proberen uit te vinden of ze moeten stoppen. Dit doen we door het starten en stoppen van threads niet door de threads zelf te laten doen maar door een externe thread, de manager (ThreadPool). Door een manager te hebben voorkom je dat je een consensus of electie probleem moet oplossen. 
 
-De manager is een speciale thread. Dit had ook de eventhandler-thread van de Gui kunnen zijn, maar wij hebben er voor gekozen om dit asynchroon te laten doen om zo de Gui zo responsief mogelijk te houden.
+De manier waarop het maken en stoppen van threads is geregeld is zeer efficiënt. Bovendien vermijdt het race-condities waarbij meerdere threads tegelijkertijd proberen uit te vinden of ze moeten stoppen. Het starten en stoppen van Animation-threads wordt niet door de threads zelf maar door een aparte ThreadPool-thread geregeld. Hiermee wordt voorkomen dat een consensus- of electieprobleem moet worden opgelost met betrekking tot het verwijderen van Animation-threads.
+
+In plaats van een aparte ThreadPool-thread had ook de eventhandler-thread van de Gui gebruikt kunnen worden, maar er is voor deze oplossing gekozen om de Gui-thread zo responsief mogelijk te houden.
