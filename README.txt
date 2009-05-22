@@ -29,11 +29,11 @@ gdp.erichiram.partsim:
 	ThreadPool	- Start of beëindigt Animation-threads op basis van P (het maximum aantal threads).
 	Animation	- Een subklasse van Thread, verplaatst elke ronde k deeltjes uit de queue en alle deeltjes die daarna nog overblijven.   
 	Particle	- Een deeltje, bevat X-, Y-, dX-, dY-properties en de move-method voor het verplaatsen van een deeltje.
+	Round		- Een gesynchroniseerde integer-implementatie; wordt gebruikt om het rondenummer bij te houden.
 
 gdp.erichiram.partsim.util:
 	ConfigurationReader	- Leest een initiele deeltjesconfiguratie uit een bestand.
 	BlockingQueue		- Een gesynchroniseerde queue-implementatie; wordt gebruikt als queue voor de Particle-objecten.
-	Round				- Een gesynchroniseerde integer-implementatie; wordt gebruikt om het rondenummer bij te houden.
 
 [TODO Round -> SynchronizedInt???]
 
@@ -91,7 +91,7 @@ Concurrency control van de Animation-threads vindt plaats in de Animation-klasse
 
 3.1 Round [TODO hernoemen van naar SynchronizedInt?]
 
-De Main-klasse bevat een gesynchroniseerd Integer-object om het globale rondenummer bij te houden.
+De Main-klasse bevat een gesynchroniseerd Integer-object om het globale rondenummer bij te houden en op te hogen als dat mogelijk is.
 
 
 3.2 BlockingQueue
