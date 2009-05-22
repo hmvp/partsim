@@ -33,9 +33,9 @@ gdp.erichiram.partsim:
 gdp.erichiram.partsim.util:
 	ConfigurationReader	- Leest een initiele deeltjesconfiguratie uit een bestand.
 	BlockingQueue		- Een gesynchroniseerde queue-implementatie; wordt gebruikt als queue voor de Particle-objecten.
-	SynchronizedInt		- Een gesynchroniseerde integer-implementatie; wordt gebruikt om het rondenummer bij te houden.
+	Round				- Een gesynchroniseerde integer-implementatie; wordt gebruikt om het rondenummer bij te houden.
 
-
+[TODO Round -> SynchronizedInt???]
 
 2. UITVOEREN VAN HET PROGRAMMA
 
@@ -89,7 +89,7 @@ Concurrency control van de Animation-threads vindt plaats in de Animation-klasse
 [TODO Bewijs voor correctheid van programma, "using the techniques taught in the lectures".]
 
 
-3.1 SynchronizedInt [TODO Round?]
+3.1 Round [TODO hernoemen van naar SynchronizedInt?]
 
 De Main-klasse bevat een gesynchroniseerd Integer-object om het globale rondenummer bij te houden.
 
@@ -97,8 +97,6 @@ De Main-klasse bevat een gesynchroniseerd Integer-object om het globale rondenum
 3.2 BlockingQueue
 
 BlockingQueue is een Queue-implementatie waarvan het toevoegen en verwijderen van elementen gesynchroniseerd is. In het programma bevat het BlockingQueue-object Main.q een queue met deeltjes. De deeltjes worden er door Animation-thread-objecten vanaf gepakt en verwerkt. Door middel van de synchronisatie kan het niet zo zijn dat twee Animation-threads hetzelfde deeltje te pakken krijgen en verwerken.
-
-[[[Mits het deeltje nog onderdeel is van de Particle-set (niet te verwarren met de queue) waar het mogelijk uit is verdwenen als gevolg van het verwijderen van deeltjes.]]]
 
 
 3.3 Particle
@@ -120,10 +118,14 @@ De constructor van de Main-klasse start een aparte ThreadPool-thread op. Zodra d
 
 Een actieve Animation-thread probeert gesynchroniseerd k deeltjes uit de Particle-queue (Main.q) te halen waarvan het interne rondenummer overeenkomt met het globale rondenummer. Als er minder dan k deeltjes in de queue zitten zal de thread al die deeltjes pakken.
 
-Zodra de thread klaar is met het bemachtigen van deeltjes roept de thread Particle.move aan om ze te verplaatsen. De methodes van de klasse Particle die X en Y coördineren zijn gesynchroniseerd zodat Animation- en Gui-threads elkaar niet in de weg zitten met gelijktijdig schrijven en lezen. Het interne rondenummer van ieder deeltje wordt opgehoogd bij het verplaatsen. Na het verplaatsen wordt een deeltje teruggeplaatst in de queue, mits het deeltje nog onderdeel is van de Particle-set (niet te verwarren met de Particle-queue) waar het mogelijk uit is verdwenen als gevolg van het verwijderen van deeltjes. Als er dan nog deeltjes voor deze ronden in de queue zitten, probeert de Animation-thread deze te pakken en verwerkt die ook, zo niet dan gaat de thread slapen (m.b.v. Object.wait). Als een Animation-thread na het terugplaatsen van zijn deeltjes concludeert dat hij als laatste thread zijn deeltjes voor deze ronde heeft verplaatst, wordt het globale rondenummer opgehoogd en worden threads weer wakker gemaakt.
+Zodra de thread klaar is met het bemachtigen van deeltjes roept de thread Particle.move aan om ze te verplaatsen. Het interne rondenummer van ieder deeltje wordt opgehoogd bij het verplaatsen.
+
+Na het verplaatsen wordt een deeltje teruggeplaatst in de queue, mits het deeltje nog onderdeel is van de Particle-set (niet te verwarren met de Particle-queue) waar het mogelijk uit is verdwenen als gevolg van het verwijderen van deeltjes door de gebruiker.
+
+Als er dan nog deeltjes voor deze ronden in de queue zitten, probeert de Animation-thread deze te pakken en verwerkt die ook, zo niet dan gaat de thread slapen (m.b.v. Object.wait). Als een Animation-thread na het terugplaatsen van zijn deeltjes concludeert dat hij als laatste thread zijn deeltjes voor deze ronde heeft verplaatst, wordt het globale rondenummer opgehoogd en worden threads weer wakker gemaakt.
 
 
-3.7 Object.notify versus Object.notifyAll
+3.7 Object.notify versus Object.notifyAll [TODO mergen met vorige kopje?]
 
 We gebruiken één keer in het programma notifyAll, dat is omdat op het moment dat die aangroepen wordt alle min één Animation threads aan het wachten zijn tot de volgende ronde begint. Op het moment dat een Animation-thread het laatste deeltje terugstopt in de queue begint een volgende ronde en wordt de rest van de threads weer wakker gemaakt met notifyAll. Dit zorgt ervoor dat threads niet onnodig resources innemen als er niets meer te doen valt. [TODO "Explain why notify is not sufficient."]
 
