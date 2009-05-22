@@ -42,8 +42,11 @@ gdp.erichiram.partsim.util:
 
 2. UITVOEREN VAN HET PROGRAMMA
 
-$ javac src/*.java
-$ java src/Main
+[TODO Commando voor het compileren (van de jar) van de source.]
+
+Voer het volgende commando uit:
+
+java -jar ParticleSimulator.jar
 
 Het bestand particles.txt met de initiele deeltjesconfiguratie wordt geladen. Dit bestand bevat op de eerste regel een getal N, gevolgd door N regels met informatie over de deeltjes. Deze regels zijn als volgt opgebouwd: "[naam] [X] [Y] [dX] [dY]", waarbij de naam een enkele (hoofd)letter is, en X, Y, dX en dY integers.
 
@@ -132,6 +135,6 @@ Als er dan nog deeltjes voor deze ronden in de queue zitten, probeert de Animati
 4. EXTRA LOAD BALANCING EN SYNCHRONISATIE
 
 4.1 Efficiënt thread-management
-De manier waarop het maken en stoppen van threads is geregeld is zeer efficiënt. Bovendien vermijd het race-condities waarbij meerdere threads tegelijkertijd proberen uit te vinden of ze moeten stoppen. Dit doen we door het starten en stoppen van threads niet door de threads zelf te laten doen maar door een externe thread, de manager. Door een manager te hebben voorkom je dat je een consensus of electie probleem moet oplossen. 
+De manier waarop het maken en stoppen van threads is geregeld is zeer efficiënt. Bovendien vermijd het race-condities waarbij meerdere threads tegelijkertijd proberen uit te vinden of ze moeten stoppen. Dit doen we door het starten en stoppen van threads niet door de threads zelf te laten doen maar door een externe thread, de manager (ThreadPool). Door een manager te hebben voorkom je dat je een consensus of electie probleem moet oplossen. 
 
-De manager is in ons geval een speciale thread. Dit had ook de eventhandler thread van de gui kunnen zijn, maar wij hebben er voor gekozen om dit asynchroon te laten doen om zo de gui zo responsief mogelijk te houden.
+De manager is een speciale thread. Dit had ook de eventhandler-thread van de Gui kunnen zijn, maar wij hebben er voor gekozen om dit asynchroon te laten doen om zo de Gui zo responsief mogelijk te houden.
