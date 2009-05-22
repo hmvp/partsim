@@ -12,10 +12,11 @@ DE PARALLELLE DEELTJESSIMULATOR
 1. GLOBALE STRUCTUUR VAN HET PROGRAMMA
 2. UITVOEREN VAN HET PROGRAMMA
 2.1 Parameters Instellen
-etc.
-etc.
-etc.
-
+2.2 Deeltjes Toevoegen
+2.3 Deeltjes Verwijderen
+2.4 Interpreteren Van Het Uitvoerpaneel
+3. CONCURRENCY VAN HET PROGRAMMA
+[TODO etc etc etc]
 
 
 1. GLOBALE STRUCTUUR VAN HET PROGRAMMA
@@ -82,13 +83,47 @@ De kleur van een deeltje wordt bepaald door het ID van de thread dat het deeltje
 
 3. CONCURRENCY VAN HET PROGRAMMA
 
-Concurrency control van de Animation-threads vindt plaats in de Animation-class en met behulp van een globaal rondenummer dat in de Main-class wordt bijgehouden door middel van een SynchronizedInt-object. Een thread probeert gesynchroniseerd k deeltjes uit de queue te halen waarvan het interne rondenummer overeenkomt met het globale rondenummer. Als er minder dan k deeltjes in de queue zitten zal de thread al die deeltjes pakken. Zodra de thread klaar is met het bemachtigen van deeltjes worden de ze door de thread verplaatst; Animation roept Particle.move aan. De methodes van de klasse Particle die X en Y coördineren zijn gesynchroniseerd zodat Animation- en Gui-threads elkaar niet in de weg zitten met gelijktijdig schrijven en lezen. Het interne rondenummer van ieder deeltje wordt opgehoogd bij het verplaatsen. Na het verplaatsen wordt een deeltje teruggeplaatst in de queue, mits het deeltje nog onderdeel is van de Particle-set (niet te verwarren met de Particle-queue) waar het mogelijk uit is verdwenen als gevolg van het verwijderen van deeltjes. Als er dan nog deeltjes voor deze ronden in de queue zitten, probeert de Animation-thread deze te pakken en verwerkt die ook, zo niet dan gaat de thread slapen (m.b.v. Object.wait). Als een Animation-thread na het terugplaatsen van zijn deeltjes concludeert dat hij als laatste thread zijn deeltjes voor deze ronde heeft verplaatst, wordt het globale rondenummer opgehoogd en worden threads weer wakker gemaakt.
+Concurrency control van de Animation-threads vindt plaats in de Animation-klasse en met behulp van een globaal rondenummer dat in de Main-klasse wordt bijgehouden door middel van een SynchronizedInt-object. Een thread probeert gesynchroniseerd k deeltjes uit de queue te halen waarvan het interne rondenummer overeenkomt met het globale rondenummer. Als er minder dan k deeltjes in de queue zitten zal de thread al die deeltjes pakken. Zodra de thread klaar is met het bemachtigen van deeltjes worden de ze door de thread verplaatst; Animation roept Particle.move aan. De methodes van de klasse Particle die X en Y coördineren zijn gesynchroniseerd zodat Animation- en Gui-threads elkaar niet in de weg zitten met gelijktijdig schrijven en lezen. Het interne rondenummer van ieder deeltje wordt opgehoogd bij het verplaatsen. Na het verplaatsen wordt een deeltje teruggeplaatst in de queue, mits het deeltje nog onderdeel is van de Particle-set (niet te verwarren met de Particle-queue) waar het mogelijk uit is verdwenen als gevolg van het verwijderen van deeltjes. Als er dan nog deeltjes voor deze ronden in de queue zitten, probeert de Animation-thread deze te pakken en verwerkt die ook, zo niet dan gaat de thread slapen (m.b.v. Object.wait). Als een Animation-thread na het terugplaatsen van zijn deeltjes concludeert dat hij als laatste thread zijn deeltjes voor deze ronde heeft verplaatst, wordt het globale rondenummer opgehoogd en worden threads weer wakker gemaakt.
 
 [TODO Argumenten voor concurrency in programma.]
-
 [TODO Bewijs voor correctheid van programma, "using the techniques taught in the lectures".]
 
-3.1 Object.notify versus Object.notifyAll
+
+3.1 SynchronizedInt [TODO Round?]
+
+De Main-klasse bevat een gesynchroniseerd Integer-object om het globale rondenummer bij te houden.
+
+
+3.2 BlockingQueue
+
+BlockingQueue is een Queue-implementatie waarvan het toevoegen en verwijderen van elementen gesynchroniseerd is. In het programma bevat het BlockingQueue-object Main.q een queue met deeltjes. De deeltjes worden er door Animation-thread-objecten vanaf gepakt en verwerkt. Door middel van de synchronisatie kan het niet zo zijn dat twee Animation-threads hetzelfde deeltje te pakken krijgen en verwerken.
+
+[[[Mits het deeltje nog onderdeel is van de Particle-set (niet te verwarren met de queue) waar het mogelijk uit is verdwenen als gevolg van het verwijderen van deeltjes.]]]
+
+
+3.3 Particle
+
+De methodes van de klasse Particle die X en Y schrijven en lezen (move en getParticle) zijn gesynchroniseerd zodat Animation- en Gui-threads elkaar niet in de weg zitten met gelijktijdig schrijven en lezen. Het interne rondenummer van ieder deeltje wordt opgehoogd bij het verplaatsen.
+
+
+3.4 Gui
+
+De constructor van de Main-klasse start een aparte Gui-thread op. Deze thread schrijft de waardes van de parameters in Main (k, t en ThreadPool.pMax) en leest de Particle-set uit om de deeltjes weer te geven op het uitvoerpaneel. 
+
+
+3.5 ThreadPool
+
+De constructor van de Main-klasse start een aparte ThreadPool-thread op. Zodra de waarde van pMax wordt aangepast vanuit de Gui-thread zal deze thread Animation-threads starten of manen om te stopppen (door Animation.finish aan te roepen).
+
+
+3.6 Animation
+
+Een actieve Animation-thread probeert gesynchroniseerd k deeltjes uit de Particle-queue (Main.q) te halen waarvan het interne rondenummer overeenkomt met het globale rondenummer. Als er minder dan k deeltjes in de queue zitten zal de thread al die deeltjes pakken.
+
+Zodra de thread klaar is met het bemachtigen van deeltjes roept de thread Particle.move aan om ze te verplaatsen. De methodes van de klasse Particle die X en Y coördineren zijn gesynchroniseerd zodat Animation- en Gui-threads elkaar niet in de weg zitten met gelijktijdig schrijven en lezen. Het interne rondenummer van ieder deeltje wordt opgehoogd bij het verplaatsen. Na het verplaatsen wordt een deeltje teruggeplaatst in de queue, mits het deeltje nog onderdeel is van de Particle-set (niet te verwarren met de Particle-queue) waar het mogelijk uit is verdwenen als gevolg van het verwijderen van deeltjes. Als er dan nog deeltjes voor deze ronden in de queue zitten, probeert de Animation-thread deze te pakken en verwerkt die ook, zo niet dan gaat de thread slapen (m.b.v. Object.wait). Als een Animation-thread na het terugplaatsen van zijn deeltjes concludeert dat hij als laatste thread zijn deeltjes voor deze ronde heeft verplaatst, wordt het globale rondenummer opgehoogd en worden threads weer wakker gemaakt.
+
+
+3.7 Object.notify versus Object.notifyAll
 
 We gebruiken één keer in het programma notifyAll, dat is omdat op het moment dat die aangroepen wordt alle min één Animation threads aan het wachten zijn tot de volgende ronde begint. Op het moment dat een Animation-thread het laatste deeltje terugstopt in de queue begint een volgende ronde en wordt de rest van de threads weer wakker gemaakt met notifyAll. Dit zorgt ervoor dat threads niet onnodig resources innemen als er niets meer te doen valt. [TODO "Explain why notify is not sufficient."]
 
