@@ -1,3 +1,6 @@
+// Hiram van Paassen (HIRAM#)
+// Eric Broersma (ERIC#)
+
 /**
  * @author Hiram van Paassen, Eric Broersma
  */
