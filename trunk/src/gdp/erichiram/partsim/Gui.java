@@ -125,8 +125,8 @@ public class Gui implements Runnable {
 
 		final JSpinner xSpin = new JSpinner(new SpinnerNumberModel(0,0,Main.width-1,1));
 		final JSpinner ySpin = new JSpinner(new SpinnerNumberModel(0,0,Main.height-1,1));
-		final JSpinner dxSpin = new JSpinner(new SpinnerNumberModel(0,0,SpinnerMax,1));
-		final JSpinner dySpin = new JSpinner(new SpinnerNumberModel(0,0,SpinnerMax,1));
+		final JSpinner dxSpin = new JSpinner(new SpinnerNumberModel(0,-SpinnerMax,SpinnerMax,1));
+		final JSpinner dySpin = new JSpinner(new SpinnerNumberModel(0,-SpinnerMax,SpinnerMax,1));
 		final JSpinner nameSpin = createNameSpinner();
 		
 		JLabel xLabel = new JLabel("X");

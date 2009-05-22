@@ -70,8 +70,8 @@ public class Animation extends Thread {
 			main.q.addAll(workingset);
 			Main.debug("done working on particles");
 			
-			//call for next round if we didn't get k particles
-			if (main.getK() > workingset.size())
+			//call for next round if we didn't get particles
+			if (workingset.isEmpty())
 				main.round.nextRound(nextroundnr);
 		}
 		
