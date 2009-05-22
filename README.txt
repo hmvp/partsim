@@ -133,5 +133,3 @@ Als er dan nog deeltjes voor deze ronden in de queue zitten, probeert de Animati
 
 4.1 Efficiënt thread-management
 De manier waarop het maken en stoppen van threads is geregeld is zeer efficiënt. Bovendien vermijd het race-condities waarbij meerdere threads tegelijkertijd proberen uit te vinden of ze moeten stoppen. [TODO Hoe dan? :-)]
-
-[TODO Besides the basic behavior as explained above, you are allowed to do some nice and extra on the simulation of systems of particles and/or the load balancing and synchronization.  This may lead top a bonus on your grade (which will not exceed 10), but this bonus will only be assigned for something with regard to load balancing and/or synchronization.  Explain your approach in the documentation.]
