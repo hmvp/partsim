@@ -74,7 +74,7 @@ public class Gui implements Runnable {
 		p.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
 		
 		
-		JLabel name = new JLabel("Verwijder ��n of meer particles");
+		JLabel name = new JLabel("Remove one or more particles");
 		JButton remove = new JButton("Remove particle");
 		final JSpinner nameSpin = createNameSpinner();
 		
@@ -121,7 +121,7 @@ public class Gui implements Runnable {
 	private JComponent createAddPane() {
 		
 
-		JLabel name = new JLabel("Voeg een particle toe");
+		JLabel name = new JLabel("Add a particle");
 
 		final JSpinner xSpin = new JSpinner(new SpinnerNumberModel(0,0,Main.width-1,1));
 		final JSpinner ySpin = new JSpinner(new SpinnerNumberModel(0,0,Main.height-1,1));
@@ -266,7 +266,7 @@ public class Gui implements Runnable {
 	}
 
 	private JSpinner createTSpinner() {
-		final SpinnerNumberModel snm = new SpinnerNumberModel(0,0,SpinnerMax,1);
+		final SpinnerNumberModel snm = new SpinnerNumberModel(main.getT(),0,SpinnerMax,1);
 		
 		JSpinner spin = new JSpinner(snm);
 		spin.addChangeListener(new ChangeListener(){
@@ -282,7 +282,7 @@ public class Gui implements Runnable {
 	}
 	
 	private JSpinner createKSpinner() {
-		final SpinnerNumberModel snm = new SpinnerNumberModel(0,0,SpinnerMax,1);
+		final SpinnerNumberModel snm = new SpinnerNumberModel(main.getK(),1,SpinnerMax,1);
 		
 		JSpinner spin = new JSpinner(snm);
 		spin.addChangeListener(new ChangeListener(){
@@ -354,16 +354,19 @@ public class Gui implements Runnable {
 				
 				
 				for (Particle p : main.particles) {
-					if ( colorMap.containsKey(p.getThreadId()) ) {
-						offscreenGraphics.setColor(colorMap.get(p.getThreadId()));
-					} else {
-						Color randomColor = Color.getHSBColor((float)Math.random(), Math.min(1.0f, (float)Math.random() + 0.8f), Math.min(1.0f, (float)Math.random() + 0.8f));
+					//make sure we get data from the same round
+					synchronized (p) {
+						if ( colorMap.containsKey(p.getThreadId()) ) {
+							offscreenGraphics.setColor(colorMap.get(p.getThreadId()));
+						} else {
+							Color randomColor = Color.getHSBColor((float)Math.random(), Math.min(1.0f, (float)Math.random() + 0.8f), Math.min(1.0f, (float)Math.random() + 0.8f));
+							
+							colorMap.put(p.getThreadId(), randomColor);
+							offscreenGraphics.setColor(randomColor);
+						}
 						
-						colorMap.put(p.getThreadId(), randomColor);
-						offscreenGraphics.setColor(randomColor);
+						offscreenGraphics.fillRect(p.getX(), p.getY(), 2, 2);
 					}
-					
-					offscreenGraphics.fillRect(p.getX(), p.getY(), 2, 2);
 				}
 				offscreenGraphics.setColor(Color.WHITE);
 				offscreenGraphics.drawString("p: "+String.valueOf(main.pool.size()), 1, 20);
