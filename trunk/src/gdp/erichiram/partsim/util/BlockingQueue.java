@@ -13,7 +13,6 @@ import java.util.Queue;
 /**
  * synchornized wrapper for linkedlist
  * nothing special just the methods we need and except {@link BlockingQueue#iterator()}
- * @author hiram
  *
  * @param <T>
  */
@@ -86,6 +85,10 @@ public class BlockingQueue<T> implements Queue<T> {
 		return q.remove(o);
 	}
 	
+	public synchronized boolean isEmpty() {
+		return q.isEmpty();
+	}
+	
 	public T element() {
 		throw new UnsupportedOperationException();
 	}
@@ -105,11 +108,6 @@ public class BlockingQueue<T> implements Queue<T> {
 	}
 
 	public boolean containsAll(Collection<?> c) {
-		throw new UnsupportedOperationException();
-		
-	}
-
-	public boolean isEmpty() {
 		throw new UnsupportedOperationException();
 		
 	}
