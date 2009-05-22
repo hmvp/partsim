@@ -54,7 +54,7 @@ public class Round {
 		
 		//check if we are the last thread awake and bump the round
 		//we also need to wake everyone up
-		if (sleepers+1 == m.pool.size()) {
+		if (sleepers+1 == m.tpool.size()) {
 			round++;
 			notifyAll();
 			Main.debug("================= Round " + round + " ====================");

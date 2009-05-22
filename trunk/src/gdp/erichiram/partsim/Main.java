@@ -36,7 +36,7 @@ public class Main {
 		public synchronized Particle poll(){
 			
 			//if peek is null or particle not in round return null
-			if(peek() == null || round.getRoundNumber() != peek().getRound())
+			if(isEmpty() || round.getRoundNumber() != peek().getRound())
 			{
 				return null;
 			}
@@ -62,7 +62,7 @@ public class Main {
 	/**
 	 * collection of threads
 	 */
-	protected final ThreadPool pool = new ThreadPool(this);
+	protected final ThreadPool tpool = new ThreadPool(this);
 	
 	/**
 	 * keeps track of the rounds, makes sure threads dont work on particles for next round
@@ -103,7 +103,7 @@ public class Main {
 	/**
 	 * display debug statements
 	 */
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 		
 	/**
 	 * constructor
@@ -146,7 +146,7 @@ public class Main {
 	 * @see Main#t t
 	 * @return the number
 	 */
-	public long getT() {
+	public int getT() {
 		return t;
 	}
 
@@ -176,7 +176,7 @@ public class Main {
 	private void addParticle(Particle particle){
 		q.offer(particle);
 		particles.add(particle);
-		pool.update();
+		tpool.update();
 	}
 
 	/**

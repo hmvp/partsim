@@ -304,7 +304,7 @@ public class Gui implements Runnable {
 		spin.addChangeListener(new ChangeListener(){
 
 			public void stateChanged(ChangeEvent e) {
-				main.pool.setPMax(snm.getNumber().intValue());
+				main.tpool.setPMax(snm.getNumber().intValue());
 			}
 			
 		});
@@ -369,7 +369,7 @@ public class Gui implements Runnable {
 					}
 				}
 				offscreenGraphics.setColor(Color.WHITE);
-				offscreenGraphics.drawString("p: "+String.valueOf(main.pool.size()), 1, 20);
+				offscreenGraphics.drawString("p: "+String.valueOf(main.tpool.size()), 1, 20);
 				offscreenGraphics.drawString("n: "+String.valueOf(main.particles.size()), 1, 35);
 				g.drawImage(offscreenImage, 0, 0, this);
 				offscreenGraphics.setColor(Color.BLACK);
