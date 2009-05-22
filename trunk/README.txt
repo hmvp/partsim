@@ -9,19 +9,19 @@ DE PARALLELLE DEELTJESSIMULATOR
 
 1. GLOBALE STRUCTUUR VAN HET PROGRAMMA
 2. UITVOEREN VAN HET PROGRAMMA
-2.1 Parameters Instellen
-2.2 Deeltjes Toevoegen
-2.3 Deeltjes Verwijderen
-2.4 Interpreteren Van Het Uitvoerpaneel
+	2.1 Parameters Instellen
+	2.2 Deeltjes Toevoegen
+	2.3 Deeltjes Verwijderen
+	2.4 Interpreteren Van Het Uitvoerpaneel
 3. CONCURRENCY VAN HET PROGRAMMA
-3.1 Round
-3.2 BlockingQueue
-3.3 Particle
-3.4 Gui
-3.5 ThreadPool
-3.6 Animation
+	3.1 Round
+	3.2 BlockingQueue
+	3.3 Particle
+	3.4 Gui
+	3.5 ThreadPool
+	3.6 Animation
 4. EXTRA LOAD BALANCING EN SYNCHRONISATIE
-4.1 Efficiënt thread-management
+	4.1 Efficiënt thread-management
 
 
 1. GLOBALE STRUCTUUR VAN HET PROGRAMMA
