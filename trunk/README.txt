@@ -70,12 +70,12 @@ gdp.erichiram.partsim:
 	ThreadPool	- Start of beëindigt Animation-threads op basis van P (het maximum aantal threads). 
 	Gui			- Geeft het venster met het menu en het uitvoerpaneel weer en tekent de deeltjes.
 	Animation	- Een subklasse van Thread, verplaatst elke ronde k deeltjes uit de queue en alle deeltjes die daarna nog overblijven.   
-	Round		- Houdt gesynchroniseerd de huidige ronde bij zodat Animation-threads synchroon lopen.
 	Particle	- Een deeltje, bevat X-, Y-, dX-, dY-properties en de move-method voor het verplaatsen van een deeltje.
 
 gdp.erichiram.partsim.util:
 	ConfigurationReader	- Leest een initiele deeltjesconfiguratie uit een bestand.
-	BlockingQueue		- Een gesynchroniseerde queue-implementatie.
+	BlockingQueue		- Een gesynchroniseerde queue-implementatie; wordt gebruikt als queue voor de Particle-objecten.
+	SynchronizedInt		- Een gesynchroniseerde integer-implementatie; wordt gebruikt om het rondenummer bij te houden.
 
 
 
@@ -83,17 +83,17 @@ gdp.erichiram.partsim.util:
 
 [TODO In the documentation we expect reasoning about the concurrency of your program. As you know, a program may contain concurrency control features and nevertheless be totally sequential in nature. Make sure that your reasoning is concise and clear. Even better: give arguments why your program is correct, using the techniques taught in the lectures.]
 
-[Concurrency control is verdeeld over Animation en Round.]
+[Concurrency control van de Animation-threads vindt plaats in de Animation-class.]
 
-3.1 Thread.notify versus Thread.notifyAll
+3.1 Object.notify versus Object.notifyAll
 
-We gebruiken één keer in het programma notifyAll, dat is omdat op het moment dat die aangroepen wordt alle min één Animation threads aan het wachten zijn tot de volgende ronde begint. Op het moment dat een Animation-thread het laatste deeltje terugstopt in de queue begint een volgende ronde en wordt de rest van de threads weer wakker gemaakt met Thread.notifyAll. Dit zorgt ervoor dat threads niet onnodig resources innemen als er niets meer te doen valt. [TODO "Explain why notify is not sufficient."]
+We gebruiken één keer in het programma notifyAll, dat is omdat op het moment dat die aangroepen wordt alle min één Animation threads aan het wachten zijn tot de volgende ronde begint. Op het moment dat een Animation-thread het laatste deeltje terugstopt in de queue begint een volgende ronde en wordt de rest van de threads weer wakker gemaakt met notifyAll. Dit zorgt ervoor dat threads niet onnodig resources innemen als er niets meer te doen valt. [TODO "Explain why notify is not sufficient."]
 
 
 
 4. EXTRA LOAD BALANCING EN SYNCHRONISATIE
 
 4.1 Zeer efficiente thread management
-De manier waarop we het maken en stoppen van threads regelen is zeer efficient. Bovendien vermijd het allerlei vervelende race condities waarbij meerdere threads tegelijkertijd proberen uit te vinden of ze weg moeten
+De manier waarop het maken en stoppen van threads is geregeld is zeer efficiënt. Bovendien vermijd het race-condities waarbij meerdere threads tegelijkertijd proberen uit te vinden of ze moeten stoppen. [TODO Hoe dan? :-)]
 
 [TODO Besides the basic behavior as explained above, you are allowed to do some nice and extra on the simulation of systems of particles and/or the load balancing and synchronization.  This may lead top a bonus on your grade (which will not exceed 10), but this bonus will only be assigned for something with regard to load balancing and/or synchronization.  Explain your approach in the documentation.]
