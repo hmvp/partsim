@@ -42,8 +42,6 @@ gdp.erichiram.partsim.util:
 
 2. UITVOEREN VAN HET PROGRAMMA
 
-[TODO Commando voor het compileren (van de jar) van de source.]
-
 Voer het volgende commando uit:
 
 java -jar ParticleSimulator.jar
@@ -89,10 +87,7 @@ De kleur van een deeltje wordt bepaald door het ID van de thread dat het deeltje
 
 3. CONCURRENCY VAN HET PROGRAMMA
 
-Concurrency control van de Animation-threads vindt plaats in de Animation-klasse en met behulp van een globaal rondenummer dat wordt bijgehouden door middel van een Round-object in de Main-klasse. Dit interactie van dit laatste object met de Animation-threads zorgt ervoor dat de Animation-threads ronde voor ronde alle deeltjes behandelen. In de onderstaande paragrafen wordt deze interactie in meer detail uitgelegd. 
-
-[TODO Argumenten voor concurrency in programma.]
-[TODO Bewijs voor correctheid van programma, "using the techniques taught in the lectures".]
+Concurrency control van de Animation-threads vindt plaats in de Animation-klasse en met behulp van een globaal rondenummer dat wordt bijgehouden door middel van een Round-object in de Main-klasse. Dit interactie van dit laatste object met de Animation-threads zorgt ervoor dat de Animation-threads ronde voor ronde alle deeltjes behandelen. In de onderstaande paragrafen wordt deze interactie in meer detail uitgelegd.
 
 
 3.1 Round
