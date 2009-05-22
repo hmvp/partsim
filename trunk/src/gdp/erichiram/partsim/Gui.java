@@ -348,10 +348,12 @@ public class Gui implements Runnable {
 				if(offscreenImage == null)
 				{
 					offscreenImage = createImage(getSize().width, getSize().height);
-					
+					offscreenGraphics = offscreenImage.getGraphics();
 				}
-				offscreenGraphics = offscreenImage.getGraphics();
 				
+				g.drawImage(offscreenImage, 0, 0, this);
+				offscreenGraphics.setColor(Color.BLACK);
+				offscreenGraphics.fillRect(0, 0, getSize().width, getSize().height);
 				
 				for (Particle p : main.particles) {
 					//make sure we get data from the same round
@@ -371,9 +373,6 @@ public class Gui implements Runnable {
 				offscreenGraphics.setColor(Color.WHITE);
 				offscreenGraphics.drawString("p: "+String.valueOf(main.tpool.size()), 1, 20);
 				offscreenGraphics.drawString("n: "+String.valueOf(main.particles.size()), 1, 35);
-				g.drawImage(offscreenImage, 0, 0, this);
-				offscreenGraphics.setColor(Color.BLACK);
-				offscreenGraphics.fillRect(0, 0, getSize().width, getSize().height);
 			}
 		};
 		
