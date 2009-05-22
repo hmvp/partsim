@@ -94,25 +94,6 @@ public class ParticleTest {
 	}
 	
 	@Test
-	public void testParticleBigDCombiMove() {
-		
-		for (int i = 0; i < 200; i++ ) {
-			Particle p = new Particle(i);
-			p.setDx((int) (Math.random() * 10000 - 5000));
-			p.setDy((int) (Math.random() * 10000 - 5000));
-			for ( int j = 0; j < 10000; j++ ) {
-				if ( Math.abs(p.getDx()) + Math.abs(p.getDy()) > 800  ) {
-					p.move();
-				} else {
-					p.stupidMove();
-				}
-				Assert.assertTrue(p.getX() >= 0 && p.getX() < 800 );
-				Assert.assertTrue(p.getY() >= 0 && p.getY() < 600 );
-			}
-		}
-	}
-	
-	@Test
 	public void testParticleBigDSmartMove() {
 		
 		for (int i = 0; i < 200; i++ ) {
