@@ -4,17 +4,8 @@ import gdp.erichiram.routables.message.MyDist;
 import gdp.erichiram.routables.message.Fail;
 import gdp.erichiram.routables.message.Repair;
 
+// TODO implement the Netchange algorithm!
 public class RoutingTable {
-
-	private void setNeighbour(int neighbour, int destination) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	private void getNeighbour(int destination) {
-		// TODO Auto-generated method stub
-		
-	}
 	
 	public void recompute(int neighbour) {
 		
