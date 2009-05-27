@@ -48,6 +48,7 @@ public class NetwProg {
 
 	private void initializeRoutingTable() {
 		// TODO initialize routing table
+		routingTable = new RoutingTable(socketHandlers);
 	}
 
 	private void initializeGui() {
