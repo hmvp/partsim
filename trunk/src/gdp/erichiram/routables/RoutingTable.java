@@ -2,13 +2,29 @@ package gdp.erichiram.routables;
 
 public class RoutingTable {
 
-	public void setNeighbour(int i, int j) {
+	private void setNeighbour(int neighbour, int destination) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	public void getNeighbour(int i) {
+	private void getNeighbour(int destination) {
 		// TODO Auto-generated method stub
+		
+	}
+	
+	public void recompute(int neighbour) {
+		
+	}
+	
+	public void receiveMyDist(int node, int distance) {
+		
+	}
+	
+	public void receiveFail(int neighbour) {
+		
+	}
+	
+	public void receiveRepair(int neighbour) {
 		
 	}
 
