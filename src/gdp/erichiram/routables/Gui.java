@@ -51,6 +51,7 @@ public class Gui implements Runnable {
 	}
 
 	private JFrame createFrame() {
+		// TODO: create the gui
 		JFrame frame = new JFrame();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setLayout(new BorderLayout());

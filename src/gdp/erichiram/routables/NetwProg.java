@@ -20,12 +20,15 @@ public class NetwProg {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		
+		// TODO: initialize neighbours
+		
 		NetwProg netwProg = new NetwProg();
 		netwProg.initialize();
 	}
 
-	private void initialize() {		
-		// create table
+	private void initialize() {
+		// TODO: create table
 		table.setNeighbour(10, 20);
 		table.getNeighbour(20);
 		
