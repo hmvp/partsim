@@ -1,6 +1,5 @@
 package gdp.erichiram.routables;
 
-import java.util.Collection;
 import java.util.Map;
 
 import gdp.erichiram.routables.message.MyDist;
