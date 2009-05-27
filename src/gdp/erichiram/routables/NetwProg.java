@@ -29,8 +29,7 @@ public class NetwProg {
 
 	private void initialize() {
 		// TODO: create table
-		table.setNeighbour(10, 20);
-		table.getNeighbour(20);
+		// table.create hahah
 		
 		// create gui
 		SwingUtilities.invokeLater(new Gui());
@@ -40,8 +39,6 @@ public class NetwProg {
 			SocketHandler socketHandler = new SocketHandler(Math.min(port, neighbour));
 			socketHandlers.add(socketHandler);
 			socketHandler.start();
-		}
-				
+		}				
 	}
-
 }
