@@ -6,6 +6,7 @@ package gdp.erichiram.routables.util;
 import gdp.erichiram.routables.NetwProg;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -26,7 +27,7 @@ public class JavaStarter {
 		new JavaStarter();
 	}
 
-	private Map<Integer,Set<Tuple>> m;
+	private Map<Integer,Set<Tuple>> m = new HashMap<Integer, Set<Tuple>>();
 	
 	private void putMap(int port, Tuple... data)
 	{
@@ -34,7 +35,7 @@ public class JavaStarter {
 	}
 	
 	public JavaStarter()
-	{
+	{	
 		putMap(1100, new Tuple(1101,4), new Tuple(1102,3), new Tuple(1103,7));
 		putMap(1101, new Tuple(1100,4), new Tuple(1102,3), new Tuple(1103,7));
 		putMap(1102, new Tuple(1101,4), new Tuple(1100,3), new Tuple(1103,7));
@@ -76,7 +77,7 @@ class Tuple {
 	public String w;
 	
 	public Tuple(Integer port, Integer w){
-		if(port <= 1100 || port > 1120 ||w < 1 || w > 1000)
+		if(port < 1100 || port > 1120 || w < 1 || w > 1000)
 			throw new RuntimeException("AArggh input wrong!");
 		
 		this.port = port.toString();
