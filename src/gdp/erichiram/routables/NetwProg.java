@@ -6,6 +6,7 @@ import java.net.Socket;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.SwingUtilities;
@@ -37,57 +38,65 @@ public class NetwProg {
 
 	public final int id;
 	private volatile int t;
-	private Collection<Integer> neighbours;
-	private Map<Integer, SocketHandler> socketHandlers;
 	private RoutingTable routingTable;
 	private ServerSocket socket;
 
 	public NetwProg(int argId, Integer[] argNeighbours, int[] argWeights) {
 
 		this.id = argId;
+		
+		List<Integer> neighbours = Arrays.asList(argNeighbours);
 
-		neighbours = Arrays.asList(argNeighbours);
-		routingTable = new RoutingTable(socketHandlers);
+		Map<Integer, SocketHandler> socketHandlers = initializeSocketHandlers(neighbours);
+		routingTable = new RoutingTable(this, socketHandlers, neighbours);
+		
+		for(SocketHandler s : socketHandlers.values())
+		{
+			s.start();
+		}
 		
 		SwingUtilities.invokeLater(new Gui(this));
-		
-		initializeSocketHandlers();
 	}
 
-	private void initializeSocketHandlers() {
+	private Map<Integer, SocketHandler> initializeSocketHandlers(Collection<Integer> neighbours) {
 		// initialize threads for sockets
-		socketHandlers = new HashMap<Integer, SocketHandler>();
+		Map<Integer, SocketHandler> socketHandlers = new HashMap<Integer, SocketHandler>();
+		
 		try {
 			socket = new ServerSocket(id);
+		
+		
+			//connect to everyone higher than me
+			for (int neighbour : neighbours) {
+				if (neighbour > id)
+				{
+				
+					SocketHandler socketHandler = new SocketHandler(this, neighbour, routingTable);
+					socketHandlers.put(neighbour, socketHandler);
+					//socketHandler.start();
+				}
+			}
 		} catch (IOException e1) {
 			System.err.println("port "+ id +" already taken");
 			System.exit(1);
 		}
 		
-		//connect to everyone higher than me
-		for (int neighbour : neighbours) {
-			if (neighbour > id)
-			{
-			
-				SocketHandler socketHandler = new SocketHandler(neighbour, routingTable);
-				socketHandlers.put(neighbour, socketHandler);
-				socketHandler.start();
-			}
-		}
-		
 		//listen and start sockets if needed
-		while(true){
+		while(socketHandlers.size() != neighbours.size()){
 			Socket clientsocket;
 			try {
 				clientsocket = socket.accept();
-				int neighbour = clientsocket.getPort();
-				SocketHandler socketHandler = new SocketHandler(clientsocket, routingTable);
+				//TODO we moeten hier uitvinden van wie deze connectie komt! getPort en getLocalPort geven niet het gewenste resultaat
+				int neighbour = clientsocket.;
+				SocketHandler socketHandler = new SocketHandler(this, clientsocket, routingTable);
 				socketHandlers.put(neighbour, socketHandler);
-				socketHandler.start();
+				//socketHandler.start();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
+		
+		return socketHandlers;
 	}
 
 	public void setT(int t) {

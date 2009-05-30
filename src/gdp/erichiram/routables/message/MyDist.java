@@ -1,6 +1,8 @@
 package gdp.erichiram.routables.message;
 
-public class MyDist implements Message {	
+public class MyDist extends Message {	
+	private static final long serialVersionUID = -1196856163917315605L;
+	
 	public int id;
 	public int distance;
 	
