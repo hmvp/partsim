@@ -38,7 +38,7 @@ public class NetwProg {
 
 	public final int id;
 	private volatile int t;
-	private RoutingTable routingTable;
+	public final RoutingTable routingTable;
 	private ServerSocket socket;
 
 	public NetwProg(int argId, Integer[] argNeighbours, int[] argWeights) {
@@ -52,6 +52,7 @@ public class NetwProg {
 		
 		for(SocketHandler s : socketHandlers.values())
 		{
+			s.setRoutingTable(routingTable);
 			s.start();
 		}
 		
@@ -71,7 +72,7 @@ public class NetwProg {
 				if (neighbour > id)
 				{
 				
-					SocketHandler socketHandler = new SocketHandler(this, neighbour, routingTable);
+					SocketHandler socketHandler = new SocketHandler(this, neighbour);
 					socketHandlers.put(neighbour, socketHandler);
 					//socketHandler.start();
 				}
@@ -86,10 +87,8 @@ public class NetwProg {
 			Socket clientsocket;
 			try {
 				clientsocket = socket.accept();
-				//TODO we moeten hier uitvinden van wie deze connectie komt! getPort en getLocalPort geven niet het gewenste resultaat
-				int neighbour = clientsocket.;
-				SocketHandler socketHandler = new SocketHandler(this, clientsocket, routingTable);
-				socketHandlers.put(neighbour, socketHandler);
+				SocketHandler socketHandler = new SocketHandler(this, clientsocket);
+				socketHandlers.put(socketHandler.getPort(), socketHandler);
 				//socketHandler.start();
 			} catch (IOException e) {
 				e.printStackTrace();
