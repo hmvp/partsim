@@ -1,28 +1,31 @@
 package gdp.erichiram.routables;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import gdp.erichiram.routables.message.Fail;
 import gdp.erichiram.routables.message.Message;
 import gdp.erichiram.routables.message.MyDist;
-import gdp.erichiram.routables.message.Fail;
 import gdp.erichiram.routables.message.Repair;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Observable;
+import java.util.Set;
+
 // TODO implement the Netchange algorithm!
-public class RoutingTable {
+public class RoutingTable extends Observable{
 	private static final Integer UNDEF = 0;
-	Map<Integer, SocketHandler> socketHandlers;
+	public final Map<Integer, SocketHandler> socketHandlers;
 	private Map<Integer, Integer> D = new HashMap<Integer, Integer>();
 	private Collection<Integer> nodes;
-	private Collection<Integer> neighbours;
+	Set<Integer> neighbours;
 	private Map<Integer, Map<Integer,Integer>> ndis = new HashMap<Integer, Map<Integer,Integer>>();
 	private NetwProg netwProg;
 	private Map<Integer, Integer> NB = new HashMap<Integer, Integer>();
 	
 	public RoutingTable(NetwProg netwProg, Map<Integer, SocketHandler> socketHandlers, List<Integer> neighbours) {
-		this.neighbours = neighbours;
+		this.neighbours = new HashSet<Integer>(neighbours);
 		this.nodes = neighbours;
 		this.socketHandlers = socketHandlers;
 		this.netwProg = netwProg;
@@ -53,6 +56,7 @@ public class RoutingTable {
 		{
 			send(w, new MyDist(netwProg.id,0));
 		}
+		setChanged();
 	}
 	
 	public void recompute(int neighbour) {
@@ -102,22 +106,25 @@ public class RoutingTable {
 		
 	}
 	
-	public void receive(MyDist myDist) {
+	private void receive(MyDist myDist) {
 		ndis.get(myDist.from).put(myDist.id,myDist.distance);
 		recompute(myDist.id);
-		
+		setChanged();
+		notifyObservers();
 	}
 	
-	public void receive(Fail fail) {
+	private void receive(Fail fail) {
 		neighbours.remove(fail.neighbour);
 		
 		for(int neighbour : nodes)
 		{
 			recompute(neighbour);
 		}
+		setChanged();
+		notifyObservers();
 	}
 	
-	public void receive(Repair repair) {
+	private void receive(Repair repair) {
 		neighbours.add(repair.neighbour);
 		
 		for(int neighbour : nodes)
@@ -125,6 +132,8 @@ public class RoutingTable {
 			ndis.get(repair.neighbour).put(neighbour,nodes.size());
 			send(repair.neighbour, new MyDist(neighbour,D.get(neighbour)));
 		}
+		setChanged();
+		notifyObservers();
 	}
 
 	public void send(int destination, Message message) {
@@ -137,7 +146,7 @@ public class RoutingTable {
 		// if the destination is a neighbour
 		if(NB.get(destination) == netwProg.id)
 		{
-			return;
+			receive(message);
 		}
 		
 		if ( socketHandlers.containsKey(NB.get(destination)) ) {
@@ -154,5 +163,15 @@ public class RoutingTable {
 		}
 		
 		
+	}
+
+	public void receive(Message message) {
+		if (message instanceof MyDist) {
+			receive((MyDist)message);
+		} else if (message instanceof Repair) {
+			receive((Repair)message);
+		} else if (message instanceof Fail) {
+			receive((Fail)message);
+		}
 	}
 }

@@ -7,31 +7,35 @@
 
 package gdp.erichiram.routables;
 
+import gdp.erichiram.routables.message.Fail;
+import gdp.erichiram.routables.message.Repair;
+
 import java.awt.BorderLayout;
-import java.awt.Canvas;
-import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.LinkedList;
+import java.util.Observable;
+import java.util.Observer;
 
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
-import javax.swing.SpinnerModel;
+import javax.swing.SpinnerListModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.Timer;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-public class Gui implements Runnable {
+public class Gui implements Runnable, Observer {
 	
 	private NetwProg netwProg;
 
 	public Gui(NetwProg netwProg) {
 		this.netwProg = netwProg;
+		netwProg.routingTable.addObserver(this);
 	}
 
 	/**
@@ -70,9 +74,52 @@ public class Gui implements Runnable {
 
 		return frame;
 	}
+	
+	
 
 	private Component createNetworkPane() {
 		JPanel p = new JPanel();
+		
+		final SpinnerListModel spm = new SpinnerListModel(new LinkedList<Integer>(netwProg.routingTable.neighbours));
+
+		final JSpinner nSpin = new JSpinner(spm);
+		
+		
+		JButton fail = new JButton("fail");
+		fail.addActionListener(new ActionListener(){
+
+			public void actionPerformed(ActionEvent actionevent) {
+				netwProg.routingTable.send((Integer) spm.getValue(), new Fail(netwProg.id));
+				netwProg.routingTable.send(netwProg.id, new Fail((Integer) spm.getValue()));
+				
+				if(netwProg.routingTable.neighbours.size() < 1)
+				{
+					nSpin.setEnabled(false);
+				}
+				else
+				{
+					nSpin.setEnabled(true);
+					spm.setList(new LinkedList<Integer>(netwProg.routingTable.neighbours));
+				}
+			}
+			
+		});
+		
+		JButton repair = new JButton("repair");
+		fail.addActionListener(new ActionListener(){
+
+			public void actionPerformed(ActionEvent actionevent) {
+				netwProg.routingTable.send(1100, new Repair(1101,3));
+				netwProg.routingTable.send(1101, new Repair(1100,3));
+			}
+			
+		});
+		
+		p.add(fail);
+		p.add(nSpin);
+		p.add(repair);
+		
+		
 		return p;
 	}
 
@@ -106,6 +153,10 @@ public class Gui implements Runnable {
 
 	public void run() {
 		initializeGui();
+	}
+
+	public void update(Observable observable, Object obj) {
+		
 	}
 
 
