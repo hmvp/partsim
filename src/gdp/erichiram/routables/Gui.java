@@ -86,7 +86,7 @@ public class Gui implements Runnable, Observer {
 		final JSpinner nSpin = new JSpinner(spm);
 		
 		
-		JButton fail = new JButton("fail");
+		final JButton fail = new JButton("fail");
 		fail.addActionListener(new ActionListener(){
 
 			public void actionPerformed(ActionEvent actionevent) {
@@ -96,10 +96,12 @@ public class Gui implements Runnable, Observer {
 				if(netwProg.routingTable.neighbours.size() < 1)
 				{
 					nSpin.setEnabled(false);
+					fail.setEnabled(false);
 				}
 				else
 				{
 					nSpin.setEnabled(true);
+					fail.setEnabled(true);
 					spm.setList(new LinkedList<Integer>(netwProg.routingTable.neighbours));
 				}
 			}
