@@ -21,20 +21,17 @@ public class NetwProg {
 
 		// parse the arguments
 		int argId = Integer.valueOf(args[0]);
-		Integer[] argNeighbours = new Integer[(args.length-1)/2];
-		int[] argWeights = new int[(args.length-1)/2];
-		
-		for(int i = 1,n = 0,w = 0; i < args.length;)
+		Map<Integer,Integer> neighbours = new HashMap<Integer, Integer>(args.length);
+		for(int i = 1; i < args.length;)
 		{
-			argNeighbours[n++] = Integer.valueOf(args[i++]);
-			argWeights[w++] = Integer.valueOf(args[i++]);
+			neighbours.put(Integer.valueOf(args[i++]), Integer.valueOf(args[i++]));
 		}
 		
 
 		System.out.println("Starting: " + argId);
 		
 		// create the application
-		new NetwProg(argId, argNeighbours, argWeights);
+		new NetwProg(argId, neighbours);
 	}
 
 	public final int id;
@@ -44,17 +41,19 @@ public class NetwProg {
 	
 	public ObservableAtomicInteger messagesSent = new ObservableAtomicInteger(0);
 
-	public NetwProg(int argId, Integer[] argNeighbours, int[] argWeights) {
+	public NetwProg(int argId, Map<Integer,Integer> neighbours) {
 
 		this.id = argId;
 		
-		Map<Integer,Integer> neighbours = new HashMap<Integer, Integer>(argNeighbours.length);
-		for (int i = 0; i < argNeighbours.length; i++){
-			neighbours.put(argNeighbours[i], argWeights[i]);
-		}
+		Util.debug(id, "start init socketh");
 
 		Map<Integer, SocketHandler> socketHandlers = initializeSocketHandlers(neighbours.keySet());
+		
+		Util.debug(id, "start init routing");
+
 		routingTable = new RoutingTable(this, socketHandlers, neighbours);
+		
+		Util.debug(id, "start socketh");
 		
 		for(SocketHandler s : socketHandlers.values())
 		{
@@ -63,7 +62,15 @@ public class NetwProg {
 		}
 		System.out.println("Starting GUI: " + argId);
 		
+		Util.debug(id, "start routing");
+		routingTable.initialize();
+		
+		Util.debug(id, "start gui");
+		
 		SwingUtilities.invokeLater(new Gui(this));
+		
+		Util.debug(id, "klaar");
+
 	}
 
 	private Map<Integer, SocketHandler> initializeSocketHandlers(Collection<Integer> neighbours) {
@@ -77,18 +84,21 @@ public class NetwProg {
 			for (int neighbour : neighbours) {
 				if (neighbour > id)
 				{
-				
+					Util.debug(id, "start clientsockethandler "+ neighbour);
+
 					SocketHandler socketHandler = new SocketHandler(this, neighbour);
 					socketHandlers.put(neighbour, socketHandler);
 					//socketHandler.start();
 				}
 			}
+
 		} catch (IOException e1) {
 			System.err.println("Port " + id + " is already taken.");
 			System.exit(1);
 		}
 		
 		//listen and start sockets if needed
+		Util.debug(id, "start listening");
 		while(socketHandlers.size() != neighbours.size()){
 			Socket clientsocket;
 			try {
