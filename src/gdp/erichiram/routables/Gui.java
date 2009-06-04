@@ -28,11 +28,14 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.Timer;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.JTable;
+import javax.swing.table.TableModel;
+import javax.swing.table.AbstractTableModel;
 
 public class Gui implements Runnable, Observer {
 	
 	private NetwProg netwProg;
-	private JLabel messagesSentLabel;
+	private JLabel messagesSentLabel = new JLabel();
 	private SpinnerListModel spm;
 	private JSpinner nSpin;
 	private JButton fail;
@@ -120,8 +123,6 @@ public class Gui implements Runnable, Observer {
 			}
 			
 		});
-
-		
 		
 		p.add(fail);
 		p.add(nSpin);
@@ -129,20 +130,61 @@ public class Gui implements Runnable, Observer {
 		p.add(rSpin);
 		p.add(wSpin);
 		
-		
 		return p;
 	}
 
 	private Component createInfoPane() {
-		JPanel p = new JPanel();
+		JPanel infoPane = new JPanel();
 		
-		JLabel idLabel = new JLabel("id: " + netwProg.id);
+		TableModel tableModel = new AbstractTableModel() {
+
+			private static final long serialVersionUID = 3441755023701740847L;
+
+			String[] columnNames = { "d", "n", "|p|" };
+
+			public String getColumnName(int col) {
+				return columnNames[col].toString();
+			}
+
+			public int getRowCount() {
+				return netwProg.routingTable.NB.size();
+			}
+
+			public int getColumnCount() {
+				return columnNames.length;
+			}
+
+			public Object getValueAt(int row, int col) {
+				
+				if ( col == 0 ) {
+					return netwProg.routingTable.NB.keySet().toArray()[row];
+				} else if ( col == 1 ) {
+					return netwProg.routingTable.NB.values().toArray()[row];
+				} else {
+					return Math.random();
+				}
+			}
+
+			public boolean isCellEditable(int row, int col) {
+				return false;
+			}
+		};
+		
+
+		JLabel idLabel = new JLabel("id: " + netwProg.id);		
+		infoPane.add(idLabel);
+		
 		messagesSentLabel = new JLabel(Configuration.msgString + netwProg.messagesSent.get());
+		infoPane.add(messagesSentLabel);
+
+		JPanel tablePane = new JPanel();		
+		tablePane.setLayout(new BorderLayout());
+		JTable routingTable = new JTable(tableModel);
+		tablePane.add(routingTable.getTableHeader(), BorderLayout.PAGE_START);
+		tablePane.add(routingTable, BorderLayout.CENTER);
+		infoPane.add(tablePane);
 		
-		p.add(idLabel);
-		p.add(messagesSentLabel);
-		
-		return p;
+		return infoPane;
 	}
 
 	private Component createParamPane() {
@@ -200,8 +242,8 @@ public class Gui implements Runnable, Observer {
 					repair.setEnabled(true);
 				}
 			} catch (Exception e){}
+			
+			
 		}
 	}
-
-
 }

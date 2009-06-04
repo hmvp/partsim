@@ -31,6 +31,8 @@ public class NetwProg {
 		}
 		
 
+		System.out.println("Starting: " + argId);
+		
 		// create the application
 		new NetwProg(argId, argNeighbours, argWeights);
 	}
@@ -59,6 +61,7 @@ public class NetwProg {
 			s.setRoutingTable(routingTable);
 			s.start();
 		}
+		System.out.println("Starting GUI: " + argId);
 		
 		SwingUtilities.invokeLater(new Gui(this));
 	}
