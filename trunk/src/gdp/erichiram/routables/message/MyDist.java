@@ -12,6 +12,6 @@ public class MyDist extends Message {
 	}
 	
 	public String toString() {
-		return super.toString() + " <repair, " + id + ", " + distance + ">";
+		return super.toString() + " <mydist, " + id + ", " + distance + ">";
 	}
 }
