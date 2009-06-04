@@ -14,6 +14,7 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
 import java.util.LinkedList;
 import java.util.Observable;
 import java.util.Observer;
@@ -75,8 +76,15 @@ public class Gui implements Runnable, Observer {
 			}
 		};
 		
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frame.setLayout(new BorderLayout());
+		frame.addWindowListener(new java.awt.event.WindowAdapter() {
+		    public void windowClosing(WindowEvent winEvt) {
+		        // closing netwProg
+		        netwProg.running = false;
+		    }
+		});
+		
 		
 		frame.add(createParamPane(), BorderLayout.PAGE_START);
 		frame.add(createInfoPane(), BorderLayout.LINE_END);

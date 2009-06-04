@@ -85,7 +85,7 @@ public class SocketHandler extends Thread {
 
 	@Override
 	public void run() {
-		while (true) {
+		while (netwProg.running) {
 			Object object = null;
 			try {
 				// read a message object from the input stream
@@ -112,6 +112,19 @@ public class SocketHandler extends Thread {
 					routingTable.send(message.to, message);
 				}
 			}
+		}
+		
+		// close all the sockets
+		try {
+			
+			// TODO maybe send a fail to other netwprogs
+			
+			out.close();
+			in.close();
+			socket.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 	
