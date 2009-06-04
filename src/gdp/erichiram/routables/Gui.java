@@ -140,7 +140,7 @@ public class Gui implements Runnable, Observer {
 
 			private static final long serialVersionUID = 3441755023701740847L;
 
-			String[] columnNames = { "d", "n", "|p|" };
+			String[] columnNames = { "Destination", "Neighbour", "Length of path" };
 
 			public String getColumnName(int col) {
 				return columnNames[col].toString();
