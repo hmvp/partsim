@@ -50,7 +50,6 @@ public class Gui implements Runnable, Observer {
 	}
 
 	private JFrame createFrame() {
-		// TODO: create the gui
 		JFrame frame = new JFrame(){
 
 			private static final long serialVersionUID = 5772443503354772693L;

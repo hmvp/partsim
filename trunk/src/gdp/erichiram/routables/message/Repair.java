@@ -10,4 +10,8 @@ public class Repair extends Message {
 		this.neighbour = neighbour;
 		this.weight = weight;
 	}
+	
+	public String toString() {
+		return super.toString() + " <repair, " + neighbour + ", " + weight + ">";
+	}
 }

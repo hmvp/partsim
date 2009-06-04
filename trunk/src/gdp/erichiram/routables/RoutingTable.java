@@ -13,7 +13,12 @@ import java.util.Map;
 import java.util.Observable;
 import java.util.Set;
 
-// TODO implement the Netchange algorithm!
+/**
+ * This class contains the Netchange algorithm and the routing table.
+ * 
+ * @author hiram, eric
+ *
+ */
 public class RoutingTable extends Observable{
 	private static final Integer UNDEF = 0;
 	public final Map<Integer, SocketHandler> socketHandlers;
