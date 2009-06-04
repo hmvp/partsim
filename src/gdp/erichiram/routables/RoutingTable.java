@@ -173,11 +173,8 @@ public class RoutingTable extends Observable{
 				netwProg.messagesSent.increment();
 			} else {
 				System.err.println("something wrong! tried to send to: "+ NB.get(destination) + " for: " + destination);
-				
 			}
-		}
-		
-		
+		}		
 	}
 
 	public void receive(Message message) {

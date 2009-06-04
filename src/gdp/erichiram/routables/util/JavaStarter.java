@@ -36,17 +36,11 @@ public class JavaStarter {
 	
 	public JavaStarter()
 	{	
-		putMap(1100, new Tuple(1101,4), new Tuple(1102,3), new Tuple(1103,7));
-		putMap(1101, new Tuple(1100,4), new Tuple(1102,3), new Tuple(1103,7));
-		putMap(1102, new Tuple(1101,4), new Tuple(1100,3), new Tuple(1103,7));
-		putMap(1103, new Tuple(1101,4), new Tuple(1100,3), new Tuple(1102,7));
-
-		// Parameters from the assignment:
-//		putMap(1103, new Tuple(1102,1), new Tuple(1100,1));
-//		putMap(1102, new Tuple(1101,1), new Tuple(1104,1), new Tuple(1103,1));
-//		putMap(1100, new Tuple(1104,1), new Tuple(1103,1));
-//		putMap(1104, new Tuple(1102,1), new Tuple(1101,1), new Tuple(1100,1));
-//		putMap(1101, new Tuple(1102,1), new Tuple(1104,1));
+		putMap(1103, new Tuple(1102,1), new Tuple(1100,1));
+		putMap(1102, new Tuple(1101,1), new Tuple(1104,1), new Tuple(1103,1));
+		putMap(1100, new Tuple(1104,1), new Tuple(1103,1));
+		putMap(1104, new Tuple(1102,1), new Tuple(1101,1), new Tuple(1100,1));
+		putMap(1101, new Tuple(1102,1), new Tuple(1104,1));
 
 		
 		for(int s : m.keySet())
