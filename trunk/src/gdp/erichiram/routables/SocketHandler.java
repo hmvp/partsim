@@ -82,32 +82,31 @@ public class SocketHandler extends Thread {
 			routingTable = netwProg.routingTable;
 		
 		while (true) {
+			Object object = null;
 			try {
 				// read a message object from the input stream
-				Object object = in.readObject();				
-				// relay the message to the routing table
-				if (object instanceof Message) {
-					Message message = (Message) object;					
-
-					Util.debug(netwProg.id, "Receiving message: " + message);
-					
-					if(message.to == netwProg.id)
-					{
-						Util.debug(netwProg.id, "-> Processing that message.");
-						routingTable.receive(message);
-					}
-					else
-					{
-						 //route to next node
-						Util.debug(netwProg.id, "-> Rerouting that message.");
-						routingTable.send(message.to, message);
-					}
-				}
-
+				object = in.readObject();
 			} catch (IOException e) {
-				System.err.println("[" + port + "] Something went wrong when receiving a message: " + e.getLocalizedMessage());
+				System.err.println("[" + port + "] Something went wrong when receiving a message: " + e.toString());
 			} catch (ClassNotFoundException e) {
-				System.err.println("[" + port + "] Something strange is happening: " + e.getLocalizedMessage());
+				System.err.println("[" + port + "] Something strange is happening: " + e.toString());
+			}
+			
+			// relay the message to the routing table
+			if (object != null && object instanceof Message) {
+				Message message = (Message) object;
+				
+				if(message.to == netwProg.id)
+				{
+					Util.debug(netwProg.id, "Processing " + message + ".");
+					routingTable.receive(message);
+				}
+				else
+				{
+					 //route to next node
+					Util.debug(netwProg.id, "Rerouting " + message + ".");
+					routingTable.send(message.to, message);
+				}
 			}
 		}
 	}

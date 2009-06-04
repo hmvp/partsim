@@ -7,11 +7,8 @@ import gdp.erichiram.routables.message.Repair;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Observable;
-import java.util.Set;
 
 /**
  * This class contains the Netchange algorithm and the routing table.
@@ -27,7 +24,7 @@ public class RoutingTable extends Observable{
 	Map<Integer,Integer> neighbours;
 	private Map<Integer, Map<Integer,Integer>> ndis = new HashMap<Integer, Map<Integer,Integer>>();
 	private NetwProg netwProg;
-	private Map<Integer, Integer> NB = new HashMap<Integer, Integer>();
+	public Map<Integer, Integer> NB = new HashMap<Integer, Integer>();
 	
 	public RoutingTable(NetwProg netwProg, Map<Integer, SocketHandler> socketHandlers, Map<Integer,Integer> neighbours) {
 		this.neighbours = neighbours;
@@ -117,7 +114,8 @@ public class RoutingTable extends Observable{
 			nodes.add(myDist.from);
 			ndis.put(myDist.from, new HashMap<Integer, Integer>());
 		}
-		ndis.get(myDist.from).put(myDist.id,myDist.distance);
+		Map<Integer, Integer> X = ndis.get(myDist.from);
+		X.put(myDist.id,myDist.distance);
 		recompute(myDist.id);
 		setChanged();
 		notifyObservers();
