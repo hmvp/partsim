@@ -33,6 +33,12 @@ public class Gui implements Runnable, Observer {
 	
 	private NetwProg netwProg;
 	private JLabel messagesSentLabel;
+	private SpinnerListModel spm;
+	private JSpinner nSpin;
+	private JButton fail;
+	private JSpinner rSpin;
+	private JSpinner wSpin;
+	private JButton repair;
 
 	public Gui(NetwProg netwProg) {
 		this.netwProg = netwProg;
@@ -81,29 +87,17 @@ public class Gui implements Runnable, Observer {
 	private Component createNetworkPane() {
 		JPanel p = new JPanel();
 		
-		final SpinnerListModel spm = new SpinnerListModel(new LinkedList<Integer>(netwProg.routingTable.neighbours));
+		spm = new SpinnerListModel(new LinkedList<Integer>(netwProg.routingTable.neighbours.keySet()));
 
-		final JSpinner nSpin = new JSpinner(spm);
+		nSpin = new JSpinner(spm);
 		
 		
-		final JButton fail = new JButton("fail");
+		fail = new JButton("fail");
 		fail.addActionListener(new ActionListener(){
 
 			public void actionPerformed(ActionEvent actionevent) {
 				netwProg.routingTable.send((Integer) spm.getValue(), new Fail(netwProg.id));
 				netwProg.routingTable.send(netwProg.id, new Fail((Integer) spm.getValue()));
-				
-				if(netwProg.routingTable.neighbours.size() < 1)
-				{
-					nSpin.setEnabled(false);
-					fail.setEnabled(false);
-				}
-				else
-				{
-					nSpin.setEnabled(true);
-					fail.setEnabled(true);
-					spm.setList(new LinkedList<Integer>(netwProg.routingTable.neighbours));
-				}
 			}
 			
 		});
@@ -111,31 +105,18 @@ public class Gui implements Runnable, Observer {
 		
 		final SpinnerNumberModel snpm = new SpinnerNumberModel(1100,1100,1120,1);
 
-		final JSpinner rSpin = new JSpinner(snpm);
+		rSpin = new JSpinner(snpm);
 		
 		final SpinnerNumberModel wspm = new SpinnerNumberModel(1,1,9999,1);
 
-		final JSpinner wSpin = new JSpinner(wspm);
+		wSpin = new JSpinner(wspm);
 		
-		final JButton repair = new JButton("repair");
+		repair = new JButton("repair");
 		fail.addActionListener(new ActionListener(){
 
 			public void actionPerformed(ActionEvent actionevent) {
 				netwProg.routingTable.send(netwProg.id, new Repair((Integer) snpm.getNumber(),(Integer) wspm.getNumber()));
 				netwProg.routingTable.send((Integer) snpm.getNumber(), new Repair(netwProg.id,(Integer) wspm.getNumber()));
-				
-				if(netwProg.routingTable.neighbours.size() < 20)
-				{
-					wSpin.setEnabled(false);
-					rSpin.setEnabled(false);
-					repair.setEnabled(false);
-				}
-				else
-				{
-					wSpin.setEnabled(true);
-					rSpin.setEnabled(true);
-					repair.setEnabled(true);
-				}
 			}
 			
 		});
@@ -190,6 +171,35 @@ public class Gui implements Runnable, Observer {
 		if ( observable == netwProg.messagesSent.observable() ) {
 			int messagesSent = netwProg.messagesSent.get();
 			messagesSentLabel.setText(Configuration.msgString + messagesSent);
+		}
+		
+		if (observable instanceof RoutingTable) {
+			try{
+				if(netwProg.routingTable.neighbours.size() < 1)
+				{
+					nSpin.setEnabled(false);
+					fail.setEnabled(false);
+				}
+				else
+				{
+					nSpin.setEnabled(true);
+					fail.setEnabled(true);
+					spm.setList(new LinkedList<Integer>(netwProg.routingTable.neighbours.keySet()));
+				}
+				
+				if(netwProg.routingTable.neighbours.size() < 20)
+				{
+					wSpin.setEnabled(false);
+					rSpin.setEnabled(false);
+					repair.setEnabled(false);
+				}
+				else
+				{
+					wSpin.setEnabled(true);
+					rSpin.setEnabled(true);
+					repair.setEnabled(true);
+				}
+			} catch (Exception e){}
 		}
 	}
 
