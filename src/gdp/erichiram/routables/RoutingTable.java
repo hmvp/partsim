@@ -161,10 +161,16 @@ public class RoutingTable extends Observable{
 		if ( socketHandlers.containsKey(NB.get(destination)) ) {
 			// send the message to the neighbour
 			socketHandlers.get(NB.get(destination)).send(message);
+
+			// increment the total number of sent messages
+			netwProg.messagesSent.increment();
 		} else {
 			if (socketHandlers.containsKey(destination) && NB.get(destination) == UNDEF) {
 				// send the message to the neighbour
 				socketHandlers.get(destination).send(message);
+				
+				// increment the total number of sent messages
+				netwProg.messagesSent.increment();
 			} else {
 				System.err.println("something wrong! tried to send to: "+ NB.get(destination) + " for: " + destination);
 				
