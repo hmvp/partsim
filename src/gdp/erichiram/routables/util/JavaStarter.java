@@ -39,7 +39,7 @@ public class JavaStarter {
 		putMap(1100, new Tuple(1101,4), new Tuple(1102,3), new Tuple(1103,7));
 		putMap(1101, new Tuple(1100,4), new Tuple(1102,3), new Tuple(1103,7));
 		putMap(1102, new Tuple(1101,4), new Tuple(1100,3), new Tuple(1103,7));
-		putMap(1103, new Tuple(1101,4), new Tuple(1100,3), new Tuple(1100,7));
+		putMap(1103, new Tuple(1101,4), new Tuple(1100,3), new Tuple(1102,7));
 
 		// Parameters from the assignment:
 //		putMap(1103, new Tuple(1102,1), new Tuple(1100,1));

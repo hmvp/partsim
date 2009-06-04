@@ -32,7 +32,7 @@ public class RoutingTable extends Observable{
 		this.socketHandlers = socketHandlers;
 		this.netwProg = netwProg;
 		
-		initialize();
+		//initialize();
 	}
 
 	public void initialize() {

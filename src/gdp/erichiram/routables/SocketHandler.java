@@ -18,12 +18,21 @@ public class SocketHandler extends Thread {
 	private Socket socket;
 	private ObjectInputStream in;
 	private ObjectOutputStream out;
-	private NetwProg netwProg;
-
+	private final NetwProg netwProg;
+	
 	public SocketHandler(NetwProg netwProg, int port) {
 		this.netwProg = netwProg;
 		this.port = port;
+		initializeSocket();
+	}
 
+	public SocketHandler(NetwProg netwProg, Socket socket) {
+		this.netwProg = netwProg;
+		this.socket = socket;
+		initializeSocketServer();
+	}
+
+	private void initializeSocket() {
 		while(socket == null)
 		{
 			try {
@@ -43,11 +52,9 @@ public class SocketHandler extends Thread {
 			}
 		}
 	}
-
-	public SocketHandler(NetwProg netwProg, Socket socket) {
-		this.netwProg = netwProg;
-		this.socket = socket;
-		
+	
+	
+	private void initializeSocketServer() {
 		try {
 			//we moeten out eerst doen omdat in anders blockt tot out (die aan de andere kant) de serializatie header heeft geflusht
 			out = new ObjectOutputStream(socket.getOutputStream());
@@ -78,9 +85,6 @@ public class SocketHandler extends Thread {
 
 	@Override
 	public void run() {
-		if(routingTable == null)
-			routingTable = netwProg.routingTable;
-		
 		while (true) {
 			Object object = null;
 			try {
