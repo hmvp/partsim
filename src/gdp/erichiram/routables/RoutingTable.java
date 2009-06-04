@@ -24,14 +24,14 @@ public class RoutingTable extends Observable{
 	public final Map<Integer, SocketHandler> socketHandlers;
 	private Map<Integer, Integer> D = new HashMap<Integer, Integer>();
 	private Collection<Integer> nodes;
-	Set<Integer> neighbours;
+	Map<Integer,Integer> neighbours;
 	private Map<Integer, Map<Integer,Integer>> ndis = new HashMap<Integer, Map<Integer,Integer>>();
 	private NetwProg netwProg;
 	private Map<Integer, Integer> NB = new HashMap<Integer, Integer>();
 	
-	public RoutingTable(NetwProg netwProg, Map<Integer, SocketHandler> socketHandlers, List<Integer> neighbours) {
-		this.neighbours = new HashSet<Integer>(neighbours);
-		this.nodes = neighbours;
+	public RoutingTable(NetwProg netwProg, Map<Integer, SocketHandler> socketHandlers, Map<Integer,Integer> neighbours) {
+		this.neighbours = neighbours;
+		this.nodes = neighbours.keySet();
 		this.socketHandlers = socketHandlers;
 		this.netwProg = netwProg;
 		
@@ -39,86 +39,91 @@ public class RoutingTable extends Observable{
 	}
 
 	public void initialize() {
-		for(int w: neighbours)
+		for(int w: neighbours.keySet())
 		{
 			ndis.put(w, new HashMap<Integer, Integer>());
 
 			for(int v : nodes)
 			{
-				ndis.get(w).put(v, nodes.size());
+				ndis.get(w).put(v, Integer.MAX_VALUE);
 			}
 		}
 		
 		for(int v : nodes)
 		{
-			D.put(v, nodes.size());
+			D.put(v, Integer.MAX_VALUE);
 			NB.put(v, UNDEF);
 		}
 		D.put(netwProg.id, 0);
 		NB.put(netwProg.id, netwProg.id);
 
-		for (int w : neighbours)
+		for (int w : neighbours.keySet())
 		{
 			send(w, new MyDist(netwProg.id,0));
 		}
 		setChanged();
 	}
 	
-	public void recompute(int neighbour) {
-		int oldDv = D.get(neighbour);
-		
-		if (neighbour == netwProg.id)
+	public synchronized void recompute(int v) {		
+		boolean dChanged;
+		if (v == netwProg.id)
 		{
-			D.put(neighbour, nodes.size());
-			NB.put(neighbour,netwProg.id);
+			dChanged = 0 != D.put(v, 0);
+			NB.put(v,netwProg.id);
 		}
 		else
 		{
-			int min = 1000;
-			for(int w : neighbours)
+			int min = Integer.MAX_VALUE;
+			int w = v;
+			for(int x : neighbours.keySet())
 			{
-					min = Math.min(ndis.get(w).get(neighbour), min);
+					if(!ndis.containsKey(x))
+						ndis.put(x, new HashMap<Integer, Integer>());
+
+					if(!ndis.get(x).containsKey(v))
+						ndis.get(x).put(v, Integer.MAX_VALUE);
+				
+					min = Math.min(ndis.get(x).get(v), min);
+					w = x;
 			}
 			
-			int d = 1 + min;
+			Integer d = neighbours.get(w) + min;
 			
-			if (d < nodes.size())
+			if (d < Integer.MAX_VALUE)
 			{
-				D.put(neighbour, d);
-				int w = neighbour;
-				for(int x : neighbours)
-				{
-					if(ndis.get(x).get(neighbour)+1 == d)
-					{
-						w = x;
-					}
-				}
-				NB.put(neighbour,w);
+				dChanged =  d != D.put(v, d);
+				NB.put(v,w);
 			}
 			else
 			{
-				D.put(neighbour, nodes.size());
-				NB.put(neighbour,UNDEF);
+				Integer oldD = D.put(v, Integer.MAX_VALUE);
+				dChanged = Integer.MAX_VALUE != oldD && oldD != null;
+				NB.put(v,UNDEF);
 			}
 		}
-		if(D.get(neighbour) != oldDv)
+		if(dChanged)
 		{
-			for(int x : neighbours)
+			for(int x : neighbours.keySet())
 			{
-				send(x, new MyDist(neighbour,D.get(neighbour)));
+				send(x, new MyDist(v,D.get(v)));
 			}
 		}
 		
 	}
 	
-	private void receive(MyDist myDist) {
+	private synchronized void receive(MyDist myDist) {
+		if(!ndis.containsKey(myDist.from))
+		{
+			nodes.add(myDist.from);
+			ndis.put(myDist.from, new HashMap<Integer, Integer>());
+		}
 		ndis.get(myDist.from).put(myDist.id,myDist.distance);
 		recompute(myDist.id);
 		setChanged();
 		notifyObservers();
 	}
 	
-	private void receive(Fail fail) {
+	private synchronized void receive(Fail fail) {
 		neighbours.remove(fail.neighbour);
 		
 		for(int neighbour : nodes)
@@ -129,19 +134,20 @@ public class RoutingTable extends Observable{
 		notifyObservers();
 	}
 	
-	private void receive(Repair repair) {
-		neighbours.add(repair.neighbour);
+	private synchronized void receive(Repair repair) {
+		neighbours.put(repair.neighbour, repair.weight);
+		nodes.add(repair.neighbour);
 		
 		for(int neighbour : nodes)
 		{
-			ndis.get(repair.neighbour).put(neighbour,nodes.size());
+			ndis.get(repair.neighbour).put(neighbour,Integer.MAX_VALUE);
 			send(repair.neighbour, new MyDist(neighbour,D.get(neighbour)));
 		}
 		setChanged();
 		notifyObservers();
 	}
 
-	public void send(int destination, Message message) {
+	public synchronized void send(int destination, Message message) {
 		message.from = netwProg.id;
 		message.to = destination;
 		
@@ -158,12 +164,11 @@ public class RoutingTable extends Observable{
 			// send the message to the neighbour
 			socketHandlers.get(NB.get(destination)).send(message);
 		} else {
-			if (NB.get(destination) == UNDEF) {
+			if (socketHandlers.containsKey(destination) && NB.get(destination) == UNDEF) {
 				// send the message to the neighbour
 				socketHandlers.get(destination).send(message);
-				netwProg.messagesSent.increment();
 			} else {
-				System.err.println("Message destination is undefined. Tried to send message to: "+ NB.get(destination) + ". The message final destination was: " + destination);
+				System.err.println("something wrong! tried to send to: "+ NB.get(destination) + " for: " + destination);
 				
 			}
 		}
