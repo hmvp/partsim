@@ -6,10 +6,8 @@ import gdp.erichiram.routables.util.Util;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.swing.SwingUtilities;
@@ -48,9 +46,12 @@ public class NetwProg {
 
 		this.id = argId;
 		
-		List<Integer> neighbours = Arrays.asList(argNeighbours);
+		Map<Integer,Integer> neighbours = new HashMap<Integer, Integer>(argNeighbours.length);
+		for (int i = 0; i < argNeighbours.length; i++){
+			neighbours.put(argNeighbours[i], argWeights[i]);
+		}
 
-		Map<Integer, SocketHandler> socketHandlers = initializeSocketHandlers(neighbours);
+		Map<Integer, SocketHandler> socketHandlers = initializeSocketHandlers(neighbours.keySet());
 		routingTable = new RoutingTable(this, socketHandlers, neighbours);
 		
 		for(SocketHandler s : socketHandlers.values())
