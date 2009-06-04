@@ -108,19 +108,45 @@ public class Gui implements Runnable, Observer {
 			
 		});
 		
-		JButton repair = new JButton("repair");
+		
+		final SpinnerNumberModel snpm = new SpinnerNumberModel(1100,1100,1120,1);
+
+		final JSpinner rSpin = new JSpinner(snpm);
+		
+		final SpinnerNumberModel wspm = new SpinnerNumberModel(1,1,9999,1);
+
+		final JSpinner wSpin = new JSpinner(wspm);
+		
+		final JButton repair = new JButton("repair");
 		fail.addActionListener(new ActionListener(){
 
 			public void actionPerformed(ActionEvent actionevent) {
-				netwProg.routingTable.send(1100, new Repair(1101,3));
-				netwProg.routingTable.send(1101, new Repair(1100,3));
+				netwProg.routingTable.send(netwProg.id, new Repair((Integer) snpm.getNumber(),(Integer) wspm.getNumber()));
+				netwProg.routingTable.send((Integer) snpm.getNumber(), new Repair(netwProg.id,(Integer) wspm.getNumber()));
+				
+				if(netwProg.routingTable.neighbours.size() < 20)
+				{
+					wSpin.setEnabled(false);
+					rSpin.setEnabled(false);
+					repair.setEnabled(false);
+				}
+				else
+				{
+					wSpin.setEnabled(true);
+					rSpin.setEnabled(true);
+					repair.setEnabled(true);
+				}
 			}
 			
 		});
+
+		
 		
 		p.add(fail);
 		p.add(nSpin);
 		p.add(repair);
+		p.add(rSpin);
+		p.add(wSpin);
 		
 		
 		return p;
