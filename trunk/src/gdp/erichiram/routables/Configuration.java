@@ -5,4 +5,5 @@ public class Configuration {
 	final static int height = 100;
 	final static int width = 100;
 	final static int guiSpeed = 100;
+	final static String msgString = "#msg: ";
 }

@@ -1,5 +1,6 @@
 package gdp.erichiram.routables;
 
+import gdp.erichiram.routables.util.ObservableAtomicInteger;
 import gdp.erichiram.routables.util.Util;
 
 import java.io.IOException;
@@ -40,6 +41,8 @@ public class NetwProg {
 	private volatile int t;
 	public final RoutingTable routingTable;
 	private ServerSocket socket;
+	
+	public ObservableAtomicInteger messagesSent = new ObservableAtomicInteger(0);
 
 	public NetwProg(int argId, Integer[] argNeighbours, int[] argWeights) {
 
@@ -64,8 +67,7 @@ public class NetwProg {
 		Map<Integer, SocketHandler> socketHandlers = new HashMap<Integer, SocketHandler>();
 		
 		try {
-			socket = new ServerSocket(id);
-		
+			socket = new ServerSocket(id);		
 		
 			//connect to everyone higher than me
 			for (int neighbour : neighbours) {
@@ -78,7 +80,7 @@ public class NetwProg {
 				}
 			}
 		} catch (IOException e1) {
-			System.err.println("Port "+ id +" is already taken.");
+			System.err.println("Port " + id + " is already taken.");
 			System.exit(1);
 		}
 		

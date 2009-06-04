@@ -161,8 +161,9 @@ public class RoutingTable extends Observable{
 			if (NB.get(destination) == UNDEF) {
 				// send the message to the neighbour
 				socketHandlers.get(destination).send(message);
+				netwProg.messagesSent.increment();
 			} else {
-				System.err.println("something wrong! tried to send to: "+ NB.get(destination) + " for: " + destination);
+				System.err.println("Message destination is undefined. Tried to send message to: "+ NB.get(destination) + ". The message final destination was: " + destination);
 				
 			}
 		}

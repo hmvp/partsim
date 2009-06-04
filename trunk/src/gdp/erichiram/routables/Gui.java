@@ -32,10 +32,12 @@ import javax.swing.event.ChangeListener;
 public class Gui implements Runnable, Observer {
 	
 	private NetwProg netwProg;
+	private JLabel messagesSentLabel;
 
 	public Gui(NetwProg netwProg) {
 		this.netwProg = netwProg;
 		netwProg.routingTable.addObserver(this);
+		netwProg.messagesSent.observable().addObserver(this);
 	}
 
 	/**
@@ -125,9 +127,11 @@ public class Gui implements Runnable, Observer {
 	private Component createInfoPane() {
 		JPanel p = new JPanel();
 		
-		JLabel id = new JLabel("id: " + netwProg.id);
+		JLabel idLabel = new JLabel("id: " + netwProg.id);
+		messagesSentLabel = new JLabel(Configuration.msgString + netwProg.messagesSent.get());
 		
-		p.add(id);
+		p.add(idLabel);
+		p.add(messagesSentLabel);
 		
 		return p;
 	}
@@ -155,7 +159,10 @@ public class Gui implements Runnable, Observer {
 	}
 
 	public void update(Observable observable, Object obj) {
-		
+		if ( observable == netwProg.messagesSent.observable() ) {
+			int messagesSent = netwProg.messagesSent.get();
+			messagesSentLabel.setText(Configuration.msgString + messagesSent);
+		}
 	}
 
 
