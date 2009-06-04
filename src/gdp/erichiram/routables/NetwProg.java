@@ -1,5 +1,7 @@
 package gdp.erichiram.routables;
 
+import gdp.erichiram.routables.util.Util;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -20,7 +22,7 @@ public class NetwProg {
 	 */
 	public static void main(String[] args) {
 
-		// TODO: remove these sample values when the argument parser is in place
+		// parse the arguments
 		int argId = Integer.valueOf(args[0]);
 		Integer[] argNeighbours = new Integer[(args.length-1)/2];
 		int[] argWeights = new int[(args.length-1)/2];
@@ -78,7 +80,7 @@ public class NetwProg {
 				}
 			}
 		} catch (IOException e1) {
-			System.err.println("port "+ id +" already taken");
+			System.err.println("Port "+ id +" is already taken.");
 			System.exit(1);
 		}
 		
@@ -100,13 +102,7 @@ public class NetwProg {
 
 	public void setT(int t) {
 		this.t = t;
-		debug("t is set to: "+ t);
-	}
-
-	public static void debug(String string) {
-		if(DEBUG){
-			System.out.println(Thread.currentThread().getId() + ": " + string);	
-		}
+		Util.debug(id, "'t' is set to: "+ t);
 	}
 
 	public int getT() {

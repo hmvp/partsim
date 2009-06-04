@@ -8,4 +8,8 @@ public class Fail extends Message {
 	public Fail(int neighbour) {
 		this.neighbour = neighbour;
 	}
+	
+	public String toString() {
+		return super.toString() + " <fail, " + neighbour + ">";
+	}
 }

@@ -5,6 +5,7 @@ import gdp.erichiram.routables.message.Identity;
 import gdp.erichiram.routables.message.Message;
 import gdp.erichiram.routables.message.MyDist;
 import gdp.erichiram.routables.message.Repair;
+import gdp.erichiram.routables.util.Util;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -89,17 +90,19 @@ public class SocketHandler extends Thread {
 				Object object = in.readObject();				
 				// relay the message to the routing table
 				if (object instanceof Message) {
-					Message message = (Message) object;
+					Message message = (Message) object;					
+
+					Util.debug(netwProg.id, "Receiving message: " + message);
 					
-				
 					if(message.to == netwProg.id)
 					{
-						NetwProg.debug("recieving message");
+						Util.debug(netwProg.id, "-> Processing that message.");
 						routingTable.receive(message);
 					}
-					else //route to next node
+					else
 					{
-						NetwProg.debug("routing message");
+						 //route to next node
+						Util.debug(netwProg.id, "-> Rerouting that message.");
 						routingTable.send(message.to, message);
 					}
 				}

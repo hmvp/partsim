@@ -10,4 +10,8 @@ public class MyDist extends Message {
 		this.id = id;
 		this.distance = distance;
 	}
+	
+	public String toString() {
+		return super.toString() + " <repair, " + id + ", " + distance + ">";
+	}
 }
