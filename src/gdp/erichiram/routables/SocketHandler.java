@@ -1,10 +1,7 @@
 package gdp.erichiram.routables;
 
-import gdp.erichiram.routables.message.Fail;
 import gdp.erichiram.routables.message.Identity;
 import gdp.erichiram.routables.message.Message;
-import gdp.erichiram.routables.message.MyDist;
-import gdp.erichiram.routables.message.Repair;
 import gdp.erichiram.routables.util.Util;
 
 import java.io.IOException;

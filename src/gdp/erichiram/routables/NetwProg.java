@@ -15,8 +15,6 @@ import javax.swing.SwingUtilities;
 
 public class NetwProg {
 
-	private static final boolean DEBUG = true;
-
 	/**
 	 * @param args
 	 */
