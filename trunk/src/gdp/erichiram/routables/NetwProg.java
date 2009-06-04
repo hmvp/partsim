@@ -40,6 +40,7 @@ public class NetwProg {
 	private ServerSocket socket;
 	
 	public ObservableAtomicInteger messagesSent = new ObservableAtomicInteger(0);
+	public boolean running = true;
 
 	public NetwProg(int argId, Map<Integer,Integer> neighbours) {
 
