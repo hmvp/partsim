@@ -43,6 +43,7 @@ public class Gui implements Runnable, Observer {
 	private JSpinner rSpin;
 	private JSpinner wSpin;
 	private JButton repair;
+	private AbstractTableModel tableModel;
 
 	public Gui(NetwProg netwProg) {
 		this.netwProg = netwProg;
@@ -81,7 +82,7 @@ public class Gui implements Runnable, Observer {
 		frame.addWindowListener(new java.awt.event.WindowAdapter() {
 		    public void windowClosing(WindowEvent winEvt) {
 		        // closing netwProg
-		        netwProg.running = false;
+		        netwProg.die();
 		    }
 		});
 		
@@ -98,7 +99,7 @@ public class Gui implements Runnable, Observer {
 	private Component createNetworkPane() {
 		JPanel p = new JPanel();
 		
-		spm = new SpinnerListModel(new LinkedList<Integer>(netwProg.routingTable.neighbours.keySet()));
+		spm = new SpinnerListModel();
 
 		nSpin = new JSpinner(spm);
 		
@@ -107,8 +108,7 @@ public class Gui implements Runnable, Observer {
 		fail.addActionListener(new ActionListener(){
 
 			public void actionPerformed(ActionEvent actionevent) {
-				netwProg.routingTable.send((Integer) spm.getValue(), new Fail(netwProg.id));
-				netwProg.routingTable.send(netwProg.id, new Fail((Integer) spm.getValue()));
+				netwProg.failConnection((Integer) spm.getValue());
 			}
 			
 		});
@@ -123,11 +123,10 @@ public class Gui implements Runnable, Observer {
 		wSpin = new JSpinner(wspm);
 		
 		repair = new JButton("repair");
-		fail.addActionListener(new ActionListener(){
+		repair.addActionListener(new ActionListener(){
 
 			public void actionPerformed(ActionEvent actionevent) {
-				netwProg.routingTable.send(netwProg.id, new Repair((Integer) snpm.getNumber(),(Integer) wspm.getNumber()));
-				netwProg.routingTable.send((Integer) snpm.getNumber(), new Repair(netwProg.id,(Integer) wspm.getNumber()));
+				netwProg.startRepairConnection((Integer) snpm.getNumber(),(Integer) wspm.getNumber());
 			}
 			
 		});
@@ -144,18 +143,18 @@ public class Gui implements Runnable, Observer {
 	private Component createInfoPane() {
 		JPanel infoPane = new JPanel();
 		
-		TableModel tableModel = new AbstractTableModel() {
+		tableModel = new AbstractTableModel() {
 
 			private static final long serialVersionUID = 3441755023701740847L;
 
-			String[] columnNames = { "Destination", "Neighbour", "Length of path" };
+			String[] columnNames = { "Neighbour", "Weight", "Length of path" };
 
 			public String getColumnName(int col) {
 				return columnNames[col].toString();
 			}
 
 			public int getRowCount() {
-				return netwProg.routingTable.NB.size();
+				return netwProg.routingTable.neighbours.size();
 			}
 
 			public int getColumnCount() {
@@ -165,11 +164,11 @@ public class Gui implements Runnable, Observer {
 			public Object getValueAt(int row, int col) {
 				
 				if ( col == 0 ) {
-					return netwProg.routingTable.NB.keySet().toArray()[row];
+					return netwProg.routingTable.neighbours.keySet().toArray()[row];
 				} else if ( col == 1 ) {
-					return netwProg.routingTable.NB.values().toArray()[row];
+					return netwProg.routingTable.neighbours.values().toArray()[row];
 				} else {
-					return Math.random();
+					return 0;//return netwProg.routingTable.ndis.get(netwProg.id).values().toArray()[row];
 				}
 			}
 
@@ -224,6 +223,9 @@ public class Gui implements Runnable, Observer {
 		}
 		
 		if (observable instanceof RoutingTable) {
+			if(tableModel != null)
+				tableModel.fireTableDataChanged();
+			
 			try{
 				if(netwProg.routingTable.neighbours.size() < 1)
 				{
@@ -237,7 +239,7 @@ public class Gui implements Runnable, Observer {
 					spm.setList(new LinkedList<Integer>(netwProg.routingTable.neighbours.keySet()));
 				}
 				
-				if(netwProg.routingTable.neighbours.size() < 20)
+				if(netwProg.routingTable.neighbours.size() > 20)
 				{
 					wSpin.setEnabled(false);
 					rSpin.setEnabled(false);

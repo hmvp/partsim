@@ -1,14 +1,18 @@
 package gdp.erichiram.routables;
 
+import gdp.erichiram.routables.message.Fail;
 import gdp.erichiram.routables.message.Identity;
 import gdp.erichiram.routables.message.Message;
+import gdp.erichiram.routables.message.Repair;
 import gdp.erichiram.routables.util.Util;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 
 public class SocketHandler extends Thread {
@@ -19,17 +23,23 @@ public class SocketHandler extends Thread {
 	private ObjectInputStream in;
 	private ObjectOutputStream out;
 	private final NetwProg netwProg;
+	private int startingWeight;
+	private boolean running = true;
+	private boolean client = false;
 	
-	public SocketHandler(NetwProg netwProg, int port) {
+	public SocketHandler(NetwProg netwProg, int port, int startingWeight) {
 		this.netwProg = netwProg;
 		this.port = port;
-		initializeSocket();
+		this.startingWeight = startingWeight;
+		client = true;
 	}
 
 	public SocketHandler(NetwProg netwProg, Socket socket) {
 		this.netwProg = netwProg;
 		this.socket = socket;
+		
 		initializeSocketServer();
+
 	}
 
 	private void initializeSocket() {
@@ -51,6 +61,9 @@ public class SocketHandler extends Thread {
 				System.err.println("[" + port + "] Could not create socket or get inputstream from socket: " + e.getLocalizedMessage());
 			}
 		}
+		
+		routingTable.receive(new Repair(port,startingWeight));
+		send(new Repair(netwProg.id,startingWeight));
 	}
 	
 	
@@ -82,42 +95,47 @@ public class SocketHandler extends Thread {
 		}
 
 	}
-
+	
 	@Override
 	public void run() {
-		while (netwProg.running) {
+		if(client)
+		{
+			initializeSocket();
+		}
+		
+		Util.debug(netwProg.id, "done socket init for: " + port);
+		
+		while (running) {
 			Object object = null;
 			try {
 				// read a message object from the input stream
 				object = in.readObject();
+			} catch (EOFException e) {
+				running = false ;
+				Util.debug(netwProg.id, "end of input, assume socket is dead");
+			} catch (SocketException e) {
+				running = false ;
+				Util.debug(netwProg.id, "socket is closing");
 			} catch (IOException e) {
 				System.err.println("[" + port + "] Something went wrong when receiving a message: " + e.toString());
+				e.printStackTrace();
 			} catch (ClassNotFoundException e) {
 				System.err.println("[" + port + "] Something strange is happening: " + e.toString());
+				e.printStackTrace();
 			}
 			
 			// relay the message to the routing table
 			if (object != null && object instanceof Message) {
 				Message message = (Message) object;
 				
-				if(message.to == netwProg.id)
-				{
-					Util.debug(netwProg.id, "Processing " + message + ".");
-					routingTable.receive(message);
-				}
-				else
-				{
-					 //route to next node
-					Util.debug(netwProg.id, "Rerouting " + message + ".");
-					routingTable.send(message.to, message);
-				}
+				Util.debug(netwProg.id, "Processing " + message + ".");
+				routingTable.receive(message);
 			}
 		}
 		
 		// close all the sockets
 		try {
-			
-			// TODO maybe send a fail to other netwprogs
+			routingTable.receive(new Fail(port));
 			
 			out.close();
 			in.close();
@@ -131,6 +149,7 @@ public class SocketHandler extends Thread {
 	public void send(Message message) {		
 		try {
 			out.writeObject(message);
+			out.flush();
 		} catch (IOException e) {
 			System.err.println("[" + port + "] Something went wrong when sending a message: " + e.getLocalizedMessage());
 		}
@@ -143,6 +162,24 @@ public class SocketHandler extends Thread {
 
 	public void setRoutingTable(RoutingTable routingTable) {
 		this.routingTable = routingTable;
+	}
+
+	public void die() {
+		running = false;
+		try {
+			in.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public String toString()
+	{
+		if(client)
+			return "clientsocket from: "+ netwProg.id + " to: " + port;
+		else
+			return "serversocket from: "+ netwProg.id + " to: " + port;
 	}
 
 }
