@@ -7,9 +7,6 @@
 
 package gdp.erichiram.routables;
 
-import gdp.erichiram.routables.message.Fail;
-import gdp.erichiram.routables.message.Repair;
-
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
@@ -18,19 +15,20 @@ import java.awt.event.WindowEvent;
 import java.util.LinkedList;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
+import javax.swing.JTable;
 import javax.swing.SpinnerListModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.Timer;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.JTable;
-import javax.swing.table.TableModel;
 import javax.swing.table.AbstractTableModel;
 
 public class Gui implements Runnable, Observer {
@@ -44,6 +42,7 @@ public class Gui implements Runnable, Observer {
 	private JSpinner wSpin;
 	private JButton repair;
 	private AbstractTableModel tableModel;
+	private JFrame frame;
 
 	public Gui(NetwProg netwProg) {
 		this.netwProg = netwProg;
@@ -55,7 +54,7 @@ public class Gui implements Runnable, Observer {
 	 * initalize the Gui, 
 	 */
 	private void initializeGui() {
-		JFrame frame = createFrame();	
+		frame = createFrame();	
 
 		// Display the window.
 		frame.pack();
@@ -147,14 +146,14 @@ public class Gui implements Runnable, Observer {
 
 			private static final long serialVersionUID = 3441755023701740847L;
 
-			String[] columnNames = { "Neighbour", "Weight", "Length of path" };
+			String[] columnNames = { "Node", "Neighbour to use", "Length of path" };
 
 			public String getColumnName(int col) {
 				return columnNames[col].toString();
 			}
 
 			public int getRowCount() {
-				return netwProg.routingTable.neighbours.size();
+				return netwProg.routingTable.nodes.size();
 			}
 
 			public int getColumnCount() {
@@ -164,11 +163,11 @@ public class Gui implements Runnable, Observer {
 			public Object getValueAt(int row, int col) {
 				
 				if ( col == 0 ) {
-					return netwProg.routingTable.neighbours.keySet().toArray()[row];
+					return new TreeSet<Integer>(netwProg.routingTable.nodes).toArray()[row];
 				} else if ( col == 1 ) {
-					return netwProg.routingTable.neighbours.values().toArray()[row];
+					return netwProg.routingTable.NB.get(new TreeSet<Integer>(netwProg.routingTable.nodes).toArray()[row]);
 				} else {
-					return 0;//return netwProg.routingTable.ndis.get(netwProg.id).values().toArray()[row];
+					return netwProg.routingTable.D.get(new TreeSet<Integer>(netwProg.routingTable.nodes).toArray()[row]);
 				}
 			}
 
@@ -236,7 +235,7 @@ public class Gui implements Runnable, Observer {
 				{
 					nSpin.setEnabled(true);
 					fail.setEnabled(true);
-					spm.setList(new LinkedList<Integer>(netwProg.routingTable.neighbours.keySet()));
+					spm.setList(new LinkedList<Integer>(new TreeSet<Integer>(netwProg.routingTable.neighbours.keySet())));
 				}
 				
 				if(netwProg.routingTable.neighbours.size() > 20)
@@ -255,5 +254,6 @@ public class Gui implements Runnable, Observer {
 			
 			
 		}
+		//frame.pack();
 	}
 }

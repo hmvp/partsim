@@ -19,11 +19,11 @@ import java.util.Observable;
  */
 public class RoutingTable extends Observable{
 	private static final int UNDEF = 0;
-	private static final Integer MAX = Integer.MAX_VALUE;
+	private static final Integer MAX = 88888;
 	private final int LOCAL;
 	public final Map<Integer, SocketHandler> socketHandlers;
-	private HashMap<Integer, Integer> D = new HashMap<Integer, Integer>();
-	private Collection<Integer> nodes = new HashSet<Integer>();
+	HashMap<Integer, Integer> D = new HashMap<Integer, Integer>();
+	Collection<Integer> nodes = new HashSet<Integer>();
 	Map<Integer,Integer> neighbours = new HashMap<Integer, Integer>();
 	HashMap<Integer, Map<Integer,Integer>> ndis = new HashMap<Integer, Map<Integer,Integer>>();
 	private NetwProg netwProg;
@@ -35,7 +35,7 @@ public class RoutingTable extends Observable{
 		this.LOCAL = netwProg.id;
 		
 		
-		ndis.put(LOCAL, D);
+		//ndis.put(LOCAL, D);
 		D.put(LOCAL, 0);
 		NB.put(LOCAL, LOCAL);
 	}
@@ -95,13 +95,19 @@ public class RoutingTable extends Observable{
 		else
 		{
 			int min = MAX;
-			int w = v;
+			int w = UNDEF;
 			for(int x : neighbours.keySet())
 			{	
-					min = Math.min(ndis.get(x).get(v), min);
-					w = x;
+				int i = ndis.get(x).get(v);
+					if(i <= min)
+					{
+						min = i;
+						w = x;
+					}
 			}
 			
+			//TODO: soms ontvangen we een MyDist voordat we een repair hebben ontvangen. In dat geval is w UNDEF en gaat alles dood
+			// dit kan natuurlijk onder goede omstandigheden nooit gebeuren!
 			Integer d = neighbours.get(w) + min;
 			
 			if (d < MAX)
