@@ -1,11 +1,13 @@
 package gdp.erichiram.routables;
 
+import gdp.erichiram.routables.message.Repair;
 import gdp.erichiram.routables.util.ObservableAtomicInteger;
 import gdp.erichiram.routables.util.Util;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -40,56 +42,52 @@ public class NetwProg {
 	private ServerSocket socket;
 	
 	public ObservableAtomicInteger messagesSent = new ObservableAtomicInteger(0);
-	public boolean running = true;
+	private Map<Integer, SocketHandler> socketHandlers = new HashMap<Integer, SocketHandler>();;
 
 	public NetwProg(int argId, Map<Integer,Integer> neighbours) {
 
 		this.id = argId;
 		
-		Util.debug(id, "start init socketh");
+		
 
-		Map<Integer, SocketHandler> socketHandlers = initializeSocketHandlers(neighbours.keySet());
 		
-		Util.debug(id, "start init routing");
-
-		routingTable = new RoutingTable(this, socketHandlers, neighbours);
-		
-		Util.debug(id, "start socketh");
-		
-		for(SocketHandler s : socketHandlers.values())
-		{
-			s.setRoutingTable(routingTable);
-			s.start();
-		}
-		System.out.println("Starting GUI: " + argId);
 		
 		Util.debug(id, "start routing");
-		routingTable.initialize();
+
+		routingTable = new RoutingTable(this, socketHandlers);
 		
 		Util.debug(id, "start gui");
 		
 		SwingUtilities.invokeLater(new Gui(this));
 		
 		Util.debug(id, "klaar");
+		
+		Util.debug(id, "start socketh");
 
+		initializeSocketHandlers(neighbours);
+	}
+	
+	public void startRepairConnection(int neighbour, int weight)
+	{
+		Util.debug(id, "start clientsockethandler "+ neighbour);
+
+		SocketHandler socketHandler = new SocketHandler(this, neighbour, weight);
+		socketHandlers.put(neighbour, socketHandler);
+		socketHandler.setRoutingTable(routingTable);
+		socketHandler.start();
 	}
 
-	private Map<Integer, SocketHandler> initializeSocketHandlers(Collection<Integer> neighbours) {
+	private void initializeSocketHandlers(Map<Integer,Integer> neighbours) {
 		// initialize threads for sockets
-		Map<Integer, SocketHandler> socketHandlers = new HashMap<Integer, SocketHandler>();
 		
 		try {
 			socket = new ServerSocket(id);		
 		
 			//connect to everyone higher than me
-			for (int neighbour : neighbours) {
+			for (int neighbour : neighbours.keySet()) {
 				if (neighbour > id)
 				{
-					Util.debug(id, "start clientsockethandler "+ neighbour);
-
-					SocketHandler socketHandler = new SocketHandler(this, neighbour);
-					socketHandlers.put(neighbour, socketHandler);
-					//socketHandler.start();
+					startRepairConnection(neighbour, neighbours.get(neighbour));
 				}
 			}
 
@@ -100,19 +98,26 @@ public class NetwProg {
 		
 		//listen and start sockets if needed
 		Util.debug(id, "start listening");
-		while(socketHandlers.size() != neighbours.size()){
-			Socket clientsocket;
+		while(!socket.isClosed()){
 			try {
-				clientsocket = socket.accept();
+				Socket clientsocket = socket.accept();
 				SocketHandler socketHandler = new SocketHandler(this, clientsocket);
 				socketHandlers.put(socketHandler.getPort(), socketHandler);
-				//socketHandler.start();
+				socketHandler.setRoutingTable(routingTable);
+				socketHandler.start();
+			} catch (SocketException e) { 
+				//we moeten stoppen socket sluit
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
 		
-		return socketHandlers;
+		for(SocketHandler s : socketHandlers.values())
+		{
+			s.die();
+		}
+		
+		System.exit(0);
 	}
 
 	public void setT(int t) {
@@ -122,5 +127,23 @@ public class NetwProg {
 
 	public int getT() {
 		return t;
+	}
+
+	public void failConnection(Integer value) {
+		socketHandlers.get(value).die();
+	}
+	
+	public String toString()
+	{
+		return "netwProg: "+id;
+	}
+
+	public void die() {
+		try {
+			socket.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }
