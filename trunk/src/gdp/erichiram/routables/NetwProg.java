@@ -1,6 +1,5 @@
 package gdp.erichiram.routables;
 
-import gdp.erichiram.routables.message.Repair;
 import gdp.erichiram.routables.util.ObservableAtomicInteger;
 import gdp.erichiram.routables.util.Util;
 
@@ -8,7 +7,6 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -42,7 +40,7 @@ public class NetwProg {
 	private ServerSocket socket;
 	
 	public ObservableAtomicInteger messagesSent = new ObservableAtomicInteger(0);
-	private Map<Integer, SocketHandler> socketHandlers = new HashMap<Integer, SocketHandler>();;
+	Map<Integer, SocketHandler> socketHandlers = new HashMap<Integer, SocketHandler>();;
 
 	public NetwProg(int argId, Map<Integer,Integer> neighbours) {
 
@@ -58,13 +56,16 @@ public class NetwProg {
 		
 		Util.debug(id, "start gui");
 		
-		SwingUtilities.invokeLater(new Gui(this));
+		Gui gui = new Gui(this);
+		SwingUtilities.invokeLater(gui);
 		
 		Util.debug(id, "klaar");
 		
 		Util.debug(id, "start socketh");
 
 		initializeSocketHandlers(neighbours);
+		
+		gui.update(routingTable, null);
 	}
 	
 	public void startRepairConnection(int neighbour, int weight)
@@ -74,7 +75,7 @@ public class NetwProg {
 		SocketHandler socketHandler = new SocketHandler(this, neighbour, weight);
 		socketHandlers.put(neighbour, socketHandler);
 		socketHandler.setRoutingTable(routingTable);
-		socketHandler.start();
+		new Thread(socketHandler).start();
 	}
 
 	private void initializeSocketHandlers(Map<Integer,Integer> neighbours) {
@@ -104,7 +105,7 @@ public class NetwProg {
 				SocketHandler socketHandler = new SocketHandler(this, clientsocket);
 				socketHandlers.put(socketHandler.getPort(), socketHandler);
 				socketHandler.setRoutingTable(routingTable);
-				socketHandler.start();
+				new Thread(socketHandler).start();
 			} catch (SocketException e) { 
 				//we moeten stoppen socket sluit
 			} catch (IOException e) {
@@ -117,7 +118,7 @@ public class NetwProg {
 			s.die();
 		}
 		
-		System.exit(0);
+		//System.exit(0);
 	}
 
 	public void setT(int t) {
@@ -142,7 +143,6 @@ public class NetwProg {
 		try {
 			socket.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
