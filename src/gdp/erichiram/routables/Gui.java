@@ -15,7 +15,6 @@ import java.awt.event.WindowEvent;
 import java.util.LinkedList;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.SortedSet;
 import java.util.TreeSet;
 
 import javax.swing.JButton;
@@ -62,7 +61,7 @@ public class Gui implements Runnable, Observer {
 	}
 
 	private JFrame createFrame() {
-		JFrame frame = new JFrame(){
+		JFrame frame = new JFrame("NetwProg " + netwProg.id){
 
 			private static final long serialVersionUID = 5772443503354772693L;
 
@@ -175,12 +174,8 @@ public class Gui implements Runnable, Observer {
 				return false;
 			}
 		};
-		
-
-		JLabel idLabel = new JLabel("id: " + netwProg.id);		
-		infoPane.add(idLabel);
-		
-		messagesSentLabel = new JLabel(Configuration.msgString + netwProg.messagesSent.get());
+				
+		messagesSentLabel = new JLabel(Configuration.messagesSentString + netwProg.messagesSent.get());
 		infoPane.add(messagesSentLabel);
 
 		JPanel tablePane = new JPanel();		
@@ -218,7 +213,7 @@ public class Gui implements Runnable, Observer {
 	public void update(Observable observable, Object obj) {
 		if ( observable == netwProg.messagesSent.observable() ) {
 			int messagesSent = netwProg.messagesSent.get();
-			messagesSentLabel.setText(Configuration.msgString + messagesSent);
+			messagesSentLabel.setText(Configuration.messagesSentString + messagesSent);
 		}
 		
 		if (observable instanceof RoutingTable) {
