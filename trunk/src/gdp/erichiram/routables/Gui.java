@@ -12,6 +12,7 @@ import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
+import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedList;
 import java.util.Observable;
 import java.util.Observer;
@@ -25,6 +26,7 @@ import javax.swing.JSpinner;
 import javax.swing.JTable;
 import javax.swing.SpinnerListModel;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -210,45 +212,51 @@ public class Gui implements Runnable, Observer {
 		initializeGui();
 	}
 
-	public void update(Observable observable, Object obj) {
-		if ( observable == netwProg.messagesSent.observable() ) {
-			int messagesSent = netwProg.messagesSent.get();
-			messagesSentLabel.setText(Configuration.messagesSentString + messagesSent);
-		}
+	public void update(final Observable observable, Object obj) {
 		
-		if (observable instanceof RoutingTable) {
-			if(tableModel != null)
-				tableModel.fireTableDataChanged();
+			SwingUtilities.invokeLater(new Runnable(){
 			
-			try{
-				if(netwProg.routingTable.neighbours.size() < 1)
-				{
-					nSpin.setEnabled(false);
-					fail.setEnabled(false);
-				}
-				else
-				{
-					nSpin.setEnabled(true);
-					fail.setEnabled(true);
-					spm.setList(new LinkedList<Integer>(new TreeSet<Integer>(netwProg.routingTable.neighbours.keySet())));
-				}
+			public void run(){
+			if ( observable == netwProg.messagesSent.observable() ) {
+				int messagesSent = netwProg.messagesSent.get();
+				messagesSentLabel.setText(Configuration.messagesSentString + messagesSent);
+			}
+			
+			if (observable instanceof RoutingTable) {
+				if(tableModel != null)
+					tableModel.fireTableDataChanged();
 				
-				if(netwProg.routingTable.neighbours.size() > 20)
-				{
-					wSpin.setEnabled(false);
-					rSpin.setEnabled(false);
-					repair.setEnabled(false);
-				}
-				else
-				{
-					wSpin.setEnabled(true);
-					rSpin.setEnabled(true);
-					repair.setEnabled(true);
-				}
-			} catch (Exception e){}
-			
-			
-		}
-		//frame.pack();
+				try{
+					if(netwProg.routingTable.neighbours.size() < 1)
+					{
+						nSpin.setEnabled(false);
+						fail.setEnabled(false);
+					}
+					else
+					{
+						nSpin.setEnabled(true);
+						fail.setEnabled(true);
+						spm.setList(new LinkedList<Integer>(new TreeSet<Integer>(netwProg.routingTable.neighbours.keySet())));
+					}
+					
+					if(netwProg.routingTable.neighbours.size() > 20)
+					{
+						wSpin.setEnabled(false);
+						rSpin.setEnabled(false);
+						repair.setEnabled(false);
+					}
+					else
+					{
+						wSpin.setEnabled(true);
+						rSpin.setEnabled(true);
+						repair.setEnabled(true);
+					}
+				} catch (Exception e){}
+				
+				
+			}
+			//frame.pack();
+			}});
+		
 	}
 }

@@ -40,11 +40,13 @@ public class NetwProg {
 	private ServerSocket socket;
 	
 	public ObservableAtomicInteger messagesSent = new ObservableAtomicInteger(0);
-	Map<Integer, SocketHandler> socketHandlers = new HashMap<Integer, SocketHandler>();;
+	Map<Integer, SocketHandler> socketHandlers = new HashMap<Integer, SocketHandler>();
+	 HashMap<Integer, Integer> startingWeights;;
 
 	public NetwProg(int argId, Map<Integer,Integer> neighbours) {
 
 		this.id = argId;
+		this.startingWeights = new HashMap<Integer, Integer>(neighbours);
 		
 		
 
@@ -64,8 +66,6 @@ public class NetwProg {
 		Util.debug(id, "start socketh");
 
 		initializeSocketHandlers(neighbours);
-		
-		gui.update(routingTable, null);
 	}
 	
 	public void startRepairConnection(int neighbour, int weight)
@@ -131,6 +131,7 @@ public class NetwProg {
 	}
 
 	public void failConnection(Integer value) {
+		messagesSent.increment();
 		socketHandlers.get(value).die();
 	}
 	

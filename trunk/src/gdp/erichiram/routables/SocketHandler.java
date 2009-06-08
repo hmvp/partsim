@@ -62,8 +62,47 @@ public class SocketHandler implements Runnable {
 				e1.printStackTrace();
 			}
 		}
+		port = tempPort;
+		
+		//als we nog aan het initializeren zijn dan hebben we info om connecties op te starten
+		// die qua weights niet symetrisch zijn, die info moeten we dus gebuiken
+		if(!netwProg.startingWeights.isEmpty() && netwProg.startingWeights.containsKey(port))
+		{
+			tempWeight = netwProg.startingWeights.get(port);
+			netwProg.startingWeights.remove(port);
+		}
 		
 		startingWeight = tempWeight;
+	}
+	
+	public SocketHandler(NetwProg netwProg, Socket socket, int weight) {
+		this.netwProg = netwProg;
+		this.socket = socket;
+		this.client = false;
+		
+		try {
+			createStreams();
+		} catch (IOException e) {
+			System.err.println("[ unknown port ] Could not create socket or get inputstream from socket: " + e.getLocalizedMessage());
+		}
+		
+		int tempPort = 0;
+		try {
+			Object object = in.readObject();
+			if (object instanceof Repair) {
+				Repair id = (Repair) object;
+				
+				tempPort = id.neighbour;
+			}
+		} catch (Exception e) {
+			try {
+				socket.close();
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+		}
+		
+		startingWeight = weight;
 		port = tempPort;
 	}
 
