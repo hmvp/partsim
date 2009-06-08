@@ -8,15 +8,18 @@
 package gdp.erichiram.routables;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
-import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.TreeSet;
+import java.util.Map.Entry;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -32,6 +35,15 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.table.AbstractTableModel;
 
+import org.jgraph.JGraph;
+import org.jgraph.graph.AttributeMap;
+import org.jgraph.graph.DefaultGraphCell;
+import org.jgraph.graph.GraphConstants;
+import org.jgrapht.ListenableGraph;
+import org.jgrapht.ext.JGraphModelAdapter;
+import org.jgrapht.graph.DefaultEdge;
+import org.jgrapht.graph.ListenableDirectedGraph;
+
 public class Gui implements Runnable, Observer {
 	
 	private NetwProg netwProg;
@@ -44,6 +56,8 @@ public class Gui implements Runnable, Observer {
 	private JButton repair;
 	private AbstractTableModel tableModel;
 	private JFrame frame;
+
+    private JGraphModelAdapter<Integer, DefaultEdge> jGraphModelAdapter;
 
 	public Gui(NetwProg netwProg) {
 		this.netwProg = netwProg;
@@ -187,6 +201,8 @@ public class Gui implements Runnable, Observer {
 		tablePane.add(routingTable, BorderLayout.CENTER);
 		infoPane.add(tablePane);
 		
+		infoPane.add(createGraphComponent());
+		
 		return infoPane;
 	}
 
@@ -207,6 +223,50 @@ public class Gui implements Runnable, Observer {
 		
 		return p;
 	}
+
+
+	private Component createGraphComponent() {
+		
+        // create a JGraphT graph
+        ListenableGraph<Integer, DefaultEdge> g = new ListenableDirectedGraph<Integer, DefaultEdge>( DefaultEdge.class );
+
+        // create a visualization using JGraph, via an adapter
+        jGraphModelAdapter = new JGraphModelAdapter<Integer, DefaultEdge>( g );
+
+        JGraph jgraph = new JGraph( jGraphModelAdapter );
+
+        jgraph.setBackground( Color.WHITE );
+
+        // add some sample data (graph manipulated via JGraphT)
+        
+        for ( Entry<Integer, Map<Integer, Integer>> x : netwProg.routingTable.ndis.entrySet() ) {
+            g.addVertex( x.getKey());
+            positionVertexAt( x.getKey(), (int)(Math.random() * 400), (int)(Math.random() * 400) );
+           
+        }
+        
+        for ( Entry<Integer, Map<Integer, Integer>> x : netwProg.routingTable.ndis.entrySet() ) {
+            Map<Integer, Integer> nodeDistances = x.getValue();
+            
+            for ( Entry<Integer, Integer> nodeDistance : nodeDistances.entrySet() ) {
+
+            	if ( !x.getKey().equals(nodeDistance.getKey()) ) {
+            		g.addEdge( x.getKey(), nodeDistance.getKey() );
+            	}
+            }
+           
+        }
+
+        // that's all there is to it!...
+		return jgraph;
+	}
+
+    private void positionVertexAt( Object vertex, int x, int y ) {
+        DefaultGraphCell cell = jGraphModelAdapter.getVertexCell(vertex);
+		AttributeMap attributes = cell.getAttributes();
+
+		GraphConstants.setBounds(attributes, new Rectangle(x, y, 40, 20));
+    }
 
 	public void run() {
 		initializeGui();
