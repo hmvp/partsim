@@ -19,7 +19,7 @@ import java.util.Observable;
  */
 public class RoutingTable extends Observable{
 	private static final int UNDEF = 0;
-	private static final Integer MAX = 88888;
+	private static final Integer MAX = 20001;
 	private final int LOCAL;
 	public final Map<Integer, SocketHandler> socketHandlers;
 	HashMap<Integer, Integer> D = new HashMap<Integer, Integer>();
