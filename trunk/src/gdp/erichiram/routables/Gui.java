@@ -41,7 +41,7 @@ import org.jgraph.graph.DefaultGraphCell;
 import org.jgraph.graph.GraphConstants;
 import org.jgrapht.ListenableGraph;
 import org.jgrapht.ext.JGraphModelAdapter;
-import org.jgrapht.graph.DefaultEdge;
+import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.ListenableDirectedGraph;
 import org.jgrapht.graph.ListenableDirectedWeightedGraph;
 
@@ -58,7 +58,7 @@ public class Gui implements Runnable, Observer {
 	private AbstractTableModel tableModel;
 	private JFrame frame;
 
-    private JGraphModelAdapter<Integer, DefaultEdge> jGraphModelAdapter;
+    private JGraphModelAdapter<Integer, DefaultWeightedEdge> jGraphModelAdapter;
 
 	public Gui(NetwProg netwProg) {
 		this.netwProg = netwProg;
@@ -229,17 +229,25 @@ public class Gui implements Runnable, Observer {
 	private Component createGraphComponent() {
 		
         // create a JGraphT graph
-		ListenableDirectedWeightedGraph<Integer, DefaultEdge> g = new ListenableDirectedWeightedGraph<Integer, DefaultEdge>( DefaultEdge.class );
+		ListenableDirectedWeightedGraph<Integer, DefaultWeightedEdge> g = new ListenableDirectedWeightedGraph<Integer, DefaultWeightedEdge>( DefaultWeightedEdge.class );
 
         // create a visualization using JGraph, via an adapter
-        jGraphModelAdapter = new JGraphModelAdapter<Integer, DefaultEdge>( g );
+        jGraphModelAdapter = new JGraphModelAdapter<Integer, DefaultWeightedEdge>( g );
 
         JGraph jgraph = new JGraph( jGraphModelAdapter );
+        jgraph.setBackground(Color.WHITE);
+        
+        // make graph uneditable
+        jgraph.setSelectionEnabled(false);
+        jgraph.setSelectionModel(new JGraph.EmptySelectionModel() {
+			private static final long serialVersionUID = 1237119486257125129L;
 
-        jgraph.setBackground( Color.WHITE );
+			public Object[] getSelectables() {
+        		return new Object[]{};
+        	}
+        });
 
         // add some sample data (graph manipulated via JGraphT)
-        
         for (Integer x : netwProg.routingTable.ndis.keySet() ) {
             g.addVertex( x);
             positionVertexAt(x, (int)(Math.random() * 400), (int)(Math.random() * 400) );
@@ -252,7 +260,7 @@ public class Gui implements Runnable, Observer {
             for ( Entry<Integer, Integer> nodeDistance : nodeDistances.entrySet() ) {
 
             	if ( !x.getKey().equals(nodeDistance.getKey()) ) {
-            		DefaultEdge e = g.addEdge( x.getKey(), nodeDistance.getKey() );
+            		DefaultWeightedEdge e = g.addEdge( x.getKey(), nodeDistance.getKey() );
             		g.setEdgeWeight(e, nodeDistance.getValue());
             	}
             }
