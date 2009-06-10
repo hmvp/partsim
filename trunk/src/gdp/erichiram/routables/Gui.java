@@ -43,6 +43,7 @@ import org.jgrapht.ListenableGraph;
 import org.jgrapht.ext.JGraphModelAdapter;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.ListenableDirectedGraph;
+import org.jgrapht.graph.ListenableDirectedWeightedGraph;
 
 public class Gui implements Runnable, Observer {
 	
@@ -228,7 +229,7 @@ public class Gui implements Runnable, Observer {
 	private Component createGraphComponent() {
 		
         // create a JGraphT graph
-        ListenableGraph<Integer, DefaultEdge> g = new ListenableDirectedGraph<Integer, DefaultEdge>( DefaultEdge.class );
+		ListenableDirectedWeightedGraph<Integer, DefaultEdge> g = new ListenableDirectedWeightedGraph<Integer, DefaultEdge>( DefaultEdge.class );
 
         // create a visualization using JGraph, via an adapter
         jGraphModelAdapter = new JGraphModelAdapter<Integer, DefaultEdge>( g );
@@ -239,9 +240,9 @@ public class Gui implements Runnable, Observer {
 
         // add some sample data (graph manipulated via JGraphT)
         
-        for ( Entry<Integer, Map<Integer, Integer>> x : netwProg.routingTable.ndis.entrySet() ) {
-            g.addVertex( x.getKey());
-            positionVertexAt( x.getKey(), (int)(Math.random() * 400), (int)(Math.random() * 400) );
+        for (Integer x : netwProg.routingTable.ndis.keySet() ) {
+            g.addVertex( x);
+            positionVertexAt(x, (int)(Math.random() * 400), (int)(Math.random() * 400) );
            
         }
         
@@ -251,7 +252,8 @@ public class Gui implements Runnable, Observer {
             for ( Entry<Integer, Integer> nodeDistance : nodeDistances.entrySet() ) {
 
             	if ( !x.getKey().equals(nodeDistance.getKey()) ) {
-            		g.addEdge( x.getKey(), nodeDistance.getKey() );
+            		DefaultEdge e = g.addEdge( x.getKey(), nodeDistance.getKey() );
+            		g.setEdgeWeight(e, nodeDistance.getValue());
             	}
             }
            
