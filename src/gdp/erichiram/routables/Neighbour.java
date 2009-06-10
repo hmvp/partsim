@@ -1,7 +1,7 @@
 package gdp.erichiram.routables;
 
-import gdp.erichiram.routables.message.Fail;
 import gdp.erichiram.routables.message.Message;
+import gdp.erichiram.routables.message.MyDist;
 import gdp.erichiram.routables.message.Repair;
 import gdp.erichiram.routables.util.Util;
 
@@ -14,7 +14,7 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 
-public class SocketHandler implements Runnable {
+public class Neighbour implements Runnable, Comparable<Neighbour> {
 
 	public final int port;
 	private RoutingTable routingTable;
@@ -27,15 +27,17 @@ public class SocketHandler implements Runnable {
 	private boolean initDone = false;
 	private final boolean client;
 	
-	public SocketHandler(NetwProg netwProg, int port, int startingWeight) {
+	public Neighbour(NetwProg netwProg, int port, int startingWeight) {
 		this.netwProg = netwProg;
+		this.routingTable = netwProg.routingTable;
 		this.port = port;
 		this.startingWeight = startingWeight;
 		this.client = true;
 	}
 
-	public SocketHandler(NetwProg netwProg, Socket socket) {
+	public Neighbour(NetwProg netwProg, Socket socket) {
 		this.netwProg = netwProg;
+		this.routingTable = netwProg.routingTable;
 		this.socket = socket;
 		this.client = false;
 		
@@ -66,44 +68,13 @@ public class SocketHandler implements Runnable {
 		
 		//als we nog aan het initializeren zijn dan hebben we info om connecties op te starten
 		// die qua weights niet symetrisch zijn, die info moeten we dus gebuiken
-		if(!netwProg.startingWeights.isEmpty() && netwProg.startingWeights.containsKey(port))
+		if(!netwProg.startingNeighbours.isEmpty() && netwProg.startingNeighbours.containsKey(port))
 		{
-			tempWeight = netwProg.startingWeights.get(port);
-			netwProg.startingWeights.remove(port);
+			tempWeight = netwProg.startingNeighbours.get(port);
+			netwProg.startingNeighbours.remove(port);
 		}
 		
 		startingWeight = tempWeight;
-	}
-	
-	public SocketHandler(NetwProg netwProg, Socket socket, int weight) {
-		this.netwProg = netwProg;
-		this.socket = socket;
-		this.client = false;
-		
-		try {
-			createStreams();
-		} catch (IOException e) {
-			System.err.println("[ unknown port ] Could not create socket or get inputstream from socket: " + e.getLocalizedMessage());
-		}
-		
-		int tempPort = 0;
-		try {
-			Object object = in.readObject();
-			if (object instanceof Repair) {
-				Repair id = (Repair) object;
-				
-				tempPort = id.neighbour;
-			}
-		} catch (Exception e) {
-			try {
-				socket.close();
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			}
-		}
-		
-		startingWeight = weight;
-		port = tempPort;
 	}
 
 	private void initializeSocket() {
@@ -145,9 +116,9 @@ public class SocketHandler implements Runnable {
 			initializeSocket();
 		}
 		initDone = true;
+		routingTable.repair(this, startingWeight);
 
 		
-		routingTable.receive(new Repair(port,startingWeight));
 		
 		Util.debug(netwProg.id, "done socket init for: " + port);
 		
@@ -175,8 +146,8 @@ public class SocketHandler implements Runnable {
 			} catch (InterruptedException e) {}
 			
 			// relay the message to the routing table
-			if (object != null && object instanceof Message) {
-				Message message = (Message) object;
+			if (object != null && object instanceof MyDist) {
+				MyDist message = (MyDist) object;
 				
 				Util.debug(netwProg.id, "Processing " + message + ".");
 				routingTable.receive(message);
@@ -185,16 +156,15 @@ public class SocketHandler implements Runnable {
 		
 		// close all the sockets
 		try {
-			routingTable.receive(new Fail(port));
+			routingTable.fail(this);
+			//TODO:  send fail to other side
 			
 			out.close();
 			in.close();
 			socket.close();
 		} catch (IOException e) {
 			e.printStackTrace();
-		}
-		
-		netwProg.socketHandlers.remove(this);
+		}		
 	}
 	
 	/**
@@ -219,21 +189,27 @@ public class SocketHandler implements Runnable {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		SocketHandler other = (SocketHandler) obj;
+		Neighbour other = (Neighbour) obj;
 		if (port != other.port)
 			return false;
 		return true;
 	}
 
 	public void send(Message message) {	
+		message.from = netwProg.id;
+		message.to = getPort();
+		
 		if(!initDone && !(message instanceof Repair))
 			throw new RuntimeException("Dat mag dus niet! want we moeten eerst klaar zijn met repairen!");
+		
 		
 		try {
 			out.writeObject(message);
 			out.flush();
+			netwProg.messagesSent.increment();
 		} catch (IOException e) {
 			System.err.println("[" + port + "] Something went wrong when sending a message: " + e.getLocalizedMessage());
+			die();
 		}
 	}
 	
@@ -242,12 +218,9 @@ public class SocketHandler implements Runnable {
 		return port;
 	}
 
-	public void setRoutingTable(RoutingTable routingTable) {
-		this.routingTable = routingTable;
-	}
-
 	public void die() {
 		running = false;
+		netwProg.messagesSent.increment();
 		try {
 			in.close();
 		} catch (IOException e) {
@@ -257,10 +230,10 @@ public class SocketHandler implements Runnable {
 	
 	public String toString()
 	{
-		if(client)
-			return "clientsocket from: "+ netwProg.id + " to: " + port;
-		else
-			return "serversocket from: "+ netwProg.id + " to: " + port;
+		return String.valueOf(port);
 	}
 
+	public int compareTo(Neighbour o) {
+		return port - o.getPort();
+	}
 }
