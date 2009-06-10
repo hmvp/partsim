@@ -10,10 +10,14 @@ package gdp.erichiram.routables;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Graphics;
 import java.awt.Rectangle;
+import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Observable;
@@ -37,8 +41,14 @@ import javax.swing.table.AbstractTableModel;
 
 import org.jgraph.JGraph;
 import org.jgraph.graph.AttributeMap;
+import org.jgraph.graph.CellViewFactory;
+import org.jgraph.graph.CellViewRenderer;
+import org.jgraph.graph.DefaultCellViewFactory;
 import org.jgraph.graph.DefaultGraphCell;
+import org.jgraph.graph.EdgeRenderer;
+import org.jgraph.graph.EdgeView;
 import org.jgraph.graph.GraphConstants;
+import org.jgraph.graph.GraphLayoutCache;
 import org.jgrapht.ListenableGraph;
 import org.jgrapht.ext.JGraphModelAdapter;
 import org.jgrapht.graph.DefaultWeightedEdge;
@@ -234,7 +244,72 @@ public class Gui implements Runnable, Observer {
         // create a visualization using JGraph, via an adapter
         jGraphModelAdapter = new JGraphModelAdapter<Integer, DefaultWeightedEdge>( g );
 
-        JGraph jgraph = new JGraph( jGraphModelAdapter );
+        JGraph jgraph = new JGraph( jGraphModelAdapter);
+        
+        // TODO implementeer de onderstaande methods stubs zodat we de weight labels kunnen tekenen ipv "(1101 : 1104)" ofzo
+//        JGraph jgraph = new JGraph( jGraphModelAdapter, new GraphLayoutCache( jGraphModelAdapter, new DefaultCellViewFactory() {
+//
+//			private static final long serialVersionUID = 1405514043325026419L;
+//
+//			@Override
+//			protected EdgeView createEdgeView(Object arg0) {
+//				return new EdgeView() {
+//					private static final long serialVersionUID = 8033174952670878036L;
+//
+//					@Override
+//					public CellViewRenderer getRenderer() {
+//						return new EdgeRenderer() {
+//							private static final long serialVersionUID = 6499146125873141228L;
+//							
+//							@Override
+//							protected void paintLabel(Graphics g,
+//									String label, Point2D p, boolean mainLabel) {
+//								
+//								g.drawString(label, (int)p.getX(), (int)p.getY());
+//							}
+//
+//							@Override
+//							public Rectangle getBounds() {
+//								// TODO Auto-generated method stub
+//								return super.getBounds();
+//							}
+//							
+//						};
+//					}
+//
+//					@Override
+//					public Rectangle2D getBounds() {
+//						// TODO Auto-generated method stub
+//						return super.getBounds();
+//					}
+//
+//					@Override
+//					public Rectangle2D getExtraLabelBounds(int arg0) {
+//						// TODO Auto-generated method stub
+//						return super.getExtraLabelBounds(arg0);
+//					}
+//
+//					@Override
+//					public Rectangle2D getLabelBounds() {
+//						// TODO Auto-generated method stub
+//						return super.getLabelBounds();
+//					}
+//
+//					@Override
+//					public Shape getShape() {
+//						// TODO Auto-generated method stub
+//						return super.getShape();
+//					}
+//
+//					@Override
+//					public boolean intersects(JGraph arg0, Rectangle2D arg1) {
+//						// TODO Auto-generated method stub
+//						return super.intersects(arg0, arg1);
+//					}
+//				};
+//			}
+//        	
+//        }) );
         jgraph.setBackground(Color.WHITE);
         
         // make graph uneditable
