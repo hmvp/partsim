@@ -10,14 +10,10 @@ package gdp.erichiram.routables;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Graphics;
 import java.awt.Rectangle;
-import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Observable;
@@ -41,18 +37,10 @@ import javax.swing.table.AbstractTableModel;
 
 import org.jgraph.JGraph;
 import org.jgraph.graph.AttributeMap;
-import org.jgraph.graph.CellViewFactory;
-import org.jgraph.graph.CellViewRenderer;
-import org.jgraph.graph.DefaultCellViewFactory;
 import org.jgraph.graph.DefaultGraphCell;
-import org.jgraph.graph.EdgeRenderer;
-import org.jgraph.graph.EdgeView;
 import org.jgraph.graph.GraphConstants;
-import org.jgraph.graph.GraphLayoutCache;
-import org.jgrapht.ListenableGraph;
 import org.jgrapht.ext.JGraphModelAdapter;
 import org.jgrapht.graph.DefaultWeightedEdge;
-import org.jgrapht.graph.ListenableDirectedGraph;
 import org.jgrapht.graph.ListenableDirectedWeightedGraph;
 
 public class Gui implements Runnable, Observer {
@@ -73,7 +61,7 @@ public class Gui implements Runnable, Observer {
 	public Gui(NetwProg netwProg) {
 		this.netwProg = netwProg;
 		netwProg.routingTable.addObserver(this);
-		netwProg.messagesSent.observable().addObserver(this);
+		netwProg.messagesSent.addObserver(this);
 	}
 
 	/**
@@ -133,7 +121,7 @@ public class Gui implements Runnable, Observer {
 		fail.addActionListener(new ActionListener(){
 
 			public void actionPerformed(ActionEvent actionevent) {
-				netwProg.failConnection((Integer) spm.getValue());
+				netwProg.failConnection((Neighbour) spm.getValue());
 			}
 			
 		});
@@ -359,49 +347,50 @@ public class Gui implements Runnable, Observer {
 
 	public void update(final Observable observable, Object obj) {
 		
-			SwingUtilities.invokeLater(new Runnable(){
+		SwingUtilities.invokeLater(new Runnable(){
 			
 			public void run(){
-			if ( observable == netwProg.messagesSent.observable() ) {
-				int messagesSent = netwProg.messagesSent.get();
-				messagesSentLabel.setText(Configuration.messagesSentString + messagesSent);
-			}
-			
-			if (observable instanceof RoutingTable) {
-				if(tableModel != null)
-					tableModel.fireTableDataChanged();
+				if ( observable == netwProg.messagesSent) {
+					int messagesSent = netwProg.messagesSent.get();
+					messagesSentLabel.setText(Configuration.messagesSentString + messagesSent);
+				}
 				
-				try{
-					if(netwProg.routingTable.neighbours.size() < 1)
-					{
-						nSpin.setEnabled(false);
-						fail.setEnabled(false);
-					}
-					else
-					{
-						nSpin.setEnabled(true);
-						fail.setEnabled(true);
-						spm.setList(new LinkedList<Integer>(new TreeSet<Integer>(netwProg.routingTable.neighbours.keySet())));
-					}
+				if (observable instanceof RoutingTable) {
+					if(tableModel != null)
+						tableModel.fireTableDataChanged();
 					
-					if(netwProg.routingTable.neighbours.size() > 20)
-					{
-						wSpin.setEnabled(false);
-						rSpin.setEnabled(false);
-						repair.setEnabled(false);
-					}
-					else
-					{
-						wSpin.setEnabled(true);
-						rSpin.setEnabled(true);
-						repair.setEnabled(true);
-					}
-				} catch (Exception e){}
-				
-				
+					try{
+						if(netwProg.routingTable.neighbours.size() < 1)
+						{
+							nSpin.setEnabled(false);
+							fail.setEnabled(false);
+						}
+						else
+						{
+							nSpin.setEnabled(true);
+							fail.setEnabled(true);
+							spm.setList(new LinkedList<Neighbour>(new TreeSet<Neighbour>(netwProg.routingTable.neighbours.keySet())));
+						}
+						
+						
+						if(netwProg.routingTable.neighbours.size() > 20)
+						{
+							wSpin.setEnabled(false);
+							rSpin.setEnabled(false);
+							repair.setEnabled(false);
+						}
+						else
+						{
+							wSpin.setEnabled(true);
+							rSpin.setEnabled(true);
+							repair.setEnabled(true);
+						}
+					} catch (Exception e){}
+					
+					
+				}
+				//frame.pack();
 			}
-			//frame.pack();
-			}});
-		
+		});
 	}
 }
