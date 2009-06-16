@@ -8,21 +8,18 @@
 package gdp.erichiram.routables;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Component;
-import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.TreeSet;
-import java.util.Map.Entry;
 
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -37,14 +34,6 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.table.AbstractTableModel;
 
-import org.jgraph.JGraph;
-import org.jgraph.graph.AttributeMap;
-import org.jgraph.graph.DefaultGraphCell;
-import org.jgraph.graph.GraphConstants;
-import org.jgrapht.ext.JGraphModelAdapter;
-import org.jgrapht.graph.DefaultWeightedEdge;
-import org.jgrapht.graph.ListenableDirectedWeightedGraph;
-
 public class Gui implements Runnable, Observer {
 	
 	private NetwProg netwProg;
@@ -58,7 +47,6 @@ public class Gui implements Runnable, Observer {
 	private AbstractTableModel tableModel;
 	private JFrame frame;
 
-    private JGraphModelAdapter<Integer, DefaultWeightedEdge> jGraphModelAdapter;
 	private JButton changew;
 
 	public Gui(NetwProg netwProg) {
@@ -171,6 +159,7 @@ public class Gui implements Runnable, Observer {
 
 	private Component createInfoPane() {
 		JPanel infoPane = new JPanel();
+		infoPane.setLayout(new BoxLayout(infoPane, BoxLayout.Y_AXIS));
 		
 		tableModel = new AbstractTableModel() {
 
@@ -211,12 +200,14 @@ public class Gui implements Runnable, Observer {
 
 		JPanel tablePane = new JPanel();		
 		tablePane.setLayout(new BorderLayout());
+		
 		JTable routingTable = new JTable(tableModel);
 		tablePane.add(routingTable.getTableHeader(), BorderLayout.PAGE_START);
-		tablePane.add(routingTable, BorderLayout.CENTER);
-		infoPane.add(tablePane);
+		tablePane.add(routingTable, BorderLayout.CENTER);	
 		
-		infoPane.add(createGraphComponent());
+		infoPane.add(tablePane, BorderLayout.WEST);		
+		
+		infoPane.add(createGraphComponent(), BorderLayout.EAST);
 		
 		return infoPane;
 	}
@@ -242,120 +233,8 @@ public class Gui implements Runnable, Observer {
 
 	private Component createGraphComponent() {
 		
-        // create a JGraphT graph
-		ListenableDirectedWeightedGraph<Integer, DefaultWeightedEdge> g = new ListenableDirectedWeightedGraph<Integer, DefaultWeightedEdge>( DefaultWeightedEdge.class );
-
-        // create a visualization using JGraph, via an adapter
-        jGraphModelAdapter = new JGraphModelAdapter<Integer, DefaultWeightedEdge>( g );
-
-        JGraph jgraph = new JGraph( jGraphModelAdapter);
-        
-        // TODO implementeer de onderstaande methods stubs zodat we de weight labels kunnen tekenen ipv "(1101 : 1104)" ofzo
-//        JGraph jgraph = new JGraph( jGraphModelAdapter, new GraphLayoutCache( jGraphModelAdapter, new DefaultCellViewFactory() {
-//
-//			private static final long serialVersionUID = 1405514043325026419L;
-//
-//			@Override
-//			protected EdgeView createEdgeView(Object arg0) {
-//				return new EdgeView() {
-//					private static final long serialVersionUID = 8033174952670878036L;
-//
-//					@Override
-//					public CellViewRenderer getRenderer() {
-//						return new EdgeRenderer() {
-//							private static final long serialVersionUID = 6499146125873141228L;
-//							
-//							@Override
-//							protected void paintLabel(Graphics g,
-//									String label, Point2D p, boolean mainLabel) {
-//								
-//								g.drawString(label, (int)p.getX(), (int)p.getY());
-//							}
-//
-//							@Override
-//							public Rectangle getBounds() {
-//								// TODO Auto-generated method stub
-//								return super.getBounds();
-//							}
-//							
-//						};
-//					}
-//
-//					@Override
-//					public Rectangle2D getBounds() {
-//						// TODO Auto-generated method stub
-//						return super.getBounds();
-//					}
-//
-//					@Override
-//					public Rectangle2D getExtraLabelBounds(int arg0) {
-//						// TODO Auto-generated method stub
-//						return super.getExtraLabelBounds(arg0);
-//					}
-//
-//					@Override
-//					public Rectangle2D getLabelBounds() {
-//						// TODO Auto-generated method stub
-//						return super.getLabelBounds();
-//					}
-//
-//					@Override
-//					public Shape getShape() {
-//						// TODO Auto-generated method stub
-//						return super.getShape();
-//					}
-//
-//					@Override
-//					public boolean intersects(JGraph arg0, Rectangle2D arg1) {
-//						// TODO Auto-generated method stub
-//						return super.intersects(arg0, arg1);
-//					}
-//				};
-//			}
-//        	
-//        }) );
-        jgraph.setBackground(Color.WHITE);
-        
-        // make graph uneditable
-        jgraph.setSelectionEnabled(false);
-        jgraph.setSelectionModel(new JGraph.EmptySelectionModel() {
-			private static final long serialVersionUID = 1237119486257125129L;
-
-			public Object[] getSelectables() {
-        		return new Object[]{};
-        	}
-        });
-
-        // add some sample data (graph manipulated via JGraphT)
-        for (Integer x : netwProg.routingTable.ndis.keySet() ) {
-            g.addVertex( x);
-            positionVertexAt(x, (int)(Math.random() * 400), (int)(Math.random() * 400) );
-           
-        }
-        
-        for ( Entry<Integer, Map<Integer, Integer>> x : netwProg.routingTable.ndis.entrySet() ) {
-            Map<Integer, Integer> nodeDistances = x.getValue();
-            
-            for ( Entry<Integer, Integer> nodeDistance : nodeDistances.entrySet() ) {
-
-            	if ( !x.getKey().equals(nodeDistance.getKey()) ) {
-            		DefaultWeightedEdge e = g.addEdge( x.getKey(), nodeDistance.getKey() );
-            		g.setEdgeWeight(e, nodeDistance.getValue());
-            	}
-            }
-           
-        }
-
-        // that's all there is to it!...
-		return jgraph;
+		return new GraphPanel(netwProg.routingTable.ndis, netwProg.id);
 	}
-
-    private void positionVertexAt( Object vertex, int x, int y ) {
-        DefaultGraphCell cell = jGraphModelAdapter.getVertexCell(vertex);
-		AttributeMap attributes = cell.getAttributes();
-
-		GraphConstants.setBounds(attributes, new Rectangle(x, y, 40, 20));
-    }
 
 	public void run() {
 		initializeGui();
