@@ -58,20 +58,11 @@ public class GraphPanel extends JPanel {
 		g.setColor(Color.BLACK);
 		for (GraphEdge edge : edges ) {
 			// draw line
-//			g.drawLine(edge.getFirst().x, edge.getFirst().y,
-//					edge.getSecond().x, edge.getSecond().y);
-//			
 			int controlX = (edge.getFirst().x + edge.getSecond().x) / 2 + (int)(Math.random() * 100) - 50;
 			int controlY = (edge.getFirst().y + edge.getSecond().y) / 2 + (int)(Math.random() * 100) - 50;
-			
-			// create new QuadCurve2D.Float
 			QuadCurve2D q = new QuadCurve2D.Float();
-			// draw QuadCurve2D.Float with set coordinates
 			q.setCurve(edge.getFirst().x, edge.getFirst().y, controlX, controlY, edge.getSecond().x, edge.getSecond().y);
-			g2.draw(q);
-			
-			
-			
+			g2.draw(q);			
 			
 			// draw label
 			g.drawString(""+edge.getWeight(), controlX - 15, controlY);
@@ -108,17 +99,21 @@ public class GraphPanel extends JPanel {
 
 	private void updateGraph() {
 
-		// add the edges
+		// add the nodes (set the positions on a circle)		
+		int numberOfNodes = ndis.keySet().size();
+		double radianPeriod = 2 * Math.PI / numberOfNodes;		
+		double radians = 0.0;
 		for (Integer x : ndis.keySet()) {
-			GraphNode node = new GraphNode(x, (int) (Math.random() * 300) + 50, (int) (Math.random() * 300) + 50);
+			GraphNode node = new GraphNode(x, (int)(Math.cos(radians) * 150) + 200, (int)(Math.sin(radians) * 150) + 200);
 			if ( nodes.containsKey(node.id) ) {
 				// TODO update the node's position
 			} else {
 				nodes.put(node.id, node);
 			}
+			radians += radianPeriod;
 		}
 
-		// add the nodes
+		// add the edges
 		for (Entry<Integer, Map<Integer, Integer>> x : ndis.entrySet()) {
 			Map<Integer, Integer> nodeDistances = x.getValue();
 
