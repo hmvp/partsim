@@ -18,15 +18,14 @@ public class RoutingTable extends Observable{
 	private static final int UNDEF = 0;
 	private static final Integer MAX = 20001;
 	private final int LOCAL;
-	public final Map<Neighbour, Integer> neighbours;
-	HashMap<Integer, Integer> D = new HashMap<Integer, Integer>();
-	Collection<Integer> nodes = new HashSet<Integer>();
-	HashMap<Integer, Map<Integer,Integer>> ndis = new HashMap<Integer, Map<Integer,Integer>>();
-	private NetwProg netwProg;
-	public HashMap<Integer, Integer> NB = new HashMap<Integer, Integer>();
+	 final Map<Integer, Neighbour> neighbours = new HashMap<Integer, Neighbour> ();
+	 final HashMap<Integer, Integer> D = new HashMap<Integer, Integer>();
+	 final Collection<Integer> nodes = new HashSet<Integer>();
+	 final HashMap<Integer, Map<Integer,Integer>> ndis = new HashMap<Integer, Map<Integer,Integer>>();
+	private final NetwProg netwProg;
+	 final HashMap<Integer, Integer> NB = new HashMap<Integer, Integer>();
 	
-	public RoutingTable(NetwProg netwProg, Map<Neighbour, Integer> neighbours) {
-		this.neighbours = neighbours;
+	public RoutingTable(NetwProg netwProg) {
 		this.netwProg = netwProg;
 		this.LOCAL = netwProg.id;
 		
@@ -67,9 +66,9 @@ public class RoutingTable extends Observable{
 		{
 			int min = MAX;
 			Neighbour w = null;
-			for(Neighbour s : neighbours.keySet())
+			for(Neighbour s : neighbours.values())
 			{	
-				int x = s.getPort();
+				int x = s.id;
 				int i = ndis.get(x).get(v);
 					if(i <= min)
 					{
@@ -80,12 +79,14 @@ public class RoutingTable extends Observable{
 			
 			//TODO: soms ontvangen we een MyDist voordat we een repair hebben ontvangen. In dat geval is w UNDEF en gaat alles dood
 			// dit kan natuurlijk onder goede omstandigheden nooit gebeuren!
-			Integer d = D.get(w.getPort()) + min;
+			Integer d = MAX;
+			if (w != null)
+				d= D.get(w.id) + min;
 			
 			if (d < MAX)
 			{
 				dChanged =  d != D.put(v, d);
-				NB.put(v,w.getPort());
+				NB.put(v,w.id);
 			}
 			else
 			{
@@ -98,7 +99,7 @@ public class RoutingTable extends Observable{
 		}
 		if(dChanged)
 		{
-			for(Neighbour x : neighbours.keySet())
+			for(Neighbour x : neighbours.values())
 			{
 				x.send(new MyDist(v,D.get(v)));
 			}
@@ -117,26 +118,36 @@ public class RoutingTable extends Observable{
 	}
 	
 	public synchronized void fail(Neighbour n) {
-		neighbours.remove(n);
+		netwProg.debug("Processing fail from: " + n.id);
 		
-		for(int neighbour : NB.keySet())
+		neighbours.remove(n.id);
+		//D.put(n.id, MAX);
+		
+//		for(int neighbour : NB.keySet())
+//		{
+//			if(NB.get(neighbour) == n.id)
+//				recompute(neighbour);
+//		}
+		
+		for(int v : nodes)
 		{
-			if(NB.get(neighbour) == n.getPort())
-				recompute(neighbour);
+			recompute(v);
 		}
 		
 		notifyObservers();
 	}
 	
-	public synchronized void repair(Neighbour n, int weight) {		
-		checkNodeInitialized(n.getPort());
+	public synchronized void repair(Neighbour n, int weight) {	
+		netwProg.debug("Processing repair to: " + n.id + " with weight: "+ weight);
+
+		checkNodeInitialized(n.id);
 		
-		neighbours.put(n, weight);
-		D.put(n.getPort(), weight);
+		neighbours.put(n.id,n);
+		D.put(n.id, weight);
 		
 		for(int v : nodes)
 		{
-			ndis.get(n.getPort()).put(v,MAX);
+			ndis.get(n.id).put(v,MAX);
 			n.send(new MyDist(v,D.get(v)));
 		}
 		notifyObservers();
@@ -149,6 +160,16 @@ public class RoutingTable extends Observable{
 	public void notifyObservers() {
 		setChanged();
 		super.notifyObservers();
+	}
+
+	public synchronized void changeWeight(int node, int weight) {
+		D.put(node, weight);
+		//ndis.get(LOCAL).put(node, weight);
+		
+		for(int v : nodes)
+		{
+			recompute(v);
+		}
 	}
 	
 	
