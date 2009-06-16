@@ -5,6 +5,7 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.awt.geom.PathIterator;
 import java.awt.geom.QuadCurve2D;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -26,11 +27,16 @@ public class GraphPanel extends JPanel {
 
 	private int specialNodeId;
 
-	public GraphPanel(HashMap<Integer, Map<Integer, Integer>> ndis, Integer specialNodeId) {
-		this.ndis = ndis;
-		this.specialNodeId = specialNodeId;
-	}
+	private Map<Integer, Neighbour> neighbours;
+
 	
+	public GraphPanel(HashMap<Integer, Map<Integer, Integer>> ndis, int id,
+			Map<Integer, Neighbour> neighbours) {
+		this.ndis = ndis;
+		this.specialNodeId = id;
+		this.neighbours = neighbours;
+	}
+
 	@Override
 	public Dimension getPreferredSize() {
 		return new Dimension(400,400);
@@ -65,14 +71,47 @@ public class GraphPanel extends JPanel {
 		g.setColor(Color.BLACK);
 		for (GraphEdge edge : edges ) {
 			// draw line
-			int controlX = (edge.getFirst().x + edge.getSecond().x) / 2 + (int)(Math.random() * 100) - 50;
-			int controlY = (edge.getFirst().y + edge.getSecond().y) / 2 + (int)(Math.random() * 100) - 50;
+			if ( neighbours.containsKey(edge.getSecond()) ) {
+				g.setColor(Color.RED);
+			} else {
+				g.setColor(Color.GRAY);
+			}
+			int middleX = (edge.getFirst().x + edge.getSecond().x) / 2;
+			int middleY = (edge.getFirst().y + edge.getSecond().y) / 2;
+			int controlX = middleX + (edge.getSecond().y - edge.getFirst().y) / 4;
+			int controlY = middleY + (edge.getSecond().x - edge.getFirst().x) / 4;
 			QuadCurve2D q = new QuadCurve2D.Float();
 			q.setCurve(edge.getFirst().x, edge.getFirst().y, controlX, controlY, edge.getSecond().x, edge.getSecond().y);
-			g2.draw(q);			
+			g2.draw(q);
+			
+			PathIterator pathIterator = q.getPathIterator(null, 1.0);
+			double minManhattanDist = Double.POSITIVE_INFINITY;
+			
+			int closestCurvePointToLabelX = 0;
+			int closestCurvePointToLabelY = 0;
+			while ( !pathIterator.isDone() ) {
+				double[] coords = new double[6];
+				
+				pathIterator.currentSegment(coords);
+				
+				double manhattanDist = Math.abs(coords[0] - middleX) + Math.abs(coords[1] - middleY); 
+							
+				if ( manhattanDist < minManhattanDist ) {
+					minManhattanDist = manhattanDist;
+					
+					closestCurvePointToLabelX = (int) coords[0];
+					closestCurvePointToLabelY = (int) coords[1];
+				}
+				
+				pathIterator.next();
+			}
+			
 			
 			// draw label
-			g.drawString(""+edge.getWeight(), controlX - 15, controlY);
+			g.setColor(Color.BLACK);
+			g.fillRoundRect(closestCurvePointToLabelX-8, closestCurvePointToLabelY-8, 32, 16, 5, 5);
+			g.setColor(Color.WHITE);
+			g.drawString(""+edge.getWeight(), closestCurvePointToLabelX - 5, closestCurvePointToLabelY+5);
 		}		
 		
 		// draw nodes
@@ -108,15 +147,20 @@ public class GraphPanel extends JPanel {
 
 		nodes = new HashMap<Integer, GraphNode>();
 		// add the nodes (set the positions on a circle)		
-		int numberOfNodes = ndis.keySet().size();
+		int numberOfNodes = ndis.keySet().size() - 1;
 		double radianPeriod = 2 * Math.PI / numberOfNodes;		
 		double radians = 0.0;
 		for (Integer x : ndis.keySet()) {
 			GraphNode node = new GraphNode(x, (int)(Math.cos(radians) * 150) + 200, (int)(Math.sin(radians) * 150) + 200);
-			if (!nodes.containsKey(node.id) ) {
-				nodes.put(node.id, node);
+
+			if ( specialNodeId == node.id ) {
+				node.x = 200;
+				node.y = 200;
+			} else {
+				radians += radianPeriod;				
 			}
-			radians += radianPeriod;
+			
+			nodes.put(node.id, node);
 		}
 		
 		edges = new HashSet<GraphEdge>();

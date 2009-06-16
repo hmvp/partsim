@@ -221,7 +221,7 @@ public class Gui implements Runnable, Observer {
 
 	private Component createGraphComponent() {
 		
-		return new GraphPanel(netwProg.routingTable.ndis, netwProg.id);
+		return new GraphPanel(netwProg.routingTable.ndis, netwProg.id, netwProg.routingTable.neighbours);
 	}
 
 	public void run() {
