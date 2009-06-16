@@ -5,9 +5,7 @@ import gdp.erichiram.routables.util.ObservableAtomicInteger;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketException;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -101,7 +99,7 @@ public class NetwProg {
 			s.die();
 		}
 
-		System.exit(0);
+		//System.exit(0);
 	}
 
 	public void setT(int t) {
