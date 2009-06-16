@@ -74,7 +74,7 @@ public class Gui implements Runnable, Observer {
 			{//Constructor				
 				Timer timer = new Timer(Configuration.guiSpeed , new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
-						repaint();
+						//repaint();
 					}
 				});
 				timer.start();

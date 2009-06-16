@@ -41,7 +41,7 @@ public class GraphPanel extends JPanel {
 
 		updateGraph();
 
-		Rectangle bounds = this.getBounds();
+		Rectangle bounds = g.getClipBounds();
 		g.setColor(Color.WHITE);		
 		g.fillRect(0,0,bounds.width,bounds.height);
 

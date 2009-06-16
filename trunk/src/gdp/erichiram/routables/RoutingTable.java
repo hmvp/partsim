@@ -170,6 +170,8 @@ public class RoutingTable extends Observable{
 		{
 			recompute(v);
 		}
+		
+		notifyObservers();
 	}
 	
 	
