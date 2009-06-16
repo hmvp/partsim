@@ -67,19 +67,7 @@ public class Gui implements Runnable, Observer {
 	}
 
 	private JFrame createFrame() {
-		JFrame frame = new JFrame("NetwProg " + netwProg.id){
-
-			private static final long serialVersionUID = 5772443503354772693L;
-
-			{//Constructor				
-				Timer timer = new Timer(Configuration.guiSpeed , new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						//repaint();
-					}
-				});
-				timer.start();
-			}
-		};
+		JFrame frame = new JFrame("NetwProg " + netwProg.id);
 		
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frame.setLayout(new BorderLayout());
@@ -284,7 +272,7 @@ public class Gui implements Runnable, Observer {
 					
 					
 				}
-				//frame.pack();
+				frame.repaint();
 			}
 		});
 	}
