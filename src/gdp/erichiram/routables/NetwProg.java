@@ -1,14 +1,17 @@
 package gdp.erichiram.routables;
 
 import gdp.erichiram.routables.util.ObservableAtomicInteger;
-import gdp.erichiram.routables.util.Util;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import javax.swing.SwingUtilities;
 
@@ -31,35 +34,39 @@ public class NetwProg {
 		System.out.println("Starting: " + argId);
 
 		// create the application
-		new NetwProg(argId, neighbours);
+		NetwProg nwp = new NetwProg(argId, neighbours);
+		
+		nwp.run();
 	}
-
+	final static boolean DEBUG = true;
+	
+	
 	private volatile int t;
+	
 	private ServerSocket socket;
 
 	public final int id;
-	private final Map<Neighbour, Integer> socketHandlers = new HashMap<Neighbour, Integer>();
+	
+	final Set<Neighbour> socketHandlers = new CopyOnWriteArraySet<Neighbour>();
 	
 	public final ObservableAtomicInteger messagesSent = new ObservableAtomicInteger(0);
-	public final Map<Integer, Integer> startingNeighbours; //TODO: concurrency issue
-	public final RoutingTable routingTable = new RoutingTable(this, socketHandlers);
+	public final Map<Integer, Integer> startingNeighbours;
+	public final RoutingTable routingTable = new RoutingTable(this);
 
 
 	public NetwProg(int argId, Map<Integer, Integer> neighbours) {
 
 		this.id = argId;
-		this.startingNeighbours = neighbours;
-				
-		run();
+		this.startingNeighbours = new ConcurrentHashMap<Integer, Integer>(neighbours);
 	}
-
-	private void run() {
-
-		Util.debug(id, "start gui");
+	
+	private void run()
+	{
+		debug("start gui");
 
 		SwingUtilities.invokeLater(new Gui(this));
 		
-		Util.debug(id, "start sockets");
+		debug("start sockets");
 		
 		try {
 			socket = new ServerSocket(id);
@@ -76,21 +83,21 @@ public class NetwProg {
 		}
 
 		// listen and start sockets if needed
-		Util.debug(id, "start listening");
+		debug("start listening");
 		while (socket != null && !socket.isClosed()) {
 			try {
 				Socket clientsocket = socket.accept();
-				new Thread(new Neighbour(this, clientsocket)).start();
-			} catch (SocketException e) {
-				// we moeten stoppen socket sluit
+				Neighbour n = new Neighbour(this, clientsocket);
+				new Thread(n).start();
+				socketHandlers.add(n);
 			} catch (IOException e) {
-				e.printStackTrace();
+				//we socket is dood of er is iets mis. dus stoppen we!
 			}
 		}
 
 		// socket is closed so we are dead or crashed, either way we clean up
 		// and exit
-		for (Neighbour s : socketHandlers.keySet()) {
+		for (Neighbour s : socketHandlers) {
 			s.die();
 		}
 
@@ -99,27 +106,43 @@ public class NetwProg {
 
 	public void setT(int t) {
 		this.t = t;
-		Util.debug(id, "'t' is set to: " + t);
+		debug("'t' is set to: " + t);
 	}
 
 	public int getT() {
 		return t;
 	}
 
-	public void startRepairConnection(int neighbour, int weight) {
-		for(Neighbour n : socketHandlers.keySet())
+	public synchronized void startRepairConnection(int neighbour, int weight) {
+		if(neighbour == id)
 		{
-			if(n.getPort() == neighbour)
-				return;
+			debug("cannot repair connection to self");
+			return;
 		}
 		
-		Util.debug(id, "start clientsockethandler " + neighbour);
-		new Thread(new Neighbour(this, neighbour, weight)).start();
+		for(Neighbour n : socketHandlers)
+		{
+			if(n.id == neighbour)
+			{
+				debug("cannot repair existing connection");
+				return;
+			}
+		}
+		
+		debug("start clientsockethandler " + neighbour);
+		Neighbour n = new Neighbour(this, neighbour, weight);
+		new Thread(n).start();
+		socketHandlers.add(n);
 	}
 
-	public void failConnection(Neighbour value) {
-		Util.debug(id, "fail connection to: " + value.getPort());
-		value.die();
+	public void failConnection(Neighbour n) {
+		debug("fail connection to: " + n.id);
+		if(!socketHandlers.remove(n))
+		{
+			debug("connection failed earlier");
+			return;
+		}
+		n.die();
 	}
 
 	public String toString() {
@@ -131,6 +154,27 @@ public class NetwProg {
 			socket.close();
 		} catch (IOException e) {
 			e.printStackTrace();
+		}
+	}
+
+	public void changeWeight(Integer number, Integer number2) {
+		routingTable.changeWeight(number, number2);
+	}
+	
+	public void error(String message)
+	{
+		System.err.println(id + ": " + message);
+	}
+	
+	/**
+	 * debug messages switchable with DEBUG boolean
+	 * @param message
+	 */
+	public void debug(String message)
+	{
+		if (DEBUG)
+		{
+			System.out.println(id + ": " + message);
 		}
 	}
 }

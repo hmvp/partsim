@@ -14,7 +14,9 @@ import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
@@ -57,6 +59,7 @@ public class Gui implements Runnable, Observer {
 	private JFrame frame;
 
     private JGraphModelAdapter<Integer, DefaultWeightedEdge> jGraphModelAdapter;
+	private JButton changew;
 
 	public Gui(NetwProg netwProg) {
 		this.netwProg = netwProg;
@@ -125,9 +128,14 @@ public class Gui implements Runnable, Observer {
 			}
 			
 		});
+		List<String> list = new ArrayList<String>();
+		for(Integer i = 1100; i < 1121 ; i++)
+		{
+			//if(!netwProg.startingNeighbours.contains(i))
+				list.add(i.toString());
+		}
 		
-		
-		final SpinnerNumberModel snpm = new SpinnerNumberModel(1100,1100,1120,1);
+		final SpinnerListModel snpm = new SpinnerListModel(list);
 
 		rSpin = new JSpinner(snpm);
 		
@@ -136,17 +144,25 @@ public class Gui implements Runnable, Observer {
 		wSpin = new JSpinner(wspm);
 		
 		repair = new JButton("repair");
+		changew = new JButton("change weight");
+		changew.addActionListener(new ActionListener(){
+
+			public void actionPerformed(ActionEvent actionevent) {
+				netwProg.changeWeight(((Neighbour) spm.getValue()).id,(Integer) wspm.getNumber());
+			}
+		});
+		
 		repair.addActionListener(new ActionListener(){
 
 			public void actionPerformed(ActionEvent actionevent) {
-				netwProg.startRepairConnection((Integer) snpm.getNumber(),(Integer) wspm.getNumber());
+				netwProg.startRepairConnection(Integer.valueOf((String) snpm.getValue()),(Integer) wspm.getNumber());
 			}
-			
 		});
 		
 		p.add(fail);
 		p.add(nSpin);
 		p.add(repair);
+		p.add(changew);
 		p.add(rSpin);
 		p.add(wSpin);
 		
@@ -369,7 +385,7 @@ public class Gui implements Runnable, Observer {
 						{
 							nSpin.setEnabled(true);
 							fail.setEnabled(true);
-							spm.setList(new LinkedList<Neighbour>(new TreeSet<Neighbour>(netwProg.routingTable.neighbours.keySet())));
+							spm.setList(new LinkedList<Neighbour>(new TreeSet<Neighbour>(netwProg.socketHandlers)));
 						}
 						
 						
