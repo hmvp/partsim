@@ -29,7 +29,6 @@ import javax.swing.JTable;
 import javax.swing.SpinnerListModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
-import javax.swing.Timer;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.table.AbstractTableModel;
@@ -48,6 +47,7 @@ public class Gui implements Runnable, Observer {
 	private JFrame frame;
 
 	private JButton changew;
+	private Component graph;
 
 	public Gui(NetwProg netwProg) {
 		this.netwProg = netwProg;
@@ -194,8 +194,8 @@ public class Gui implements Runnable, Observer {
 		tablePane.add(routingTable, BorderLayout.CENTER);	
 		
 		infoPane.add(tablePane, BorderLayout.WEST);		
-		
-		infoPane.add(createGraphComponent(), BorderLayout.EAST);
+		graph = createGraphComponent();
+		infoPane.add(graph , BorderLayout.EAST);
 		
 		return infoPane;
 	}
@@ -272,7 +272,9 @@ public class Gui implements Runnable, Observer {
 					
 					
 				}
-				frame.repaint();
+				
+				//frame.repaint();
+				graph.repaint();
 			}
 		});
 	}

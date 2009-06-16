@@ -24,7 +24,7 @@ public class GraphPanel extends JPanel {
 
 	private HashMap<Integer, Map<Integer, Integer>> ndis;
 
-	private Integer specialNodeId;
+	private int specialNodeId;
 
 	public GraphPanel(HashMap<Integer, Map<Integer, Integer>> ndis, Integer specialNodeId) {
 		this.ndis = ndis;
@@ -38,8 +38,8 @@ public class GraphPanel extends JPanel {
 
 	@Override
 	public void paint(Graphics g) {
-
-		updateGraph();
+		if(nodes.size() < 1)
+			updateGraph();
 
 		Rectangle bounds = g.getClipBounds();
 		g.setColor(Color.WHITE);		
@@ -48,6 +48,13 @@ public class GraphPanel extends JPanel {
 		Graphics g2 = g.create(bounds.x, bounds.y, bounds.width, bounds.height);
 		
 		paintGraph(g2);
+	}
+
+
+	@Override
+	public void update(Graphics g) {
+		updateGraph();
+		super.update(g);
 	}
 
 	private void paintGraph(Graphics g) {
@@ -71,7 +78,7 @@ public class GraphPanel extends JPanel {
 		// draw nodes
 		for (GraphNode node : nodes.values() ) {
 			
-			if ( node.id.equals(specialNodeId) ) {
+			if ( node.id == specialNodeId ) {
 				
 				// draw circle
 				g.setColor(Color.WHITE);
@@ -82,7 +89,7 @@ public class GraphPanel extends JPanel {
 				g.drawOval(node.x-20, node.y-20, 40, 40);
 				
 				// draw id
-				g.drawString(node.id.toString(), node.x-15, node.y+5);
+				g.drawString(String.valueOf(node.id), node.x-15, node.y+5);
 			} else {
 
 				// draw circle
@@ -91,7 +98,7 @@ public class GraphPanel extends JPanel {
 				
 				// draw id
 				g.setColor(Color.WHITE);
-				g.drawString(node.id.toString(), node.x-15, node.y+5);
+				g.drawString(String.valueOf(node.id), node.x-15, node.y+5);
 			}
 		}
 
@@ -99,20 +106,20 @@ public class GraphPanel extends JPanel {
 
 	private void updateGraph() {
 
+		nodes = new HashMap<Integer, GraphNode>();
 		// add the nodes (set the positions on a circle)		
 		int numberOfNodes = ndis.keySet().size();
 		double radianPeriod = 2 * Math.PI / numberOfNodes;		
 		double radians = 0.0;
 		for (Integer x : ndis.keySet()) {
 			GraphNode node = new GraphNode(x, (int)(Math.cos(radians) * 150) + 200, (int)(Math.sin(radians) * 150) + 200);
-			if ( nodes.containsKey(node.id) ) {
-				// TODO update the node's position
-			} else {
+			if (!nodes.containsKey(node.id) ) {
 				nodes.put(node.id, node);
 			}
 			radians += radianPeriod;
 		}
-
+		
+		edges = new HashSet<GraphEdge>();
 		// add the edges
 		for (Entry<Integer, Map<Integer, Integer>> x : ndis.entrySet()) {
 			Map<Integer, Integer> nodeDistances = x.getValue();
@@ -127,7 +134,7 @@ public class GraphPanel extends JPanel {
 
 
 						// TODO update the edge's weight
-						//edges.remove(edge);
+						edge.setWeight(nodeDistance.getValue());
 					} else {
 						if ( edge.getWeight() < 20001 ) {
 							edges.add(edge);
@@ -139,7 +146,7 @@ public class GraphPanel extends JPanel {
 	}
 
 	class GraphNode {
-		private final Integer id;
+		private final int id;
 		private int x;
 		private int y;
 
@@ -149,19 +156,33 @@ public class GraphPanel extends JPanel {
 			this.y = y;
 		}
 
-		private boolean equals(Object x, Object y) {
-			return (x == null && y == null) || (x != null && x.equals(y));
-		}
-
-		public boolean equals(Object other) {
-			return other instanceof GraphPanel.GraphNode && equals(id, ((GraphPanel.GraphNode) other).id);
-		}
-
+		@Override
 		public int hashCode() {
-			if (id == null)
-				return 0;
-			else
-				return id.hashCode() + 2;
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + getOuterType().hashCode();
+			result = prime * result + id;
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			GraphNode other = (GraphNode) obj;
+			if (!getOuterType().equals(other.getOuterType()))
+				return false;
+			if (id != other.id)
+				return false;
+			return true;
+		}
+
+		private GraphPanel getOuterType() {
+			return GraphPanel.this;
 		}
 	}
 
@@ -197,23 +218,44 @@ public class GraphPanel extends JPanel {
 			return "(" + a + ", " + b + ")";
 		}
 
-		private boolean equals(Object x, Object y) {
-			return (x == null && y == null) || (x != null && x.equals(y));
-		}
-
-		public boolean equals(Object other) {
-			return other instanceof GraphPanel.GraphEdge
-							&& equals(a, ((GraphPanel.GraphEdge) other).a) && equals(
-							b, ((GraphPanel.GraphEdge) other).b);
-		}
-
+		@Override
 		public int hashCode() {
-			if (a == null)
-				return (b == null) ? 0 : b.hashCode() + 1;
-			else if (b == null)
-				return a.hashCode() + 2;
-			else
-				return a.hashCode() * 17 + b.hashCode();
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + getOuterType().hashCode();
+			result = prime * result + ((a == null) ? 0 : a.hashCode());
+			result = prime * result + ((b == null) ? 0 : b.hashCode());
+			return result;
 		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			GraphEdge other = (GraphEdge) obj;
+			if (!getOuterType().equals(other.getOuterType()))
+				return false;
+			if (a == null) {
+				if (other.a != null)
+					return false;
+			} else if (!a.equals(other.a))
+				return false;
+			if (b == null) {
+				if (other.b != null)
+					return false;
+			} else if (!b.equals(other.b))
+				return false;
+			return true;
+		}
+
+		private GraphPanel getOuterType() {
+			return GraphPanel.this;
+		}
+
+
 	}
 }
