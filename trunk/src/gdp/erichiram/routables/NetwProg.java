@@ -45,11 +45,12 @@ public class NetwProg {
 
 	private volatile int t;
 	public final ObservableAtomicInteger messagesSent = new ObservableAtomicInteger(0);
-	public final RoutingTable routingTable = new RoutingTable(this);
+	public final RoutingTable routingTable;
 
 	public NetwProg(int argId, Map<Integer, Integer> neighbours) {
 		this.id = argId;
 		this.startingNeighbours = new ConcurrentHashMap<Integer, Integer>(neighbours);
+		routingTable = new RoutingTable(this);
 	}
 
 	private void run() {

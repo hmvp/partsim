@@ -58,15 +58,15 @@ public class RoutingTable extends Observable {
 	public RoutingTable(NetwProg netwProg) {
 		this.netwProg = netwProg;
 
-		// ndis.put(netwProg.id, D);
+		ndis.put(netwProg.id, D);
 		D.put(netwProg.id, 0);
 		NB.put(netwProg.id, netwProg.id);
 	}
 	
 	private void checkNodeInitialized(int node)
 	{
-		//if(node == netwProg.id)
-		//	return;
+		if(node == netwProg.id)
+			return;
 
 		// If we don't know the node.
 		if (!nodes.contains(node)) {
@@ -90,13 +90,14 @@ public class RoutingTable extends Observable {
 	public synchronized void recompute(int v) {
 		checkNodeInitialized(v);
 
-		boolean dChanged;
+		boolean dChanged = false;
 		if (v == netwProg.id) {
 			dChanged = 0 != D.put(v, 0);
 			NB.put(v, netwProg.id);
 		} else {
 			int min = MAX_DIST;
 			int w = 0;
+			//determine closest neighbour to v and its distance to v
 			for (int s : neighbours) {
 				int x = s;
 				int i = ndis.get(x).get(v);
@@ -106,12 +107,8 @@ public class RoutingTable extends Observable {
 				}
 			}
 
-			// TODO: soms ontvangen we een MyDist voordat we een repair hebben
-			// ontvangen. In dat geval is w UNDEF_ID en gaat alles dood
-			// dit kan natuurlijk onder goede omstandigheden nooit gebeuren!
-			Integer d = MAX_DIST;
-			if (w != 0)
-				d = D.get(w) + min;
+			//distance( me , v ) = distance( me , w ) + distance( w , v )
+			int	d = D.get(w) + min;
 
 			if (d < MAX_DIST) {
 				dChanged = d != D.put(v, d);
@@ -143,7 +140,6 @@ public class RoutingTable extends Observable {
 		netwProg.debug("Processing fail from: " + neighbour);
 
 		neighbours.remove(neighbour);
-		D.put(neighbour, MAX_DIST);
 
 		for(int n : NB.keySet())
 		{
@@ -157,19 +153,20 @@ public class RoutingTable extends Observable {
 	public synchronized void repair(int neighbour, int weight) {
 		netwProg.debug("Processing repair to: " + neighbour + " with weight: " + weight);
 
+		//we do lazy initialization so we check now
 		checkNodeInitialized(neighbour);
 
 		neighbours.add(neighbour);
-		// D.put(neighbour, weight);
+		D.put(neighbour, weight);
 
 		for (int v : nodes) {
 			ndis.get(neighbour).put(v, MAX_DIST);
 
-			if (v == neighbour) {
-				netwProg.send(neighbour, new MyDist(v, weight));
-			} else {
+//			if (v == neighbour) {
+//				netwProg.send(neighbour, new MyDist(v, weight));
+//			} else {
 				netwProg.send(neighbour, new MyDist(v, D.get(v)));
-			}
+//			}
 		}
 		notifyObservers();
 	}
