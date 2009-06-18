@@ -1,6 +1,6 @@
 package gdp.erichiram.routables;
 
-import gdp.erichiram.routables.message.MyDist;
+import gdp.erichiram.routables.message.Message;
 import gdp.erichiram.routables.util.ObservableAtomicInteger;
 
 import java.io.IOException;
@@ -120,8 +120,8 @@ public class NetwProg {
 
 		debug("start clientsockethandler " + neighbour);
 		Neighbour n = new Neighbour(this, neighbour, weight);
-		new Thread(n).start();
 		idsToSocketHandlers.put(neighbour, n);
+		new Thread(n).start();
 	}
 
 	public void failConnection(Neighbour n) {
@@ -164,8 +164,7 @@ public class NetwProg {
 		}
 	}
 
-	public void send(int x, MyDist myDist) {
-		// TODO Auto-generated method stub
-
+	public void send(int x, Message message) {
+		idsToSocketHandlers.get(x).send(message);
 	}
 }

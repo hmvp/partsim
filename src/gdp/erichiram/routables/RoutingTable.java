@@ -14,7 +14,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
  * 
  */
 public class RoutingTable extends Observable {
-	private static final int UNDEF_ID = 0;
+	private static final int UNDEF_ID = -1;
 	private static final int MAX_DIST = 20001;
 
 	private final NetwProg netwProg;
@@ -62,10 +62,11 @@ public class RoutingTable extends Observable {
 		D.put(netwProg.id, 0);
 		NB.put(netwProg.id, netwProg.id);
 	}
-
-	private void checkNodeInitialized(int node) {
-		if (node == netwProg.id)
-			return;
+	
+	private void checkNodeInitialized(int node)
+	{
+		//if(node == netwProg.id)
+		//	return;
 
 		if (!nodes.contains(node)) {
 			nodes.add(node);
