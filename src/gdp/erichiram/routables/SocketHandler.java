@@ -23,21 +23,18 @@ public class SocketHandler implements Runnable, Comparable<SocketHandler> {
 	private final int startingWeight;
 	private boolean running = true;
 	private boolean initDone = false;
-	private final boolean client;
 
 	public SocketHandler(NetwProg netwProg, int port, int startingWeight) {
 		this.netwProg = netwProg;
 		this.routingTable = netwProg.routingTable;
 		this.id = port;
 		this.startingWeight = startingWeight;
-		this.client = true;
 	}
 
 	public SocketHandler(NetwProg netwProg, Socket socket) {
 		this.netwProg = netwProg;
 		this.routingTable = netwProg.routingTable;
 		this.socket = socket;
-		this.client = false;
 
 		createStreams();
 
@@ -63,41 +60,47 @@ public class SocketHandler implements Runnable, Comparable<SocketHandler> {
 		// als we nog aan het initializeren zijn dan hebben we info om
 		// connecties op te starten
 		// die qua weights niet symetrisch zijn, die info moeten we dus gebuiken
-		if (!netwProg.startingNeighbours.isEmpty() && netwProg.startingNeighbours.containsKey(id)) {
-			// we verwijderen alleen en checken wat we verwijderd hebben.
-			// ondanks dat we zeker weten dat deze neighbour dit specefieke id
-			// opvraagt
-			// spelen we toch op zeker door niet eerst te checken en dan pas te
-			// removen.
-			Integer w = netwProg.startingNeighbours.remove(id);
-			if (w != null)
-				tempWeight = w;
+		// we verwijderen alleen en checken wat we verwijderd hebben.
+		// ondanks dat we zeker weten dat deze neighbour dit specefieke id
+		// opvraagt
+		// spelen we toch op zeker door niet eerst te checken en dan pas te
+		// removen.
+		Integer w = netwProg.startingNeighbours.remove(id);
+		if (w != null)
+		{
+			tempWeight = w;
 		}
-
+		
 		startingWeight = tempWeight;
 	}
 
-	private void initializeSocket() {
-
-		// we try to connect until we succeed
-		while (socket == null) {
-			try {
-				// create a socket and connect it to the specified port on the loopback interface
-				socket = new Socket(InetAddress.getLocalHost(), id);
-			} catch (IOException e) {
-				netwProg.error("Something went wrong when connecting to: " + id + " error: " + e.getLocalizedMessage());
+	private void initialize() {
+		if (socket == null) {//only if we are a client
+			// we try to connect until we succeed
+			while (socket == null) {
+				try {
+					// create a socket and connect it to the specified port on the loopback interface
+					socket = new Socket(InetAddress.getLocalHost(), id);
+				} catch (IOException e) {
+					netwProg.error("Something went wrong when connecting to: " + id + " error: " + e.getLocalizedMessage());
+				}
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+				}
 			}
-			try {
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
-			}
+		
+			createStreams();
+		
+			send(new Repair(netwProg.id, startingWeight));
 		}
-
-		createStreams();
-
-		send(new Repair(netwProg.id, startingWeight));
+		initDone = true;
 	}
 
+	
+	/**
+	 * create in and output streams in this sockethandler
+	 */
 	private void createStreams() {
 
 		try {
@@ -112,15 +115,10 @@ public class SocketHandler implements Runnable, Comparable<SocketHandler> {
 			netwProg.error("Could not create socket or get inputstream from socket: " + e.getLocalizedMessage());
 		}
 	}
-	
-	private void initialize()
-	{
-		if (client) {
-			initializeSocket();
-		}
-		initDone = true;
-	}
 
+	/**
+	 * main loop, listens for messages
+	 */
 	public void run() {
 		initialize();
 		routingTable.repair(id, startingWeight);
@@ -169,6 +167,10 @@ public class SocketHandler implements Runnable, Comparable<SocketHandler> {
 		finalize();
 	}
 
+	/**
+	 * 
+	 * @param message
+	 */
 	public void send(Message message) {
 		if (running) {
 
