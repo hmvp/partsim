@@ -1,5 +1,6 @@
 package gdp.erichiram.routables;
 
+import gdp.erichiram.routables.message.MyDist;
 import gdp.erichiram.routables.util.ObservableAtomicInteger;
 
 import java.io.IOException;
@@ -7,9 +8,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArraySet;
 
 import javax.swing.SwingUtilities;
 
@@ -45,7 +44,7 @@ public class NetwProg {
 
 	public final int id;
 	
-	final Set<Neighbour> socketHandlers = new CopyOnWriteArraySet<Neighbour>();
+	final Map<Integer, Neighbour> idsToSocketHandlers = new ConcurrentHashMap<Integer, Neighbour>();
 	
 	public final ObservableAtomicInteger messagesSent = new ObservableAtomicInteger(0);
 	public final Map<Integer, Integer> startingNeighbours;
@@ -84,10 +83,10 @@ public class NetwProg {
 		debug("start listening");
 		while (socket != null && !socket.isClosed()) {
 			try {
-				Socket clientsocket = socket.accept();
-				Neighbour n = new Neighbour(this, clientsocket);
+				Socket clientSocket = socket.accept();
+				Neighbour n = new Neighbour(this, clientSocket);
 				new Thread(n).start();
-				socketHandlers.add(n);
+				idsToSocketHandlers.put(n.id, n);
 			} catch (IOException e) {
 				//we socket is dood of er is iets mis. dus stoppen we!
 			}
@@ -95,7 +94,7 @@ public class NetwProg {
 
 		// socket is closed so we are dead or crashed, either way we clean up
 		// and exit
-		for (Neighbour s : socketHandlers) {
+		for (Neighbour s : idsToSocketHandlers.values() ) {
 			s.die();
 		}
 
@@ -118,9 +117,9 @@ public class NetwProg {
 			return;
 		}
 		
-		for(Neighbour n : socketHandlers)
+		for(int n : idsToSocketHandlers.keySet())
 		{
-			if(n.id == neighbour)
+			if(n == neighbour)
 			{
 				debug("cannot repair existing connection");
 				return;
@@ -130,12 +129,12 @@ public class NetwProg {
 		debug("start clientsockethandler " + neighbour);
 		Neighbour n = new Neighbour(this, neighbour, weight);
 		new Thread(n).start();
-		socketHandlers.add(n);
+		idsToSocketHandlers.put(neighbour, n);
 	}
 
 	public void failConnection(Neighbour n) {
 		debug("fail connection to: " + n.id);
-		if(!socketHandlers.remove(n))
+		if( idsToSocketHandlers.remove(n.id) == null )
 		{
 			debug("connection failed earlier");
 			return;
@@ -174,5 +173,10 @@ public class NetwProg {
 		{
 			System.out.println(id + ": " + message);
 		}
+	}
+
+	public void send(int x, MyDist myDist) {
+		// TODO Auto-generated method stub
+		
 	}
 }

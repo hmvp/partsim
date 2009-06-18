@@ -5,7 +5,6 @@ import gdp.erichiram.routables.message.MyDist;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Observable;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
@@ -17,11 +16,21 @@ import java.util.concurrent.CopyOnWriteArraySet;
 public class RoutingTable extends Observable{
 	private static final int UNDEFINED = -1;
 	private static final Integer MAX_ID = 20001;
-	private final ConcurrentHashMap<Integer, Neighbour> neighbours = new ConcurrentHashMap<Integer, Neighbour> ();
-	private final HashMap<Integer, Integer> D = new HashMap<Integer, Integer>();
-	private final CopyOnWriteArraySet<Integer> nodes = new CopyOnWriteArraySet<Integer>();
-	private final HashMap<Integer, Map<Integer,Integer>> ndis = new HashMap<Integer, Map<Integer,Integer>>();
+	
 	private final NetwProg netwProg;
+
+	/**
+	 * All nodes in the network.
+	 */
+	private final CopyOnWriteArraySet<Integer> nodes = new CopyOnWriteArraySet<Integer>();
+	
+	/**
+	 * All neighbours to this node.
+	 */
+	private final CopyOnWriteArraySet<Integer> neighbours = new CopyOnWriteArraySet<Integer> ();
+	
+	private final HashMap<Integer, Integer> D = new HashMap<Integer, Integer>();
+	private final HashMap<Integer, Map<Integer,Integer>> ndis = new HashMap<Integer, Map<Integer,Integer>>();
 	private final HashMap<Integer, Integer> NB = new HashMap<Integer, Integer>();
 	
 	public RoutingTable(NetwProg netwProg) {
@@ -67,10 +76,10 @@ public class RoutingTable extends Observable{
 		else
 		{
 			int min = MAX_ID;
-			Neighbour w = null;
-			for(Neighbour s : neighbours.values())
+			int w = 0;
+			for(int s : neighbours)
 			{	
-				int x = s.id;
+				int x = s;
 				int i = ndis.get(x).get(v);
 					if(i <= min)
 					{
@@ -82,13 +91,13 @@ public class RoutingTable extends Observable{
 			//TODO: soms ontvangen we een MyDist voordat we een repair hebben ontvangen. In dat geval is w UNDEFINED en gaat alles dood
 			// dit kan natuurlijk onder goede omstandigheden nooit gebeuren!
 			Integer d = MAX_ID;
-			if (w != null)
-				d= D.get(w.id) + min;
+			if (w != 0)
+				d= D.get(w) + min;
 			
 			if (d < MAX_ID)
 			{
 				dChanged =  d != D.put(v, d);
-				NB.put(v,w.id);
+				NB.put(v,w);
 			}
 			else
 			{
@@ -101,9 +110,9 @@ public class RoutingTable extends Observable{
 		}
 		if(dChanged)
 		{
-			for(Neighbour x : neighbours.values())
+			for(int x : neighbours)
 			{
-				x.send(new MyDist(v,D.get(v)));
+				netwProg.send(x, new MyDist(v,D.get(v)));
 			}
 		}
 		
@@ -138,19 +147,19 @@ public class RoutingTable extends Observable{
 		notifyObservers();
 	}
 	
-	public synchronized void repair(Neighbour n, int weight) {	
-		netwProg.debug("Processing repair to: " + n.id + " with weight: "+ weight);
+	public synchronized void repair(int neighbour, int weight) {	
+		netwProg.debug("Processing repair to: " + neighbour + " with weight: "+ weight);
 
-		checkNodeInitialized(n.id);
+		checkNodeInitialized(neighbour);
 		
-		neighbours.put(n.id,n);
-		D.put(n.id, weight);
+		neighbours.add(neighbour);
+		D.put(neighbour, weight);
 		
 		for(int v : nodes)
 		{
-			ndis.get(n.id).put(v,MAX_ID);
+			ndis.get(neighbour).put(v,MAX_ID);
 			
-			n.send(new MyDist(v,D.get(v)));
+			netwProg.send(neighbour, new MyDist(v,D.get(v)));
 		}
 		notifyObservers();
 	}

@@ -245,7 +245,7 @@ public class Gui implements Runnable, Observer {
 						tableModel.fireTableDataChanged();
 					
 					try{
-						if(netwProg.socketHandlers.size() < 1)
+						if(netwProg.idsToSocketHandlers.size() < 1)
 						{
 							nSpin.setEnabled(false);
 							fail.setEnabled(false);
@@ -254,11 +254,11 @@ public class Gui implements Runnable, Observer {
 						{
 							nSpin.setEnabled(true);
 							fail.setEnabled(true);
-							spm.setList(new LinkedList<Neighbour>(new TreeSet<Neighbour>(netwProg.socketHandlers)));
+							spm.setList(new LinkedList<Neighbour>(new TreeSet<Neighbour>(netwProg.idsToSocketHandlers.values())));
 						}
 						
 						
-						if(netwProg.socketHandlers.size() > 20)
+						if(netwProg.idsToSocketHandlers.size() > 20)
 						{
 							wSpin.setEnabled(false);
 							rSpin.setEnabled(false);
