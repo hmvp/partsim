@@ -2,11 +2,11 @@ package gdp.erichiram.routables;
 
 import gdp.erichiram.routables.message.MyDist;
 
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Observable;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
  * This class contains the Netchange algorithm and the routing table.
@@ -18,12 +18,12 @@ public class RoutingTable extends Observable{
 	private static final int UNDEF = 0;
 	private static final Integer MAX = 20001;
 	private final int LOCAL;
-	 final Map<Integer, Neighbour> neighbours = new HashMap<Integer, Neighbour> ();
-	 final HashMap<Integer, Integer> D = new HashMap<Integer, Integer>();
-	 final Collection<Integer> nodes = new HashSet<Integer>();
-	 final HashMap<Integer, Map<Integer,Integer>> ndis = new HashMap<Integer, Map<Integer,Integer>>();
+	private final ConcurrentHashMap<Integer, Neighbour> neighbours = new ConcurrentHashMap<Integer, Neighbour> ();
+	private final HashMap<Integer, Integer> D = new HashMap<Integer, Integer>();
+	private final CopyOnWriteArraySet<Integer> nodes = new CopyOnWriteArraySet<Integer>();
+	private final HashMap<Integer, Map<Integer,Integer>> ndis = new HashMap<Integer, Map<Integer,Integer>>();
 	private final NetwProg netwProg;
-	 final HashMap<Integer, Integer> NB = new HashMap<Integer, Integer>();
+	private final HashMap<Integer, Integer> NB = new HashMap<Integer, Integer>();
 	
 	public RoutingTable(NetwProg netwProg) {
 		this.netwProg = netwProg;
@@ -37,6 +37,9 @@ public class RoutingTable extends Observable{
 	
 	private void checkNodeInitialized(int node)
 	{
+		if(node == LOCAL)
+			return;
+		
 		if(!nodes.contains(node))
 		{
 			nodes.add(node);
@@ -55,7 +58,9 @@ public class RoutingTable extends Observable{
 		}
 	}
 	
-	public synchronized void recompute(int v) {		
+	public synchronized void recompute(int v) {	
+		checkNodeInitialized(v);
+		
 		boolean dChanged;
 		if (v == netwProg.id)
 		{
@@ -109,7 +114,6 @@ public class RoutingTable extends Observable{
 	
 	public synchronized void receive(MyDist myDist) {
 		checkNodeInitialized(myDist.from);
-		checkNodeInitialized(myDist.id);
 				
 		ndis.get(myDist.from).put(myDist.id,myDist.distance);
 		recompute(myDist.id);
@@ -148,6 +152,7 @@ public class RoutingTable extends Observable{
 		for(int v : nodes)
 		{
 			ndis.get(n.id).put(v,MAX);
+			
 			n.send(new MyDist(v,D.get(v)));
 		}
 		notifyObservers();
@@ -174,5 +179,20 @@ public class RoutingTable extends Observable{
 		notifyObservers();
 	}
 	
+	public synchronized int[] getMetricsForNode(int n)
+	{
+		return new int[]{NB.get(n),D.get(n)};
+	}
 	
+	public synchronized int[] getNodes()
+	{
+		int[] result = new int[nodes.size()];
+		int i = 0;
+		for (int n : nodes)
+		{
+			result[i++] = n;
+		}
+		
+		return result;
+	}
 }

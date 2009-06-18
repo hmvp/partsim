@@ -154,13 +154,15 @@ public class Gui implements Runnable, Observer {
 			private static final long serialVersionUID = 3441755023701740847L;
 
 			String[] columnNames = { "Node", "Neighbour to use", "Length of path" };
+			int[] nodes;
 
 			public String getColumnName(int col) {
 				return columnNames[col].toString();
 			}
 
 			public int getRowCount() {
-				return netwProg.routingTable.nodes.size();
+				nodes = netwProg.routingTable.getNodes();
+				return nodes.length;
 			}
 
 			public int getColumnCount() {
@@ -170,11 +172,11 @@ public class Gui implements Runnable, Observer {
 			public Object getValueAt(int row, int col) {
 				
 				if ( col == 0 ) {
-					return new TreeSet<Integer>(netwProg.routingTable.nodes).toArray()[row];
+					return nodes[row];
 				} else if ( col == 1 ) {
-					return netwProg.routingTable.NB.get(new TreeSet<Integer>(netwProg.routingTable.nodes).toArray()[row]);
+					return netwProg.routingTable.getMetricsForNode(nodes[row])[0];
 				} else {
-					return netwProg.routingTable.D.get(new TreeSet<Integer>(netwProg.routingTable.nodes).toArray()[row]);
+					return netwProg.routingTable.getMetricsForNode(nodes[row])[1];
 				}
 			}
 
@@ -194,8 +196,8 @@ public class Gui implements Runnable, Observer {
 		tablePane.add(routingTable, BorderLayout.CENTER);	
 		
 		infoPane.add(tablePane, BorderLayout.WEST);		
-		graph = createGraphComponent();
-		infoPane.add(graph , BorderLayout.EAST);
+		//graph = createGraphComponent();
+		//infoPane.add(graph , BorderLayout.EAST);
 		
 		return infoPane;
 	}
@@ -221,7 +223,7 @@ public class Gui implements Runnable, Observer {
 
 	private Component createGraphComponent() {
 		
-		return new GraphPanel(netwProg.routingTable.ndis, netwProg.id, netwProg.routingTable.neighbours);
+		return null; //new GraphPanel(netwProg.routingTable.ndis, netwProg.id, netwProg.routingTable.neighbours);
 	}
 
 	public void run() {
@@ -243,7 +245,7 @@ public class Gui implements Runnable, Observer {
 						tableModel.fireTableDataChanged();
 					
 					try{
-						if(netwProg.routingTable.neighbours.size() < 1)
+						if(netwProg.socketHandlers.size() < 1)
 						{
 							nSpin.setEnabled(false);
 							fail.setEnabled(false);
@@ -256,7 +258,7 @@ public class Gui implements Runnable, Observer {
 						}
 						
 						
-						if(netwProg.routingTable.neighbours.size() > 20)
+						if(netwProg.socketHandlers.size() > 20)
 						{
 							wSpin.setEnabled(false);
 							rSpin.setEnabled(false);
@@ -274,7 +276,7 @@ public class Gui implements Runnable, Observer {
 				}
 				
 				//frame.repaint();
-				graph.repaint();
+				//graph.repaint();
 			}
 		});
 	}
