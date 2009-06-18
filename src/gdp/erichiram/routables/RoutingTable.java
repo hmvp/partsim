@@ -15,7 +15,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
  */
 public class RoutingTable extends Observable{
 	private static final int UNDEF_ID = -1;
-	private static final Integer MAX_ID = 20001;
+	private static final int MAX_DIST = 20001;
 	
 	private final NetwProg netwProg;
 
@@ -29,10 +29,32 @@ public class RoutingTable extends Observable{
 	 */
 	private final CopyOnWriteArraySet<Integer> neighbours = new CopyOnWriteArraySet<Integer> ();
 
+	/**
+	 * Preferred neighbours for nodes.
+	 * 
+	 * d.get(a) is the preferred neighbour for a.
+	 */
 	private final HashMap<Integer, Integer> NB = new HashMap<Integer, Integer>();
+	
+	/**
+	 * Distance estimates for this node to certain nodes.
+	 * 
+	 * D.get(a) estimates the distance between this node and node a.
+	 */
 	private final HashMap<Integer, Integer> D = new HashMap<Integer, Integer>();
+	
+	/**
+	 * Distance estimates for certain nodes to certain nodes.
+	 * 
+	 * ndis.get(a).get(b) estimates the distance between nodes a and b.
+	 */
 	private final HashMap<Integer, Map<Integer,Integer>> ndis = new HashMap<Integer, Map<Integer,Integer>>();
 	
+	/**
+	 * Initialize the routing table.
+	 * 
+	 * @param netwProg
+	 */
 	public RoutingTable(NetwProg netwProg) {
 		this.netwProg = netwProg;
 		
@@ -55,11 +77,11 @@ public class RoutingTable extends Observable{
 				
 			for(int v : nodes)
 			{
-				ndis.get(node).put(v, MAX_ID);
-				ndis.get(v).put(node, MAX_ID);
+				ndis.get(node).put(v, MAX_DIST);
+				ndis.get(v).put(node, MAX_DIST);
 			}
 			
-			D.put(node, MAX_ID);
+			D.put(node, MAX_DIST);
 			NB.put(node, UNDEF_ID);
 		}
 	}
@@ -75,7 +97,7 @@ public class RoutingTable extends Observable{
 		}
 		else
 		{
-			int min = MAX_ID;
+			int min = MAX_DIST;
 			int w = 0;
 			for(int s : neighbours)
 			{	
@@ -90,19 +112,19 @@ public class RoutingTable extends Observable{
 			
 			//TODO: soms ontvangen we een MyDist voordat we een repair hebben ontvangen. In dat geval is w UNDEFINED en gaat alles dood
 			// dit kan natuurlijk onder goede omstandigheden nooit gebeuren!
-			Integer d = MAX_ID;
+			Integer d = MAX_DIST;
 			if (w != 0)
 				d= D.get(w) + min;
 			
-			if (d < MAX_ID)
+			if (d < MAX_DIST)
 			{
 				dChanged =  d != D.put(v, d);
 				NB.put(v,w);
 			}
 			else
 			{
-				Integer oldD = D.put(v, MAX_ID);
-				dChanged = MAX_ID != oldD;
+				Integer oldD = D.put(v, MAX_DIST);
+				dChanged = MAX_DIST != oldD;
 				if(oldD == null)
 					throw new RuntimeException("Something is completely wrong.");
 				NB.put(v,UNDEF_ID);
@@ -157,7 +179,7 @@ public class RoutingTable extends Observable{
 		
 		for(int v : nodes)
 		{
-			ndis.get(neighbour).put(v,MAX_ID);
+			ndis.get(neighbour).put(v,MAX_DIST);
 			
 			netwProg.send(neighbour, new MyDist(v,D.get(v)));
 		}
