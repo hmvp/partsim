@@ -68,7 +68,10 @@ public class RoutingTable extends Observable {
 		//if(node == netwProg.id)
 		//	return;
 
+		// If we don't know the node.
 		if (!nodes.contains(node)) {
+			
+			// Add the node.
 			nodes.add(node);
 			Object x = ndis.put(node, new HashMap<Integer, Integer>());
 			if (x != null)
@@ -104,7 +107,7 @@ public class RoutingTable extends Observable {
 			}
 
 			// TODO: soms ontvangen we een MyDist voordat we een repair hebben
-			// ontvangen. In dat geval is w UNDEFINED en gaat alles dood
+			// ontvangen. In dat geval is w UNDEF_ID en gaat alles dood
 			// dit kan natuurlijk onder goede omstandigheden nooit gebeuren!
 			Integer d = MAX_DIST;
 			if (w != 0)
@@ -148,10 +151,6 @@ public class RoutingTable extends Observable {
 				recompute(n);
 		}
 
-//		for (int v : nodes) {
-//			recompute(v);
-//		}
-
 		notifyObservers();
 	}
 
@@ -176,6 +175,8 @@ public class RoutingTable extends Observable {
 	}
 
 	/**
+	 * This override prevents us from having to call setChanged() every time we call notifyObservers().
+	 * 
 	 * @see java.util.Observable#notifyObservers()
 	 */
 	@Override

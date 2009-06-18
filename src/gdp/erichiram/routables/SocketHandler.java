@@ -124,7 +124,7 @@ public class SocketHandler implements Runnable, Comparable<SocketHandler> {
 	public void run() {
 		initialize();
 		routingTable.repair(id, startingWeight);
-		netwProg.debug("done socket init for: " + id);
+		netwProg.debug("Finished socket initialization for: " + id);
 
 		while (running) {
 			Object object = null;
