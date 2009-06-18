@@ -54,11 +54,11 @@ public class NetwProg {
 	}
 
 	private void run() {
-		debug("start gui");
+		debug("Starting GUI");
 
 		SwingUtilities.invokeLater(new Gui(this));
 
-		debug("start sockets");
+		debug("Starting sockets");
 
 		try {
 			socket = new ServerSocket(id);
@@ -70,11 +70,11 @@ public class NetwProg {
 				}
 			}
 		} catch (IOException e) {
-			System.err.println("Port " + id + " is already taken.");
+			System.err.println("Port " + id + " is already taken");
 		}
 
 		// listen and start sockets if needed
-		debug("start listening");
+		debug("Starting to listen");
 		while (socket != null && !socket.isClosed()) {
 			try {
 				Socket clientSocket = socket.accept();
@@ -97,7 +97,7 @@ public class NetwProg {
 
 	public void setT(int t) {
 		this.t = t;
-		debug("'t' is set to: " + t);
+		debug("t is set to: " + t);
 	}
 
 	public int getT() {
@@ -106,9 +106,9 @@ public class NetwProg {
 
 	public void changeWeightOrRepairConnection(int id, int weight) {
 		if ( idsToSocketHandlers.containsKey(id) ) {
-			startRepairConnection(id, weight);
-		} else {
 			changeWeight(id, weight);
+		} else {
+			startRepairConnection(id, weight);
 		}
 	}
 
@@ -119,13 +119,13 @@ public class NetwProg {
 
 	public synchronized void startRepairConnection(int neighbour, int weight) {
 		if (neighbour == id) {
-			debug("cannot repair connection to self");
+			debug("Cannot repair connection to self");
 			return;
 		}
 
 		for (int n : idsToSocketHandlers.keySet()) {
 			if (n == neighbour) {
-				debug("cannot repair existing connection");
+				debug("Cannot repair existing connection");
 				return;
 			}
 		}
@@ -149,7 +149,7 @@ public class NetwProg {
 
 
 	public String toString() {
-		return "netwProg: " + id;
+		return "NetwProg " + id;
 	}
 
 	public void die() {
