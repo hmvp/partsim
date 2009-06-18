@@ -135,6 +135,7 @@ public class RoutingTable extends Observable {
 		notifyObservers();
 	}
 
+
 	public synchronized void fail(int neighbour) {
 		netwProg.debug("Processing fail from: " + neighbour);
 
