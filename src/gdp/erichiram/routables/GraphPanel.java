@@ -17,7 +17,6 @@ import javax.swing.JPanel;
 
 public class GraphPanel extends JPanel {
 
-
 	private static final long serialVersionUID = 3664551611257035887L;
 
 	private Map<Integer, GraphNode> nodes = new HashMap<Integer, GraphNode>();
@@ -29,9 +28,7 @@ public class GraphPanel extends JPanel {
 
 	private Map<Integer, Neighbour> neighbours;
 
-	
-	public GraphPanel(HashMap<Integer, Map<Integer, Integer>> ndis, int id,
-			Map<Integer, Neighbour> neighbours) {
+	public GraphPanel(HashMap<Integer, Map<Integer, Integer>> ndis, int id, Map<Integer, Neighbour> neighbours) {
 		this.ndis = ndis;
 		this.specialNodeId = id;
 		this.neighbours = neighbours;
@@ -39,23 +36,22 @@ public class GraphPanel extends JPanel {
 
 	@Override
 	public Dimension getPreferredSize() {
-		return new Dimension(400,400);
+		return new Dimension(400, 400);
 	}
 
 	@Override
 	public void paint(Graphics g) {
-		if(nodes.size() < 1)
+		if (nodes.size() < 1)
 			updateGraph();
 
 		Rectangle bounds = g.getClipBounds();
-		g.setColor(Color.WHITE);		
-		g.fillRect(0,0,bounds.width,bounds.height);
+		g.setColor(Color.WHITE);
+		g.fillRect(0, 0, bounds.width, bounds.height);
 
 		Graphics g2 = g.create(bounds.x, bounds.y, bounds.width, bounds.height);
-		
+
 		paintGraph(g2);
 	}
-
 
 	@Override
 	public void update(Graphics g) {
@@ -65,13 +61,13 @@ public class GraphPanel extends JPanel {
 
 	private void paintGraph(Graphics g) {
 
-	    Graphics2D g2 = (Graphics2D) g;
-		
+		Graphics2D g2 = (Graphics2D) g;
+
 		// draw edges
 		g.setColor(Color.BLACK);
-		for (GraphEdge edge : edges ) {
+		for (GraphEdge edge : edges) {
 			// draw line
-			if ( neighbours.containsKey(edge.getSecond()) ) {
+			if (neighbours.containsKey(edge.getSecond())) {
 				g.setColor(Color.RED);
 			} else {
 				g.setColor(Color.GRAY);
@@ -83,61 +79,60 @@ public class GraphPanel extends JPanel {
 			QuadCurve2D q = new QuadCurve2D.Float();
 			q.setCurve(edge.getFirst().x, edge.getFirst().y, controlX, controlY, edge.getSecond().x, edge.getSecond().y);
 			g2.draw(q);
-			
+
 			PathIterator pathIterator = q.getPathIterator(null, 1.0);
 			double minManhattanDist = Double.POSITIVE_INFINITY;
-			
+
 			int closestCurvePointToLabelX = 0;
 			int closestCurvePointToLabelY = 0;
-			while ( !pathIterator.isDone() ) {
+			while (!pathIterator.isDone()) {
 				double[] coords = new double[6];
-				
+
 				pathIterator.currentSegment(coords);
-				
-				double manhattanDist = Math.abs(coords[0] - middleX) + Math.abs(coords[1] - middleY); 
-							
-				if ( manhattanDist < minManhattanDist ) {
+
+				double manhattanDist = Math.abs(coords[0] - middleX) + Math.abs(coords[1] - middleY);
+
+				if (manhattanDist < minManhattanDist) {
 					minManhattanDist = manhattanDist;
-					
+
 					closestCurvePointToLabelX = (int) coords[0];
 					closestCurvePointToLabelY = (int) coords[1];
 				}
-				
+
 				pathIterator.next();
 			}
-			
-			
+
 			// draw label
 			g.setColor(Color.BLACK);
-			g.fillRoundRect(closestCurvePointToLabelX-8, closestCurvePointToLabelY-8, 32, 16, 5, 5);
+			g.fillRoundRect(closestCurvePointToLabelX - 8, closestCurvePointToLabelY - 8, 32, 16, 5, 5);
 			g.setColor(Color.WHITE);
-			g.drawString(""+edge.getWeight(), closestCurvePointToLabelX - 5, closestCurvePointToLabelY+5);
-		}		
-		
+			g.drawString("" + edge.getWeight(), closestCurvePointToLabelX - 5, closestCurvePointToLabelY + 5);
+		}
+
 		// draw nodes
-		for (GraphNode node : nodes.values() ) {
-			
-			if ( node.id == specialNodeId ) {
-				
+		for (GraphNode node : nodes.values()) {
+
+			if (node.id == specialNodeId) {
+
 				// draw circle
 				g.setColor(Color.WHITE);
-				g.fillOval(node.x-20, node.y-20, 40, 40);
-				
+				g.fillOval(node.x - 20, node.y - 20, 40, 40);
+
 				// draw circle
 				g.setColor(Color.BLACK);
-				g.drawOval(node.x-20, node.y-20, 40, 40);
-				
+				g.drawOval(node.x - 20, node.y - 20, 40, 40);
+
 				// draw id
-				g.drawString(String.valueOf(node.id), node.x-15, node.y+5);
+				g.drawString(String.valueOf(node.id), node.x - 15, node.y + 5);
 			} else {
 
 				// draw circle
 				g.setColor(Color.BLACK);
-				g.fillOval(node.x-20, node.y-20, 40, 40);
-				
+				g.fillOval(node.x - 20, node.y - 20, 40, 40);
+
 				// draw id
 				g.setColor(Color.WHITE);
-				g.drawString(String.valueOf(node.id), node.x-15, node.y+5);
+				g.drawString(String.valueOf(node.id), node.x - 15, node.y + 5);
 			}
 		}
 
@@ -146,41 +141,39 @@ public class GraphPanel extends JPanel {
 	private void updateGraph() {
 
 		nodes = new HashMap<Integer, GraphNode>();
-		// add the nodes (set the positions on a circle)		
+		// add the nodes (set the positions on a circle)
 		int numberOfNodes = ndis.keySet().size() - 1;
-		double radianPeriod = 2 * Math.PI / numberOfNodes;		
+		double radianPeriod = 2 * Math.PI / numberOfNodes;
 		double radians = 0.0;
 		for (Integer x : ndis.keySet()) {
-			GraphNode node = new GraphNode(x, (int)(Math.cos(radians) * 150) + 200, (int)(Math.sin(radians) * 150) + 200);
+			GraphNode node = new GraphNode(x, (int) (Math.cos(radians) * 150) + 200, (int) (Math.sin(radians) * 150) + 200);
 
-			if ( specialNodeId == node.id ) {
+			if (specialNodeId == node.id) {
 				node.x = 200;
 				node.y = 200;
 			} else {
-				radians += radianPeriod;				
+				radians += radianPeriod;
 			}
-			
+
 			nodes.put(node.id, node);
 		}
-		
+
 		edges = new HashSet<GraphEdge>();
 		// add the edges
 		for (Entry<Integer, Map<Integer, Integer>> x : ndis.entrySet()) {
 			Map<Integer, Integer> nodeDistances = x.getValue();
 
-			for (Entry<Integer, Integer> nodeDistance : nodeDistances
-					.entrySet()) {
+			for (Entry<Integer, Integer> nodeDistance : nodeDistances.entrySet()) {
 
 				if (!x.getKey().equals(nodeDistance.getKey())) {
-					
-					GraphEdge edge = new GraphEdge(nodes.get(x.getKey()), nodes.get(nodeDistance.getKey()), nodeDistance.getValue());
-					if ( edges.contains(edge)) {
 
+					GraphEdge edge = new GraphEdge(nodes.get(x.getKey()), nodes.get(nodeDistance.getKey()), nodeDistance.getValue());
+					if (edges.contains(edge)) {
 
 						// TODO update the edge's weight
 						edge.setWeight(nodeDistance.getValue());
 					} else {
-						if ( edge.getWeight() < 20001 ) {
+						if (edge.getWeight() < 20001) {
 							edges.add(edge);
 						}
 					}
@@ -299,7 +292,6 @@ public class GraphPanel extends JPanel {
 		private GraphPanel getOuterType() {
 			return GraphPanel.this;
 		}
-
 
 	}
 }

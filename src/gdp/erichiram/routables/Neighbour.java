@@ -24,7 +24,7 @@ public class Neighbour implements Runnable, Comparable<Neighbour> {
 	private boolean running = true;
 	private boolean initDone = false;
 	private final boolean client;
-	
+
 	public Neighbour(NetwProg netwProg, int port, int startingWeight) {
 		this.netwProg = netwProg;
 		this.routingTable = netwProg.routingTable;
@@ -38,16 +38,16 @@ public class Neighbour implements Runnable, Comparable<Neighbour> {
 		this.routingTable = netwProg.routingTable;
 		this.socket = socket;
 		this.client = false;
-		
+
 		createStreams();
-		
+
 		int tempPort = 0;
 		int tempWeight = 0;
 		try {
 			Object object = in.readObject();
 			if (object instanceof Repair) {
 				Repair id = (Repair) object;
-				
+
 				tempPort = id.neighbour;
 				tempWeight = id.weight;
 			}
@@ -59,74 +59,73 @@ public class Neighbour implements Runnable, Comparable<Neighbour> {
 			}
 		}
 		id = tempPort;
-		
-		//als we nog aan het initializeren zijn dan hebben we info om connecties op te starten
+
+		// als we nog aan het initializeren zijn dan hebben we info om
+		// connecties op te starten
 		// die qua weights niet symetrisch zijn, die info moeten we dus gebuiken
-		if(!netwProg.startingNeighbours.isEmpty() && netwProg.startingNeighbours.containsKey(id))
-		{
-			//we verwijderen alleen en checken wat we verwijderd hebben.
-			//ondanks dat we zeker weten dat deze neighbour dit specefieke id opvraagt 
-			//spelen we toch op zeker door niet eerst te checken en dan pas te removen.
+		if (!netwProg.startingNeighbours.isEmpty() && netwProg.startingNeighbours.containsKey(id)) {
+			// we verwijderen alleen en checken wat we verwijderd hebben.
+			// ondanks dat we zeker weten dat deze neighbour dit specefieke id
+			// opvraagt
+			// spelen we toch op zeker door niet eerst te checken en dan pas te
+			// removen.
 			Integer w = netwProg.startingNeighbours.remove(id);
-			if(w != null)
+			if (w != null)
 				tempWeight = w;
 		}
-		
+
 		startingWeight = tempWeight;
 	}
 
 	private void initializeSocket() {
-		
-		//we try to connect until we succeed
-		while(socket == null)
-		{
+
+		// we try to connect until we succeed
+		while (socket == null) {
 			try {
 				// create a socket and connect it to the specified port on the loopback interface
 				socket = new Socket(InetAddress.getLocalHost(), id);
 			} catch (IOException e) {
-				netwProg.error("something went wrong when connecting to: "+ id +" error: "	+ e.getLocalizedMessage());
+				netwProg.error("Something went wrong when connecting to: " + id + " error: " + e.getLocalizedMessage());
 			}
-							
 			try {
 				Thread.sleep(100);
-			} catch (InterruptedException e) {}
+			} catch (InterruptedException e) {
+			}
 		}
-		
+
 		createStreams();
-		
+
 		send(new Repair(netwProg.id, startingWeight));
 	}
-	
-	private void createStreams()
-	{
-		
+
+	private void createStreams() {
+
 		try {
-			//we moeten out eerst doen omdat in anders blockt tot out (die aan de andere kant) de serializatie header heeft geflusht
+			// We have to create the OutputStream first because it will
+			// otherwise block until the OutputStream on the other side has
+			// flushed its serialization header.
 			out = new ObjectOutputStream(socket.getOutputStream());
 			out.flush();
-			
+
 			in = new ObjectInputStream(socket.getInputStream());
-		}  catch (IOException e) {
+		} catch (IOException e) {
 			netwProg.error("Could not create socket or get inputstream from socket: " + e.getLocalizedMessage());
 		}
 	}
-	
+
 	public void run() {
-		if(client)
-		{
+		if (client) {
 			initializeSocket();
 		}
 		initDone = true;
 		routingTable.repair(id, startingWeight);
 
-		
-		
 		netwProg.debug("done socket init for: " + id);
-		
+
 		while (running) {
 			Object object = null;
 			try {
-				// read a message object from the input stream
+				// Read a message object from the InputStream.
 				object = in.readObject();
 			} catch (EOFException e) {
 				netwProg.debug("end of input, assume socket is dead");
@@ -137,65 +136,66 @@ public class Neighbour implements Runnable, Comparable<Neighbour> {
 				running = false;
 				break;
 			} catch (IOException e) {
-				if(running)
+				if (running)
 					netwProg.error("Something went wrong when receiving a message: " + e.toString());
 				break;
 			} catch (ClassNotFoundException e) {
-				if(running)
+				if (running)
 					netwProg.error("Something strange is happening: " + e.toString());
 				break;
 			}
-			
+
 			try {
 				Thread.sleep(netwProg.getT());
-			} catch (InterruptedException e) {}
-			
-			// relay the message to the routing table
+			} catch (InterruptedException e) {
+			}
+
+			// Relay the message to the RoutingTable.
 			if (object != null && object instanceof MyDist) {
 				MyDist message = (MyDist) object;
-				
+
 				netwProg.debug("Processing " + message + ".");
 				routingTable.receive(message);
 			}
 		}
-		
+
 		netwProg.messagesSent.increment();
 		routingTable.fail(this);
-			
+
 		finalize();
 	}
-	
-	public void send(Message message) {	
-		if(running)
-		{
-		
-		message.from = netwProg.id;
-		message.to = id;
-		
-		if(!initDone && !(message instanceof Repair))
-			throw new RuntimeException("Dat mag dus niet! want we moeten eerst klaar zijn met repairen!");
-		
-		
-		try {
-			out.writeObject(message);
-			out.flush();
-			netwProg.messagesSent.increment();
-		} catch (IOException e) {
-			netwProg.error("Something went wrong when sending a message: " + e.getLocalizedMessage());
-			die();
-		}
+
+	public void send(Message message) {
+		if (running) {
+
+			message.from = netwProg.id;
+			message.to = id;
+
+			if (!initDone && !(message instanceof Repair))
+				throw new RuntimeException("Dat mag dus niet! want we moeten eerst klaar zijn met repairen!");
+
+			try {
+				out.writeObject(message);
+				out.flush();
+				netwProg.messagesSent.increment();
+			} catch (IOException e) {
+				netwProg.error("Something went wrong when sending a message: " + e.getLocalizedMessage());
+				die();
+			}
 		}
 	}
 
 	public void die() {
 		running = false;
-		
-		//We need to close the inputstream because readObject is blocking and we need it to stop
+
+		// We need to close the inputstream because readObject is blocking and
+		// we need it to stop
 		try {
 			in.close();
-		} catch (IOException e) {}
+		} catch (IOException e) {
+		}
 	}
-	
+
 	/**
 	 * @see java.lang.Object#hashCode()
 	 */
@@ -224,22 +224,22 @@ public class Neighbour implements Runnable, Comparable<Neighbour> {
 		return true;
 	}
 
-	
-	protected void finalize()
-	{
+	protected void finalize() {
 		try {
 			out.close();
-		} catch (IOException e) {}
+		} catch (IOException e) {
+		}
 		try {
 			in.close();
-		} catch (IOException e) {}
+		} catch (IOException e) {
+		}
 		try {
 			socket.close();
-		} catch (IOException e) {}
+		} catch (IOException e) {
+		}
 	}
-	
-	public String toString()
-	{
+
+	public String toString() {
 		return String.valueOf(id);
 	}
 
