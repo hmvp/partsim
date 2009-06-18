@@ -116,7 +116,7 @@ public class Neighbour implements Runnable, Comparable<Neighbour> {
 			initializeSocket();
 		}
 		initDone = true;
-		routingTable.repair(this, startingWeight);
+		routingTable.repair(id, startingWeight);
 
 		
 		
