@@ -135,21 +135,21 @@ public class RoutingTable extends Observable {
 		notifyObservers();
 	}
 
-	public synchronized void fail(Neighbour n) {
-		netwProg.debug("Processing fail from: " + n.id);
+	public synchronized void fail(int neighbour) {
+		netwProg.debug("Processing fail from: " + neighbour);
 
-		neighbours.remove(n.id);
-		// D.put(n.id, MAX);
+		neighbours.remove(neighbour);
+		D.put(neighbour, MAX_DIST);
 
-		// for(int neighbour : NB.keySet())
-		// {
-		// if(NB.get(neighbour) == n.id)
-		// recompute(neighbour);
-		// }
-
-		for (int v : nodes) {
-			recompute(v);
+		for(int n : NB.keySet())
+		{
+			if(NB.get(n) == neighbour)
+				recompute(n);
 		}
+
+//		for (int v : nodes) {
+//			recompute(v);
+//		}
 
 		notifyObservers();
 	}
@@ -194,11 +194,7 @@ public class RoutingTable extends Observable {
 		notifyObservers();
 	}
 
-	public synchronized int[] getMetricsForNode(int n) {
-		return new int[] { NB.get(n), D.get(n) };
-	}
-
-	public synchronized int[][] getNodes() {
+	public synchronized int[][] getNodesData() {
 		int[][] result = new int[nodes.size()][];
 		int i = 0;
 		for (int n : nodes) {
