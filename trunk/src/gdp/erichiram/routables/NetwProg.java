@@ -36,20 +36,18 @@ public class NetwProg {
 
 	final static boolean DEBUG = true;
 
-	private volatile int t;
+	public final int id;
+	public final Map<Integer, Integer> startingNeighbours;
 
 	private ServerSocket socket;
-
-	public final int id;
-
 	final Map<Integer, SocketHandler> idsToSocketHandlers = new ConcurrentHashMap<Integer, SocketHandler>();
+	
 
+	private volatile int t;
 	public final ObservableAtomicInteger messagesSent = new ObservableAtomicInteger(0);
-	public final Map<Integer, Integer> startingNeighbours;
 	public final RoutingTable routingTable = new RoutingTable(this);
 
 	public NetwProg(int argId, Map<Integer, Integer> neighbours) {
-
 		this.id = argId;
 		this.startingNeighbours = new ConcurrentHashMap<Integer, Integer>(neighbours);
 	}
