@@ -47,7 +47,7 @@ public class Gui implements Runnable, Observer {
 	private JFrame frame;
 
 	private JButton changew;
-	private Component graph;
+//	private Component graph;
 
 	public Gui(NetwProg netwProg) {
 		this.netwProg = netwProg;
@@ -153,15 +153,14 @@ public class Gui implements Runnable, Observer {
 
 			private static final long serialVersionUID = 3441755023701740847L;
 
-			String[] columnNames = { "Node", "Neighbour to use", "Length of path" };
-			int[] nodes;
+			private final String[] columnNames = { "Node", "Neighbour to use", "Length of path" };
+			private int[][] nodes = new int[1][3];
 
 			public String getColumnName(int col) {
 				return columnNames[col].toString();
 			}
 
 			public int getRowCount() {
-				nodes = netwProg.routingTable.getNodes();
 				return nodes.length;
 			}
 
@@ -172,17 +171,25 @@ public class Gui implements Runnable, Observer {
 			public Object getValueAt(int row, int col) {
 				
 				if ( col == 0 ) {
-					return nodes[row];
+					return nodes[row][col];
 				} else if ( col == 1 ) {
-					return netwProg.routingTable.getMetricsForNode(nodes[row])[0];
+					return nodes[row][col];
 				} else {
-					return netwProg.routingTable.getMetricsForNode(nodes[row])[1];
+					return nodes[row][col];
 				}
 			}
 
 			public boolean isCellEditable(int row, int col) {
 				return false;
 			}
+
+			@Override
+			public void fireTableDataChanged() {
+				nodes = netwProg.routingTable.getNodes();
+				super.fireTableDataChanged();
+			}
+			
+			
 		};
 				
 		messagesSentLabel = new JLabel(Configuration.messagesSentString + netwProg.messagesSent.get());
@@ -221,10 +228,10 @@ public class Gui implements Runnable, Observer {
 	}
 
 
-	private Component createGraphComponent() {
-		
-		return null; //new GraphPanel(netwProg.routingTable.ndis, netwProg.id, netwProg.routingTable.neighbours);
-	}
+//	private Component createGraphComponent() {
+//		
+//		return new GraphPanel(netwProg.routingTable.ndis, netwProg.id, netwProg.routingTable.neighbours);
+//	}
 
 	public void run() {
 		initializeGui();
@@ -275,8 +282,8 @@ public class Gui implements Runnable, Observer {
 					
 				}
 				
-				//frame.repaint();
 				//graph.repaint();
+				frame.pack();
 			}
 		});
 	}

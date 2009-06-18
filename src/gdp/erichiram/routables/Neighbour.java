@@ -76,23 +76,24 @@ public class Neighbour implements Runnable, Comparable<Neighbour> {
 	}
 
 	private void initializeSocket() {
+		
+		//we try to connect until we succeed
 		while(socket == null)
 		{
 			try {
-			// create a socket and connect it to the specified port on the loopback interface
+				// create a socket and connect it to the specified port on the loopback interface
 				socket = new Socket(InetAddress.getLocalHost(), id);
 			} catch (IOException e) {
 				netwProg.error("something went wrong when connecting to: "+ id +" error: "	+ e.getLocalizedMessage());
-				running = false;
 			}
-				
-			createStreams();
-			
+							
 			try {
 				Thread.sleep(100);
 			} catch (InterruptedException e) {}
 		}
-		//TODO: merge this with repair needs merge of neighbour and sockethandlers set
+		
+		createStreams();
+		
 		send(new Repair(netwProg.id, startingWeight));
 	}
 	

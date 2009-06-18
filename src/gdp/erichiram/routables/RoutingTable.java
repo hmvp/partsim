@@ -72,8 +72,8 @@ public class RoutingTable extends Observable{
 		{
 			nodes.add(node);
 			Object x = ndis.put(node, new HashMap<Integer, Integer>());
-//			if (x != null)
-//				throw new RuntimeException("cannot be initialized already");
+			if (x != null)
+				throw new RuntimeException("cannot be initialized already");
 				
 			for(int v : nodes)
 			{
@@ -123,10 +123,7 @@ public class RoutingTable extends Observable{
 			}
 			else
 			{
-				Integer oldD = D.put(v, MAX_DIST);
-				dChanged = MAX_DIST != oldD;
-				if(oldD == null)
-					throw new RuntimeException("Something is completely wrong.");
+				dChanged = MAX_DIST != D.put(v, MAX_DIST);
 				NB.put(v,UNDEF_ID);
 			}
 		}
@@ -175,13 +172,20 @@ public class RoutingTable extends Observable{
 		checkNodeInitialized(neighbour);
 		
 		neighbours.add(neighbour);
-		D.put(neighbour, weight);
+		//D.put(neighbour, weight);
 		
 		for(int v : nodes)
 		{
 			ndis.get(neighbour).put(v,MAX_DIST);
 			
-			netwProg.send(neighbour, new MyDist(v,D.get(v)));
+			if(v == neighbour)
+			{
+				netwProg.send(neighbour, new MyDist(v,weight));
+			}
+			else
+			{
+				netwProg.send(neighbour, new MyDist(v,D.get(v)));
+			}
 		}
 		notifyObservers();
 	}
@@ -212,13 +216,13 @@ public class RoutingTable extends Observable{
 		return new int[]{NB.get(n),D.get(n)};
 	}
 	
-	public synchronized int[] getNodes()
+	public synchronized int[][] getNodes()
 	{
-		int[] result = new int[nodes.size()];
+		int[][] result = new int[nodes.size()][];
 		int i = 0;
 		for (int n : nodes)
 		{
-			result[i++] = n;
+			result[i++] = new int[]{n, NB.get(n),D.get(n)};
 		}
 		
 		return result;
