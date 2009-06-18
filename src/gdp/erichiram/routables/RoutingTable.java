@@ -14,7 +14,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
  *
  */
 public class RoutingTable extends Observable{
-	private static final int UNDEFINED = -1;
+	private static final int UNDEF_ID = -1;
 	private static final Integer MAX_ID = 20001;
 	
 	private final NetwProg netwProg;
@@ -28,10 +28,10 @@ public class RoutingTable extends Observable{
 	 * All neighbours to this node.
 	 */
 	private final CopyOnWriteArraySet<Integer> neighbours = new CopyOnWriteArraySet<Integer> ();
-	
+
+	private final HashMap<Integer, Integer> NB = new HashMap<Integer, Integer>();
 	private final HashMap<Integer, Integer> D = new HashMap<Integer, Integer>();
 	private final HashMap<Integer, Map<Integer,Integer>> ndis = new HashMap<Integer, Map<Integer,Integer>>();
-	private final HashMap<Integer, Integer> NB = new HashMap<Integer, Integer>();
 	
 	public RoutingTable(NetwProg netwProg) {
 		this.netwProg = netwProg;
@@ -60,7 +60,7 @@ public class RoutingTable extends Observable{
 			}
 			
 			D.put(node, MAX_ID);
-			NB.put(node, UNDEFINED);
+			NB.put(node, UNDEF_ID);
 		}
 	}
 	
@@ -105,7 +105,7 @@ public class RoutingTable extends Observable{
 				dChanged = MAX_ID != oldD;
 				if(oldD == null)
 					throw new RuntimeException("Something is completely wrong.");
-				NB.put(v,UNDEFINED);
+				NB.put(v,UNDEF_ID);
 			}
 		}
 		if(dChanged)
