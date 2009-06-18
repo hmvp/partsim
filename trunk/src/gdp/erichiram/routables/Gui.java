@@ -17,7 +17,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.TreeSet;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -37,16 +36,16 @@ public class Gui implements Runnable, Observer {
 	
 	private NetwProg netwProg;
 	private JLabel messagesSentLabel = new JLabel();
-	private SpinnerListModel spm;
-	private JSpinner nSpin;
-	private JButton fail;
-	private JSpinner rSpin;
-	private JSpinner wSpin;
-	private JButton repair;
+	private SpinnerListModel neighbourIdSpinnerModel;
+	private JSpinner failIdSpinner;
+	private JButton failButton;
+	private JSpinner changeRepairIdSpinner;
+	private JSpinner changeRepairWeightSpinner;
+	private JButton repairButton;
 	private AbstractTableModel tableModel;
 	private JFrame frame;
 
-	private JButton changew;
+	private JButton changeRepairButton;
 //	private Component graph;
 
 	public Gui(NetwProg netwProg) {
@@ -76,8 +75,7 @@ public class Gui implements Runnable, Observer {
 		        // closing netwProg
 		        netwProg.die();
 		    }
-		});
-		
+		});		
 		
 		frame.add(createParamPane(), BorderLayout.PAGE_START);
 		frame.add(createInfoPane(), BorderLayout.LINE_END);
@@ -89,60 +87,64 @@ public class Gui implements Runnable, Observer {
 	
 
 	private Component createNetworkPane() {
-		JPanel p = new JPanel();
+		JPanel networkPane = new JPanel();
+		networkPane.setLayout(new BoxLayout(networkPane, BoxLayout.Y_AXIS));
 		
-		spm = new SpinnerListModel();
+		// Fail button panel.
+		JPanel failPanel = new JPanel();
 
-		nSpin = new JSpinner(spm);
-		
-		
-		fail = new JButton("fail");
-		fail.addActionListener(new ActionListener(){
+		// Fail button.
+		failButton = new JButton("fail");
+		failButton.addActionListener(new ActionListener(){
 
-			public void actionPerformed(ActionEvent actionevent) {
-				netwProg.failConnection((SocketHandler) spm.getValue());
+			public void actionPerformed(ActionEvent actionEvent) {
+				netwProg.failConnection((Integer)neighbourIdSpinnerModel.getValue());
 			}
 			
 		});
-		List<String> list = new ArrayList<String>();
+
+		// Fail ID spinner.
+		neighbourIdSpinnerModel = new SpinnerListModel();
+		failIdSpinner = new JSpinner(neighbourIdSpinnerModel);
+		
+		// Add components to failPanel.
+		failPanel.add(failButton);
+		failPanel.add(failIdSpinner);
+
+		// Change weight / repair button panel.
+		JPanel changeRepairPanel = new JPanel();
+
+		// Change weight / repair ID spinner.
+		List<Integer> list = new ArrayList<Integer>();
 		for(Integer i = 1100; i < 1121 ; i++)
 		{
-			//if(!netwProg.startingNeighbours.contains(i))
-				list.add(i.toString());
+			list.add(i);
 		}
-		
-		final SpinnerListModel snpm = new SpinnerListModel(list);
+		final SpinnerListModel changeRepairIdSpinnerModel = new SpinnerListModel(list);
+		changeRepairIdSpinner = new JSpinner(changeRepairIdSpinnerModel);
 
-		rSpin = new JSpinner(snpm);
+		// Change weight / repair weight spinner.
+		final SpinnerNumberModel repairWeightSpinnerModel = new SpinnerNumberModel(1,1,9999,1);
+		changeRepairWeightSpinner = new JSpinner(repairWeightSpinnerModel);
 		
-		final SpinnerNumberModel wspm = new SpinnerNumberModel(1,1,9999,1);
-
-		wSpin = new JSpinner(wspm);
-		
-		repair = new JButton("repair");
-		changew = new JButton("change weight");
-		changew.addActionListener(new ActionListener(){
+		// Change weight / repair button.
+		changeRepairButton = new JButton("change / repair");
+		changeRepairButton.addActionListener(new ActionListener(){
 
 			public void actionPerformed(ActionEvent actionevent) {
-				netwProg.changeWeight(((SocketHandler) spm.getValue()).id,(Integer) wspm.getNumber());
+				netwProg.changeWeightOrRepairConnection((Integer) changeRepairIdSpinnerModel.getValue(),(Integer) repairWeightSpinnerModel.getNumber());
 			}
 		});
 		
-		repair.addActionListener(new ActionListener(){
+		// Add components to changeRepairPanel.	
+		changeRepairPanel.add(changeRepairButton);
+		changeRepairPanel.add(changeRepairIdSpinner);
+		changeRepairPanel.add(changeRepairWeightSpinner);	
 
-			public void actionPerformed(ActionEvent actionevent) {
-				netwProg.startRepairConnection(Integer.valueOf((String) snpm.getValue()),(Integer) wspm.getNumber());
-			}
-		});
+		networkPane.add(failPanel);
+		networkPane.add(changeRepairPanel);
 		
-		p.add(fail);
-		p.add(nSpin);
-		p.add(repair);
-		p.add(changew);
-		p.add(rSpin);
-		p.add(wSpin);
-		
-		return p;
+		return networkPane;
 	}
 
 	private Component createInfoPane() {
@@ -254,28 +256,28 @@ public class Gui implements Runnable, Observer {
 					try{
 						if(netwProg.idsToSocketHandlers.size() < 1)
 						{
-							nSpin.setEnabled(false);
-							fail.setEnabled(false);
+							failIdSpinner.setEnabled(false);
+							failButton.setEnabled(false);
 						}
 						else
 						{
-							nSpin.setEnabled(true);
-							fail.setEnabled(true);
-							spm.setList(new LinkedList<SocketHandler>(new TreeSet<SocketHandler>(netwProg.idsToSocketHandlers.values())));
+							failIdSpinner.setEnabled(true);
+							failButton.setEnabled(true);
+							neighbourIdSpinnerModel.setList(new LinkedList<Integer>(netwProg.idsToSocketHandlers.keySet()));
 						}
 						
 						
 						if(netwProg.idsToSocketHandlers.size() > 20)
 						{
-							wSpin.setEnabled(false);
-							rSpin.setEnabled(false);
-							repair.setEnabled(false);
+							changeRepairWeightSpinner.setEnabled(false);
+							changeRepairIdSpinner.setEnabled(false);
+							repairButton.setEnabled(false);
 						}
 						else
 						{
-							wSpin.setEnabled(true);
-							rSpin.setEnabled(true);
-							repair.setEnabled(true);
+							changeRepairWeightSpinner.setEnabled(true);
+							changeRepairIdSpinner.setEnabled(true);
+							repairButton.setEnabled(true);
 						}
 					} catch (Exception e){}
 					
