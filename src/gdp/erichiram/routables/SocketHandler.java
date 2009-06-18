@@ -12,7 +12,7 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketException;
 
-public class Neighbour implements Runnable, Comparable<Neighbour> {
+public class SocketHandler implements Runnable, Comparable<SocketHandler> {
 
 	public final int id;
 	private RoutingTable routingTable;
@@ -25,7 +25,7 @@ public class Neighbour implements Runnable, Comparable<Neighbour> {
 	private boolean initDone = false;
 	private final boolean client;
 
-	public Neighbour(NetwProg netwProg, int port, int startingWeight) {
+	public SocketHandler(NetwProg netwProg, int port, int startingWeight) {
 		this.netwProg = netwProg;
 		this.routingTable = netwProg.routingTable;
 		this.id = port;
@@ -33,7 +33,7 @@ public class Neighbour implements Runnable, Comparable<Neighbour> {
 		this.client = true;
 	}
 
-	public Neighbour(NetwProg netwProg, Socket socket) {
+	public SocketHandler(NetwProg netwProg, Socket socket) {
 		this.netwProg = netwProg;
 		this.routingTable = netwProg.routingTable;
 		this.socket = socket;
@@ -112,14 +112,18 @@ public class Neighbour implements Runnable, Comparable<Neighbour> {
 			netwProg.error("Could not create socket or get inputstream from socket: " + e.getLocalizedMessage());
 		}
 	}
-
-	public void run() {
+	
+	private void initialize()
+	{
 		if (client) {
 			initializeSocket();
 		}
 		initDone = true;
-		routingTable.repair(id, startingWeight);
+	}
 
+	public void run() {
+		initialize();
+		routingTable.repair(id, startingWeight);
 		netwProg.debug("done socket init for: " + id);
 
 		while (running) {
@@ -159,9 +163,9 @@ public class Neighbour implements Runnable, Comparable<Neighbour> {
 			}
 		}
 
+		netwProg.debug("sockethandler is done and start closing: " + id);
 		netwProg.messagesSent.increment();
-		routingTable.fail(this);
-
+		routingTable.fail(id);
 		finalize();
 	}
 
@@ -182,6 +186,8 @@ public class Neighbour implements Runnable, Comparable<Neighbour> {
 				netwProg.error("Something went wrong when sending a message: " + e.getLocalizedMessage());
 				die();
 			}
+		} else {
+			netwProg.debug("tried sending a message while dead. for: " + id);
 		}
 	}
 
@@ -192,8 +198,7 @@ public class Neighbour implements Runnable, Comparable<Neighbour> {
 		// we need it to stop
 		try {
 			in.close();
-		} catch (IOException e) {
-		}
+		} catch (IOException e) {}
 	}
 
 	/**
@@ -218,7 +223,7 @@ public class Neighbour implements Runnable, Comparable<Neighbour> {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Neighbour other = (Neighbour) obj;
+		SocketHandler other = (SocketHandler) obj;
 		if (id != other.id)
 			return false;
 		return true;
@@ -243,7 +248,7 @@ public class Neighbour implements Runnable, Comparable<Neighbour> {
 		return String.valueOf(id);
 	}
 
-	public int compareTo(Neighbour o) {
+	public int compareTo(SocketHandler o) {
 		return id - o.id;
 	}
 }

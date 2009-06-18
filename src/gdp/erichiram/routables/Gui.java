@@ -100,7 +100,7 @@ public class Gui implements Runnable, Observer {
 		fail.addActionListener(new ActionListener(){
 
 			public void actionPerformed(ActionEvent actionevent) {
-				netwProg.failConnection((Neighbour) spm.getValue());
+				netwProg.failConnection((SocketHandler) spm.getValue());
 			}
 			
 		});
@@ -124,7 +124,7 @@ public class Gui implements Runnable, Observer {
 		changew.addActionListener(new ActionListener(){
 
 			public void actionPerformed(ActionEvent actionevent) {
-				netwProg.changeWeight(((Neighbour) spm.getValue()).id,(Integer) wspm.getNumber());
+				netwProg.changeWeight(((SocketHandler) spm.getValue()).id,(Integer) wspm.getNumber());
 			}
 		});
 		
@@ -185,7 +185,7 @@ public class Gui implements Runnable, Observer {
 
 			@Override
 			public void fireTableDataChanged() {
-				nodes = netwProg.routingTable.getNodes();
+				nodes = netwProg.routingTable.getNodesData();
 				super.fireTableDataChanged();
 			}
 			
@@ -261,7 +261,7 @@ public class Gui implements Runnable, Observer {
 						{
 							nSpin.setEnabled(true);
 							fail.setEnabled(true);
-							spm.setList(new LinkedList<Neighbour>(new TreeSet<Neighbour>(netwProg.idsToSocketHandlers.values())));
+							spm.setList(new LinkedList<SocketHandler>(new TreeSet<SocketHandler>(netwProg.idsToSocketHandlers.values())));
 						}
 						
 						

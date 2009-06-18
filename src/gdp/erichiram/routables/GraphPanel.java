@@ -26,9 +26,9 @@ public class GraphPanel extends JPanel {
 
 	private int specialNodeId;
 
-	private Map<Integer, Neighbour> neighbours;
+	private Map<Integer, SocketHandler> neighbours;
 
-	public GraphPanel(HashMap<Integer, Map<Integer, Integer>> ndis, int id, Map<Integer, Neighbour> neighbours) {
+	public GraphPanel(HashMap<Integer, Map<Integer, Integer>> ndis, int id, Map<Integer, SocketHandler> neighbours) {
 		this.ndis = ndis;
 		this.specialNodeId = id;
 		this.neighbours = neighbours;

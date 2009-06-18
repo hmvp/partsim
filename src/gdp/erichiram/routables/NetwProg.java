@@ -42,7 +42,7 @@ public class NetwProg {
 
 	public final int id;
 
-	final Map<Integer, Neighbour> idsToSocketHandlers = new ConcurrentHashMap<Integer, Neighbour>();
+	final Map<Integer, SocketHandler> idsToSocketHandlers = new ConcurrentHashMap<Integer, SocketHandler>();
 
 	public final ObservableAtomicInteger messagesSent = new ObservableAtomicInteger(0);
 	public final Map<Integer, Integer> startingNeighbours;
@@ -79,7 +79,7 @@ public class NetwProg {
 		while (socket != null && !socket.isClosed()) {
 			try {
 				Socket clientSocket = socket.accept();
-				Neighbour n = new Neighbour(this, clientSocket);
+				SocketHandler n = new SocketHandler(this, clientSocket);
 				idsToSocketHandlers.put(n.id, n);
 				new Thread(n).start();
 			} catch (IOException e) {
@@ -88,7 +88,7 @@ public class NetwProg {
 		}
 
 		// The Socket closed so we want to quit or we just crashed, either way we clean up and exit.
-		for (Neighbour s : idsToSocketHandlers.values()) {
+		for (SocketHandler s : idsToSocketHandlers.values()) {
 			s.die();
 		}
 
@@ -119,12 +119,12 @@ public class NetwProg {
 		}
 
 		debug("start clientsockethandler " + neighbour);
-		Neighbour n = new Neighbour(this, neighbour, weight);
+		SocketHandler n = new SocketHandler(this, neighbour, weight);
 		idsToSocketHandlers.put(neighbour, n);
 		new Thread(n).start();
 	}
 
-	public void failConnection(Neighbour n) {
+	public void failConnection(SocketHandler n) {
 		debug("fail connection to: " + n.id);
 		if (idsToSocketHandlers.remove(n.id) == null) {
 			debug("connection failed earlier");
