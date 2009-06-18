@@ -103,6 +103,19 @@ public class NetwProg {
 		return t;
 	}
 
+	public void changeWeightOrRepairConnection(int id, int weight) {
+		if ( idsToSocketHandlers.containsKey(id) ) {
+			startRepairConnection(id, weight);
+		} else {
+			changeWeight(id, weight);
+		}
+	}
+
+	public void changeWeight(Integer id, Integer weight) {
+		debug("Changing the weight to " + id + " to " + weight);
+		routingTable.changeWeight(id, weight);
+	}
+
 	public synchronized void startRepairConnection(int neighbour, int weight) {
 		if (neighbour == id) {
 			debug("cannot repair connection to self");
@@ -116,20 +129,23 @@ public class NetwProg {
 			}
 		}
 
-		debug("start clientsockethandler " + neighbour);
+		debug("Starting client socketHandler for " + neighbour);
 		SocketHandler n = new SocketHandler(this, neighbour, weight);
 		idsToSocketHandlers.put(neighbour, n);
 		new Thread(n).start();
 	}
 
-	public void failConnection(SocketHandler n) {
-		debug("fail connection to: " + n.id);
-		if (idsToSocketHandlers.remove(n.id) == null) {
-			debug("connection failed earlier");
-			return;
+	public void failConnection(int neighbour) {
+		debug("Failing connection to " + neighbour);
+		
+		SocketHandler socketHandler = idsToSocketHandlers.remove(neighbour);
+		if ( socketHandler == null) {
+			debug("Connection failed earlier.");
+		} else {
+			socketHandler.die();
 		}
-		n.die();
 	}
+
 
 	public String toString() {
 		return "netwProg: " + id;
@@ -142,11 +158,6 @@ public class NetwProg {
 			e.printStackTrace();
 		}
 	}
-
-	public void changeWeight(Integer number, Integer number2) {
-		routingTable.changeWeight(number, number2);
-	}
-
 	public void error(String message) {
 		System.err.println(id + ": " + message);
 	}
