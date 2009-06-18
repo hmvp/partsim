@@ -21,54 +21,49 @@ public class NetwProg {
 
 		// parse the arguments
 		int argId = Integer.valueOf(args[0]);
-		Map<Integer, Integer> neighbours = new HashMap<Integer, Integer>(
-				args.length);
+		Map<Integer, Integer> neighbours = new HashMap<Integer, Integer>(args.length);
 		for (int i = 1; i < args.length;) {
-			neighbours.put(Integer.valueOf(args[i++]), Integer
-					.valueOf(args[i++]));
+			neighbours.put(Integer.valueOf(args[i++]), Integer.valueOf(args[i++]));
 		}
 
 		System.out.println("Starting: " + argId);
 
 		// create the application
 		NetwProg nwp = new NetwProg(argId, neighbours);
-		
+
 		nwp.run();
 	}
+
 	final static boolean DEBUG = true;
-	
-	
+
 	private volatile int t;
-	
+
 	private ServerSocket socket;
 
 	public final int id;
-	
+
 	final Map<Integer, Neighbour> idsToSocketHandlers = new ConcurrentHashMap<Integer, Neighbour>();
-	
+
 	public final ObservableAtomicInteger messagesSent = new ObservableAtomicInteger(0);
 	public final Map<Integer, Integer> startingNeighbours;
 	public final RoutingTable routingTable = new RoutingTable(this);
-
 
 	public NetwProg(int argId, Map<Integer, Integer> neighbours) {
 
 		this.id = argId;
 		this.startingNeighbours = new ConcurrentHashMap<Integer, Integer>(neighbours);
 	}
-	
-	private void run()
-	{
+
+	private void run() {
 		debug("start gui");
 
 		SwingUtilities.invokeLater(new Gui(this));
-		
+
 		debug("start sockets");
-		
+
 		try {
 			socket = new ServerSocket(id);
-			
-			
+
 			// connect to everyone higher than me
 			for (int neighbour : startingNeighbours.keySet()) {
 				if (neighbour > id) {
@@ -85,20 +80,20 @@ public class NetwProg {
 			try {
 				Socket clientSocket = socket.accept();
 				Neighbour n = new Neighbour(this, clientSocket);
-				new Thread(n).start();
 				idsToSocketHandlers.put(n.id, n);
+				new Thread(n).start();
 			} catch (IOException e) {
-				//we socket is dood of er is iets mis. dus stoppen we!
+				// The Socket just died while blocking during accept(), or something else went wrong. We ignore the IOException and quit the loop.
 			}
 		}
 
-		// socket is closed so we are dead or crashed, either way we clean up
-		// and exit
-		for (Neighbour s : idsToSocketHandlers.values() ) {
+		// The Socket closed so we want to quit or we just crashed, either way we clean up and exit.
+		for (Neighbour s : idsToSocketHandlers.values()) {
 			s.die();
 		}
 
-		//System.exit(0);
+		// TODO: Uncomment before release.
+		// System.exit(0);
 	}
 
 	public void setT(int t) {
@@ -111,21 +106,18 @@ public class NetwProg {
 	}
 
 	public synchronized void startRepairConnection(int neighbour, int weight) {
-		if(neighbour == id)
-		{
+		if (neighbour == id) {
 			debug("cannot repair connection to self");
 			return;
 		}
-		
-		for(int n : idsToSocketHandlers.keySet())
-		{
-			if(n == neighbour)
-			{
+
+		for (int n : idsToSocketHandlers.keySet()) {
+			if (n == neighbour) {
 				debug("cannot repair existing connection");
 				return;
 			}
 		}
-		
+
 		debug("start clientsockethandler " + neighbour);
 		Neighbour n = new Neighbour(this, neighbour, weight);
 		new Thread(n).start();
@@ -134,8 +126,7 @@ public class NetwProg {
 
 	public void failConnection(Neighbour n) {
 		debug("fail connection to: " + n.id);
-		if( idsToSocketHandlers.remove(n.id) == null )
-		{
+		if (idsToSocketHandlers.remove(n.id) == null) {
 			debug("connection failed earlier");
 			return;
 		}
@@ -157,26 +148,24 @@ public class NetwProg {
 	public void changeWeight(Integer number, Integer number2) {
 		routingTable.changeWeight(number, number2);
 	}
-	
-	public void error(String message)
-	{
+
+	public void error(String message) {
 		System.err.println(id + ": " + message);
 	}
-	
+
 	/**
 	 * debug messages switchable with DEBUG boolean
+	 * 
 	 * @param message
 	 */
-	public void debug(String message)
-	{
-		if (DEBUG)
-		{
+	public void debug(String message) {
+		if (DEBUG) {
 			System.out.println(id + ": " + message);
 		}
 	}
 
 	public void send(int x, MyDist myDist) {
 		// TODO Auto-generated method stub
-		
+
 	}
 }
