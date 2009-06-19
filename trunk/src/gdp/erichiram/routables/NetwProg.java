@@ -105,7 +105,10 @@ public class NetwProg {
 	}
 
 	public void changeWeightOrRepairConnection(int id, int weight) {
-		if ( idsToSocketHandlers.containsKey(id) ) {
+		if(id == this.id)
+			return;
+		
+		if ( !idsToSocketHandlers.containsKey(id) ) {
 			changeWeight(id, weight);
 		} else {
 			startRepairConnection(id, weight);
