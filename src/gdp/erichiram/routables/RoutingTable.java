@@ -5,6 +5,7 @@ import gdp.erichiram.routables.message.MyDist;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Observable;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
@@ -27,7 +28,7 @@ public class RoutingTable extends Observable {
 	/**
 	 * All neighbours to this node.
 	 */
-	private final CopyOnWriteArraySet<Integer> neighbours = new CopyOnWriteArraySet<Integer>();
+	private final ConcurrentHashMap<Integer, Integer> neighboursToWeight = new ConcurrentHashMap<Integer, Integer>();
 
 	/**
 	 * Preferred neighbours for nodes.
@@ -58,6 +59,7 @@ public class RoutingTable extends Observable {
 	public RoutingTable(NetwProg netwProg) {
 		this.netwProg = netwProg;
 
+		nodes.add(netwProg.id);
 		ndis.put(netwProg.id, D);
 		D.put(netwProg.id, 0);
 		NB.put(netwProg.id, netwProg.id);
@@ -65,8 +67,8 @@ public class RoutingTable extends Observable {
 	
 	private void checkNodeInitialized(int node)
 	{
-		if(node == netwProg.id)
-			return;
+		//if(node == netwProg.id)
+			//return;
 
 		// If we don't know the node.
 		if (!nodes.contains(node)) {
@@ -98,7 +100,7 @@ public class RoutingTable extends Observable {
 			int min = MAX_DIST;
 			int w = 0;
 			//determine closest neighbour to v and its distance to v
-			for (int s : neighbours) {
+			for (int s : neighboursToWeight.keySet()) {
 				int x = s;
 				int i = ndis.get(x).get(v);
 				if (i <= min) {
@@ -108,7 +110,7 @@ public class RoutingTable extends Observable {
 			}
 
 			//distance( me , v ) = distance( me , w ) + distance( w , v )
-			int	d = D.get(w) + min;
+			int	d = neighboursToWeight.get(w) + min;
 
 			if (d < MAX_DIST) {
 				dChanged = d != D.put(v, d);
@@ -119,7 +121,7 @@ public class RoutingTable extends Observable {
 			}
 		}
 		if (dChanged) {
-			for (int x : neighbours) {
+			for (int x : neighboursToWeight.keySet()) {
 				netwProg.send(x, new MyDist(v, D.get(v)));
 			}
 		}
@@ -139,7 +141,7 @@ public class RoutingTable extends Observable {
 	public synchronized void fail(int neighbour) {
 		netwProg.debug("Processing fail from: " + neighbour);
 
-		neighbours.remove(neighbour);
+		neighboursToWeight.remove(neighbour);
 
 		for(int n : NB.keySet())
 		{
@@ -156,18 +158,12 @@ public class RoutingTable extends Observable {
 		//we do lazy initialization so we check now
 		checkNodeInitialized(neighbour);
 
-		neighbours.add(neighbour);
-		D.put(neighbour, weight);
+		neighboursToWeight.put(neighbour, weight);
 
 		for (int v : nodes) {
-			ndis.get(neighbour).put(v, MAX_DIST);
-
-//			if (v == neighbour) {
-//				netwProg.send(neighbour, new MyDist(v, weight));
-//			} else {
-				netwProg.send(neighbour, new MyDist(v, D.get(v)));
-//			}
+			netwProg.send(neighbour, new MyDist(v, D.get(v)));
 		}
+
 		notifyObservers();
 	}
 
@@ -183,8 +179,7 @@ public class RoutingTable extends Observable {
 	}
 
 	public synchronized void changeWeight(int node, int weight) {
-		D.put(node, weight);
-		// ndis.get(LOCAL).put(node, weight);
+		neighboursToWeight.put(node, weight);
 
 		for (int v : nodes) {
 			recompute(v);
