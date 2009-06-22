@@ -174,8 +174,10 @@ public class Gui implements Runnable, Observer {
 
 			public Object getValueAt(int row, int col) {
 				
-				if ( col == 1  && nodes[row][col] == -1) {
-					return "undefined";
+				if ( col == 1  && nodes[row][col] == RoutingTable.UNDEF_ID) {
+					return "UNDEFINED";
+				} else if ( col == 2  && nodes[row][col] == RoutingTable.MAX_DIST) {
+					return "MAX DIST";
 				} else {
 					return nodes[row][col];
 				}

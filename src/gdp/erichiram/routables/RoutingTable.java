@@ -15,8 +15,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
  * 
  */
 public class RoutingTable extends Observable {
-	private static final int UNDEF_ID = -1;
-	private static final int MAX_DIST = 20001;
+	public static final int UNDEF_ID = -1;
+	public static final int MAX_DIST = 20001;
 
 	private final NetwProg netwProg;
 
