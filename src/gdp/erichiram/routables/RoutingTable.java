@@ -122,6 +122,7 @@ public class RoutingTable extends Observable {
 		checkNodeInitialized(myDist.from);
 		checkNodeInitialized(myDist.id);
 
+		netwProg.debug("Processing mydist: " + myDist+ ".");
 
 		ndis.get(myDist.from).put(myDist.id, myDist.distance);
 		recompute(myDist.id);
@@ -203,7 +204,7 @@ public class RoutingTable extends Observable {
 	{
 		synchronized (this.D) {
 			NB.put(n, preferred);
-			return dist != D.put(n, dist);
+			return !dist.equals(D.put(n, dist));
 		}
 	}
 }
