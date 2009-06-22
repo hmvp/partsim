@@ -118,7 +118,10 @@ public class Gui implements Runnable, Observer {
 		List<Integer> list = new ArrayList<Integer>();
 		for(Integer i = 1100; i < 1121 ; i++)
 		{
-			list.add(i);
+			// Add all node ids that ain't this node
+			if ( i != netwProg.id ) {
+				list.add(i)	;
+			}
 		}
 		final SpinnerListModel changeRepairIdSpinnerModel = new SpinnerListModel(list);
 		changeRepairIdSpinner = new JSpinner(changeRepairIdSpinnerModel);
