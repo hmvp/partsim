@@ -41,7 +41,6 @@ public class Gui implements Runnable, Observer {
 	private JButton failButton;
 	private JSpinner changeRepairIdSpinner;
 	private JSpinner changeRepairWeightSpinner;
-	private JButton repairButton;
 	private AbstractTableModel tableModel;
 	private JFrame frame;
 
@@ -274,13 +273,13 @@ public class Gui implements Runnable, Observer {
 						{
 							changeRepairWeightSpinner.setEnabled(false);
 							changeRepairIdSpinner.setEnabled(false);
-							repairButton.setEnabled(false);
+							changeRepairButton.setEnabled(false);
 						}
 						else
 						{
 							changeRepairWeightSpinner.setEnabled(true);
 							changeRepairIdSpinner.setEnabled(true);
-							repairButton.setEnabled(true);
+							changeRepairButton.setEnabled(true);
 						}
 					} catch (Exception e){}
 					
