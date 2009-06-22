@@ -29,15 +29,16 @@ public class NetwProg {
 		System.out.println("Starting: " + argId);
 
 		// create the application
-		NetwProg nwp = new NetwProg(argId, neighbours);
+		NetwProg nwp = new NetwProg(argId, neighbours, false);
 
 		nwp.run();
 	}
 
 	final static boolean DEBUG = true;
-
+	
 	public final int id;
 	public final Map<Integer, Integer> startingNeighbours;
+	private final boolean slave;
 
 	private ServerSocket socket;
 	final Map<Integer, SocketHandler> idsToSocketHandlers = new ConcurrentHashMap<Integer, SocketHandler>();
@@ -47,13 +48,14 @@ public class NetwProg {
 	public final ObservableAtomicInteger messagesSent = new ObservableAtomicInteger(0);
 	public final RoutingTable routingTable;
 
-	public NetwProg(int argId, Map<Integer, Integer> neighbours) {
+	public NetwProg(int argId, Map<Integer, Integer> neighbours, boolean slave) {
 		this.id = argId;
 		this.startingNeighbours = new ConcurrentHashMap<Integer, Integer>(neighbours);
+		this.slave = slave;
 		routingTable = new RoutingTable(this);
 	}
 
-	private void run() {
+	public void run() {
 		debug("Starting GUI");
 
 		SwingUtilities.invokeLater(new Gui(this));
@@ -91,8 +93,8 @@ public class NetwProg {
 			s.die();
 		}
 
-		// TODO: Uncomment before release.
-		// System.exit(0);
+		if(!slave)
+			System.exit(0);
 	}
 
 	public void setT(int t) {
