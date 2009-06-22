@@ -85,27 +85,25 @@ public class RoutingTable extends Observable {
 	}
 
 	public synchronized void recompute(int v) {
-		checkNodeInitialized(v);
 
 		boolean dChanged = false;
 		if (v == netwProg.id) {
 			dChanged = setDataForNode(v, netwProg.id, 0);
 		} else {
-			int min = MAX_DIST;
-			int w = 0;
+			int d = MAX_DIST;
+			int w = UNDEF_ID;
 			//determine closest neighbour to v and its distance to v
 			for (int s : neighboursToWeight.keySet()) {
-				int x = s;
-				int i = ndis.get(x).get(v);
-				if (i <= min) {
-					min = i;
+				
+				//distance( me , v ) = distance( me , w ) + distance( w , v )
+				int i = neighboursToWeight.get(s) + ndis.get(s).get(v);
+				
+				if (i <= d) {
+					d = i;
 					w = s;
 				}
 			}
-
-			//distance( me , v ) = distance( me , w ) + distance( w , v )
-			int	d = neighboursToWeight.get(w) + min;
-
+			
 			if (d < MAX_DIST) {
 				dChanged = setDataForNode(v, w, d);
 			} else {
@@ -122,6 +120,8 @@ public class RoutingTable extends Observable {
 
 	public synchronized void receive(MyDist myDist) {
 		checkNodeInitialized(myDist.from);
+		checkNodeInitialized(myDist.id);
+
 
 		ndis.get(myDist.from).put(myDist.id, myDist.distance);
 		recompute(myDist.id);
