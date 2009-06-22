@@ -65,7 +65,7 @@ public class SocketHandler implements Runnable, Comparable<SocketHandler> {
 		// opvraagt
 		// spelen we toch op zeker door niet eerst te checken en dan pas te
 		// removen.
-		Integer w = netwProg.startingNeighbours.remove(id);
+		Integer w = netwProg.neighbours.remove(id);
 		if (w != null)
 		{
 			tempWeight = w;

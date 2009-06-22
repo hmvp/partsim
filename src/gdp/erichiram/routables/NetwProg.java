@@ -19,72 +19,116 @@ public class NetwProg {
 	 */
 	public static void main(String[] args) {
 
-		// parse the arguments
+		// Parse the arguments.
 		int argId = Integer.valueOf(args[0]);
 		Map<Integer, Integer> neighbours = new HashMap<Integer, Integer>(args.length);
 		for (int i = 1; i < args.length;) {
 			neighbours.put(Integer.valueOf(args[i++]), Integer.valueOf(args[i++]));
 		}
 
-		System.out.println("Starting: " + argId);
-
-		// create the application
-		NetwProg nwp = new NetwProg(argId, neighbours, false);
-
-		nwp.run();
+		// Create and start the node.
+		NetwProg netwProg = new NetwProg(argId, neighbours, false);
+		netwProg.debug("Starting.");
+		netwProg.run();
 	}
-
+	
+	private final boolean slave;
+	
+	/**
+	 * Show debug output.
+	 */
 	final static boolean DEBUG = true;
 	
+	/**
+	 * Id for this node.
+	 */
 	public final int id;
-	public final Map<Integer, Integer> startingNeighbours;
-	private final boolean slave;
+	
+	/**
+	 * The neighbours of this node.
+	 */
+	public final Map<Integer, Integer> neighbours;
 
-	private ServerSocket socket;
+	/**
+	 * To bootstrap the socketHandlers we use a serverSocket to listen for incoming connections.
+	 */
+	private ServerSocket serverSocket;
+	
+	/**
+	 * A map containing node ids and their respective socketHandlers.
+	 */
 	final Map<Integer, SocketHandler> idsToSocketHandlers = new ConcurrentHashMap<Integer, SocketHandler>();
 	
-
+	/**
+	 * Time a socket sleeps before processing messages, in milliseconds.
+	 */
 	private volatile int t;
+	
+	/**
+	 * The number of messages sent.
+	 */
 	public final ObservableAtomicInteger messagesSent = new ObservableAtomicInteger(0);
+	
+	/**
+	 * The routing table for this node.
+	 */
 	public final RoutingTable routingTable;
 
+	/**
+	 * @param argId			id for this node
+	 * @param neighbours	mapping of neighbours to distances
+	 * @param slave			is this node running in slave (debugging) mode
+	 */
 	public NetwProg(int argId, Map<Integer, Integer> neighbours, boolean slave) {
 		this.id = argId;
-		this.startingNeighbours = new ConcurrentHashMap<Integer, Integer>(neighbours);
+		this.neighbours = new ConcurrentHashMap<Integer, Integer>(neighbours);
 		this.slave = slave;
 		routingTable = new RoutingTable(this);
 	}
 
+	/**
+	 * Run method for the NetwProg thread
+	 */
 	public void run() {
+		// Setting up the GUI.
 		debug("Starting GUI");
-
 		SwingUtilities.invokeLater(new Gui(this));
 
-		debug("Starting sockets");
-
 		try {
-			socket = new ServerSocket(id);
+			// Start a listening socket.
+			debug("Starting sockets");
+			serverSocket = new ServerSocket(id);
 
-			// connect to everyone higher than me
-			for (int neighbour : startingNeighbours.keySet()) {
+			// Try to connect to everyone with a higher id using startRepairConnection.
+			for (int neighbour : neighbours.keySet()) {
 				if (neighbour > id) {
-					startRepairConnection(neighbour, startingNeighbours.get(neighbour));
+					startRepairConnection(neighbour, neighbours.get(neighbour));
 				}
 			}
+			
 		} catch (IOException e) {
+			// Most likely the port has already been taken, print an error message.
 			System.err.println("Port " + id + " is already taken");
 		}
 
-		// listen and start sockets if needed
+		// Listen and start sockets if needed.
 		debug("Starting to listen");
-		while (socket != null && !socket.isClosed()) {
+		while (serverSocket != null && !serverSocket.isClosed()) {
 			try {
-				Socket clientSocket = socket.accept();
-				SocketHandler n = new SocketHandler(this, clientSocket);
-				idsToSocketHandlers.put(n.id, n);
-				new Thread(n).start();
+				// Create a socketHandler for every incoming connections.
+				Socket clientSocket = serverSocket.accept();
+				SocketHandler socketHandler = new SocketHandler(this, clientSocket);
+				
+				// Add the socketHandler to a map for easy access.
+				idsToSocketHandlers.put(socketHandler.id, socketHandler);
+				
+				// Start the socketHandler.
+				new Thread(socketHandler).start();
+				
 			} catch (IOException e) {
-				// The Socket just died while blocking during accept(), or something else went wrong. We ignore the IOException and quit the loop.
+				// The Socket just died while blocking during accept(), or
+				// something else went wrong. We ignore the IOException and quit
+				// the loop.
 			}
 		}
 
@@ -93,22 +137,41 @@ public class NetwProg {
 			s.die();
 		}
 
+		// TODO: Is this really necessary?
 		if(!slave)
 			System.exit(0);
 	}
 
-	public void setT(int t) {
-		this.t = t;
-		debug("t is set to: " + t);
+	/**
+	 * Send a message to a node.
+	 * @param id		Id for the node.
+	 * @param message	Message to be sent.
+	 */
+	public void send(int id, Message message) {
+		idsToSocketHandlers.get(id).send(message);
 	}
 
-	public int getT() {
-		return t;
+	/**
+	 * Uninitialize the program.
+	 */
+	public void close() {
+		try {
+			// Close the listening socket.
+			serverSocket.close();
+		} catch (IOException e) {
+			error("An I/O exception occured while closing the listening socket.");
+		}
 	}
 
+	/**
+	 * Change the weight for an existing connection. Repair (create) a new connection to a previously unconnected node.
+	 * @param id		The id for the node to change or repair the connection to.
+	 * @param weight	The new weight value. 
+	 */
 	public void changeWeightOrRepairConnection(int id, int weight) {
-		if(id == this.id)
+		if(id == this.id) {
 			return;
+		}
 		
 		if (idsToSocketHandlers.containsKey(id) ) {
 			changeWeight(id, weight);
@@ -117,11 +180,21 @@ public class NetwProg {
 		}
 	}
 
+	/**
+	 * Change the weight for a connection with a neighbour.
+	 * @param id		The id for the node to change or repair the connection to.
+	 * @param weight	The new weight value. 
+	 */
 	public void changeWeight(Integer id, Integer weight) {
 		debug("Changing the weight to " + id + " to " + weight);
 		routingTable.changeWeight(id, weight);
 	}
 
+	/**
+	 * Repair (create) a new connection to a previously unconnected node with the specified weight.
+	 * @param id		The id for the node to change or repair the connection to.
+	 * @param weight	The new weight value. 
+	 */
 	public synchronized void startRepairConnection(int neighbour, int weight) {
 
 		debug("Starting client socketHandler for " + neighbour);
@@ -130,35 +203,34 @@ public class NetwProg {
 		new Thread(n).start();
 	}
 
+	/**
+	 * Fail (destroy) a connection with a neighbour.
+	 * @param neighbour	The neighbour's id.
+	 */
 	public void failConnection(int neighbour) {
 		debug("Failing connection to " + neighbour);
 		
+		// Remove the socketHandler from the idsToSocketHandlers map.
 		SocketHandler socketHandler = idsToSocketHandlers.remove(neighbour);
-		if ( socketHandler == null) {
-			debug("Connection failed earlier.");
-		} else {
+
+		// Kill the socketHandler.
+		if ( socketHandler != null) {
 			socketHandler.die();
+		} else {
+			debug("Connection failed earlier.");
 		}
 	}
-
-
-	public String toString() {
-		return "NetwProg " + id;
-	}
-
-	public void die() {
-		try {
-			socket.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
+	
+	/**
+	 * 
+	 * @param message
+	 */
 	public void error(String message) {
 		System.err.println(id + ": " + message);
 	}
 
 	/**
-	 * debug messages switchable with DEBUG boolean
+	 * Print debug messages 
 	 * 
 	 * @param message
 	 */
@@ -168,7 +240,29 @@ public class NetwProg {
 		}
 	}
 
-	public void send(int x, Message message) {
-		idsToSocketHandlers.get(x).send(message);
+	/**
+	 * Setter for t.
+	 * @param t		The new value for t.
+	 * @see NetwProg#t
+	 */
+	public void setT(int t) {
+		this.t = t;
+		debug("t is set to: " + t);
+	}
+
+	/**
+	 * Getter for t.
+	 * @return current value of t
+	 * @see NetwProg#t
+	 */
+	public int getT() {
+		return t;
+	}
+
+	/**
+	 * The pretty print method.
+	 */
+	public String toString() {
+		return "NetwProg " + id;
 	}
 }

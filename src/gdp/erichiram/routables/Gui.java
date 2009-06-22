@@ -78,7 +78,7 @@ public class Gui implements Runnable, Observer {
 		frame.addWindowListener(new java.awt.event.WindowAdapter() {
 		    public void windowClosing(WindowEvent winEvt) {
 		        // closing netwProg
-		        netwProg.die();
+		        netwProg.close();
 		    }
 		});
 		
