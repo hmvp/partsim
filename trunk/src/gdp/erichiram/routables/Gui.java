@@ -9,6 +9,8 @@ package gdp.erichiram.routables;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
@@ -32,6 +34,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.table.AbstractTableModel;
 
+
 public class Gui implements Runnable, Observer {
 	
 	private NetwProg netwProg;
@@ -48,6 +51,7 @@ public class Gui implements Runnable, Observer {
 //	private Component graph;
 
 	public Gui(NetwProg netwProg) {
+		
 		this.netwProg = netwProg;
 		netwProg.routingTable.addObserver(this);
 		netwProg.messagesSent.addObserver(this);
@@ -62,6 +66,8 @@ public class Gui implements Runnable, Observer {
 		// Display the window.
 		frame.pack();
 		frame.setVisible(true);
+		
+        setNiceLocation(frame);
 	}
 
 	private JFrame createFrame() {
@@ -74,7 +80,7 @@ public class Gui implements Runnable, Observer {
 		        // closing netwProg
 		        netwProg.die();
 		    }
-		});		
+		});
 		
 		frame.add(createParamPane(), BorderLayout.PAGE_START);
 		frame.add(createInfoPane(), BorderLayout.LINE_END);
@@ -83,7 +89,33 @@ public class Gui implements Runnable, Observer {
 		return frame;
 	}
 	
-	
+	/**
+	 * Move the frame to a nice location.
+	 * @param frame
+	 */
+	private void setNiceLocation(JFrame frame) {
+		
+		// Set the index of this frame based on NetwProg.id
+		int index = netwProg.id - 1100;
+		
+		// A variable containing the menu bar height
+		int menuBarHeight = 22;
+		
+		// Get the height and width of this frame
+		int width = frame.getWidth();
+		int height = frame.getHeight();
+		
+		// Decide how many windows fit next to each other on the current screen
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();		
+		int numberOfWindowsPerRow = (int) Math.floor(screenSize.getWidth() / width);
+		
+		// Calculate the x and y positions for this window
+		int x = (index % numberOfWindowsPerRow) * width;
+		int y = (int) (Math.floor(index / numberOfWindowsPerRow) * height);
+
+		// Set the location (modified by the menuBarHeight)
+	    frame.setLocation(x, menuBarHeight + y); 
+	}
 
 	private Component createNetworkPane() {
 		JPanel networkPane = new JPanel();
@@ -288,6 +320,7 @@ public class Gui implements Runnable, Observer {
 				
 				//graph.repaint();
 				frame.pack();
+		        setNiceLocation(frame);
 			}
 		});
 	}
