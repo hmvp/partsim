@@ -121,17 +121,6 @@ public class NetwProg {
 	}
 
 	public synchronized void startRepairConnection(int neighbour, int weight) {
-		if (neighbour == id) {
-			debug("Cannot repair connection to self");
-			return;
-		}
-
-		for (int n : idsToSocketHandlers.keySet()) {
-			if (n == neighbour) {
-				debug("Cannot repair existing connection");
-				return;
-			}
-		}
 
 		debug("Starting client socketHandler for " + neighbour);
 		SocketHandler n = new SocketHandler(this, neighbour, weight);

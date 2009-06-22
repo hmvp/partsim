@@ -28,28 +28,28 @@ public class RoutingTable extends Observable {
 	/**
 	 * All neighbours to this node.
 	 */
-	private final ConcurrentHashMap<Integer, Integer> neighboursToWeight = new ConcurrentHashMap<Integer, Integer>();
+	private final ConcurrentHashMap<Integer, Integer> neighboursToWeight = new ConcurrentHashMap<Integer, Integer>(22,1,22);
 
 	/**
 	 * Preferred neighbours for nodes.
 	 * 
 	 * NB.get(a) is the preferred neighbour for a.
 	 */
-	private final HashMap<Integer, Integer> NB = new HashMap<Integer, Integer>();
+	private final ConcurrentHashMap<Integer, Integer> NB = new ConcurrentHashMap<Integer, Integer>(22,1,22);
 
 	/**
 	 * Distance estimates for this node to certain nodes.
 	 * 
 	 * D.get(a) estimates the distance between this node and node a.
 	 */
-	private final HashMap<Integer, Integer> D = new HashMap<Integer, Integer>();
+	private final ConcurrentHashMap<Integer, Integer> D = new ConcurrentHashMap<Integer, Integer>(22,1,22);
 
 	/**
 	 * Distance estimates for certain nodes to certain nodes.
 	 * 
 	 * ndis.get(a).get(b) estimates the distance between nodes a and b.
 	 */
-	private final HashMap<Integer, Map<Integer, Integer>> ndis = new HashMap<Integer, Map<Integer, Integer>>();
+	private final ConcurrentHashMap<Integer, Map<Integer, Integer>> ndis = new ConcurrentHashMap<Integer, Map<Integer, Integer>>();
 
 	/**
 	 * Initialize the routing table.
@@ -60,9 +60,8 @@ public class RoutingTable extends Observable {
 		this.netwProg = netwProg;
 
 		nodes.add(netwProg.id);
-		ndis.put(netwProg.id, D);
-		D.put(netwProg.id, 0);
-		NB.put(netwProg.id, netwProg.id);
+		//ndis.put(netwProg.id, D);
+		setDataForNode(netwProg.id, netwProg.id, 0);
 	}
 	
 	private void checkNodeInitialized(int node)
@@ -84,8 +83,7 @@ public class RoutingTable extends Observable {
 				ndis.get(v).put(node, MAX_DIST);
 			}
 
-			D.put(node, MAX_DIST);
-			NB.put(node, UNDEF_ID);
+			setDataForNode(node, UNDEF_ID, MAX_DIST);
 		}
 	}
 
@@ -94,8 +92,7 @@ public class RoutingTable extends Observable {
 
 		boolean dChanged = false;
 		if (v == netwProg.id) {
-			dChanged = 0 != D.put(v, 0);
-			NB.put(v, netwProg.id);
+			dChanged = setDataForNode(v, netwProg.id, 0);
 		} else {
 			int min = MAX_DIST;
 			int w = 0;
@@ -113,11 +110,9 @@ public class RoutingTable extends Observable {
 			int	d = neighboursToWeight.get(w) + min;
 
 			if (d < MAX_DIST) {
-				dChanged = d != D.put(v, d);
-				NB.put(v, w);
+				dChanged = setDataForNode(v, w, d);
 			} else {
-				dChanged = MAX_DIST != D.put(v, MAX_DIST);
-				NB.put(v, UNDEF_ID);
+				dChanged = setDataForNode(v, UNDEF_ID, MAX_DIST);
 			}
 		}
 		if (dChanged) {
@@ -189,12 +184,31 @@ public class RoutingTable extends Observable {
 	}
 
 	public synchronized int[][] getNodesData() {
-		int[][] result = new int[nodes.size()][];
+		int[][] result = new int[NB.size()][];
 		int i = 0;
-		for (int n : nodes) {
-			result[i++] = new int[] { n, NB.get(n), D.get(n) };
+		for (int n : NB.keySet()) {
+			synchronized (D) {
+				result[i++] = new int[] { n, NB.get(n), D.get(n) };
+			}
 		}
 
 		return result;
+	}
+	
+	/**
+	 * private method to set D and ND together to avoid inconsistencies
+	 * @param n node for which the data is set
+	 * @param preferred preferred neighbour for the node.
+	 * @param dist distance to the node
+	 * @return is the distance changed?
+	 */
+	private boolean setDataForNode(int n, int preferred, Integer dist)
+	{
+		if(dist == 0)
+			System.out.println("AAAA");
+		synchronized (this.D) {
+			NB.put(n, preferred);
+			return dist != D.put(n, dist);
+		}
 	}
 }
