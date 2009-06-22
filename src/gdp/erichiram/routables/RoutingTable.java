@@ -60,15 +60,12 @@ public class RoutingTable extends Observable {
 		this.netwProg = netwProg;
 
 		nodes.add(netwProg.id);
-		//ndis.put(netwProg.id, D);
+		ndis.put(netwProg.id, D);
 		setDataForNode(netwProg.id, netwProg.id, 0);
 	}
 	
 	private void checkNodeInitialized(int node)
 	{
-		//if(node == netwProg.id)
-			//return;
-
 		// If we don't know the node.
 		if (!nodes.contains(node)) {
 			
@@ -204,8 +201,6 @@ public class RoutingTable extends Observable {
 	 */
 	private boolean setDataForNode(int n, int preferred, Integer dist)
 	{
-		if(dist == 0)
-			System.out.println("AAAA");
 		synchronized (this.D) {
 			NB.put(n, preferred);
 			return dist != D.put(n, dist);
