@@ -156,7 +156,6 @@ public class SocketHandler implements Runnable, Comparable<SocketHandler> {
 			if (object != null && object instanceof MyDist) {
 				MyDist message = (MyDist) object;
 
-				netwProg.debug("Processing " + message + ".");
 				routingTable.receive(message);
 			}
 		}

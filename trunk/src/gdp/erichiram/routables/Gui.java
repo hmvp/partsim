@@ -174,10 +174,8 @@ public class Gui implements Runnable, Observer {
 
 			public Object getValueAt(int row, int col) {
 				
-				if ( col == 0 ) {
-					return nodes[row][col];
-				} else if ( col == 1 ) {
-					return nodes[row][col];
+				if ( col == 1  && nodes[row][col] == -1) {
+					return "undefined";
 				} else {
 					return nodes[row][col];
 				}
