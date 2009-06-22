@@ -36,11 +36,11 @@ public class JavaStarter {
 	
 	public JavaStarter()
 	{	
-		putMap(1103, new Tuple(1102,20), new Tuple(1100,2));
-		putMap(1102, new Tuple(1101,3), new Tuple(1104,10), new Tuple(1103,100));
-		putMap(1100, new Tuple(1104,10), new Tuple(1103,5));
-		putMap(1104, new Tuple(1102,4), new Tuple(1101,12), new Tuple(1100,4));
-		putMap(1101, new Tuple(1102,7), new Tuple(1104,5));
+		putMap(1103, new Tuple(1102,200), new Tuple(1100,20));
+		putMap(1102, new Tuple(1101,30), new Tuple(1104,100), new Tuple(1103,1000));
+		putMap(1100, new Tuple(1104,100), new Tuple(1103,50));
+		putMap(1104, new Tuple(1102,40), new Tuple(1101,120), new Tuple(1100,40));
+		putMap(1101, new Tuple(1102,70), new Tuple(1104,50));
 
 		
 		for(int s : m.keySet())
@@ -54,16 +54,14 @@ public class JavaStarter {
 		Thread t = new Thread(){
 
 			public void run() {
-				String[] args = new String[(d.size() * 2) + 1];
-				args[0] = port.toString();
-				int i = 1;
+				Map<Integer, Integer> neighbours = new HashMap<Integer, Integer>();
+
 				for (Tuple p : d)
 				{
-					args[i++] = p.port;
-					args[i++] = p.w;
+					neighbours.put(p.port,p.w);
 				}
 				
-				NetwProg.main(args);
+				new NetwProg(port,neighbours,true).run();
 			}
 			
 		};
@@ -74,15 +72,15 @@ public class JavaStarter {
 }
 
 class Tuple {
-	public String port;
-	public String w;
+	public int port;
+	public int w;
 	
 	public Tuple(Integer port, Integer w){
 		if(port < 1100 || port > 1120 || w < 1 || w > 1000)
 			throw new RuntimeException("AArggh input wrong!");
 		
-		this.port = port.toString();
-		this.w = w.toString();
+		this.port = port;
+		this.w = w;
 	}
 }
 

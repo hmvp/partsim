@@ -77,22 +77,22 @@ public class SocketHandler implements Runnable, Comparable<SocketHandler> {
 	private void initialize() {
 		if (socket == null) {//only if we are a client
 			// we try to connect until we succeed
-			while (socket == null) {
+			while (socket == null && running) {
 				try {
 					// create a socket and connect it to the specified port on the loopback interface
 					socket = new Socket(InetAddress.getLocalHost(), id);
+					
+					createStreams();
+					
+					send(new Repair(netwProg.id, startingWeight));
 				} catch (IOException e) {
 					netwProg.error("Something went wrong when connecting to: " + id + " error: " + e.getLocalizedMessage());
-				}
-				try {
-					Thread.sleep(100);
-				} catch (InterruptedException e) {
+					try {
+						Thread.sleep(100);
+					} catch (InterruptedException e1) {}
+				
 				}
 			}
-		
-			createStreams();
-		
-			send(new Repair(netwProg.id, startingWeight));
 		}
 		initDone = true;
 	}
@@ -199,7 +199,8 @@ public class SocketHandler implements Runnable, Comparable<SocketHandler> {
 		// We need to close the inputstream because readObject is blocking and
 		// we need it to stop
 		try {
-			in.close();
+			if(in != null)
+				in.close();
 		} catch (IOException e) {}
 	}
 
@@ -234,15 +235,15 @@ public class SocketHandler implements Runnable, Comparable<SocketHandler> {
 	protected void finalize() {
 		try {
 			out.close();
-		} catch (IOException e) {
+		} catch (Exception e) {
 		}
 		try {
 			in.close();
-		} catch (IOException e) {
+		} catch (Exception e) {
 		}
 		try {
 			socket.close();
-		} catch (IOException e) {
+		} catch (Exception e) {
 		}
 	}
 
