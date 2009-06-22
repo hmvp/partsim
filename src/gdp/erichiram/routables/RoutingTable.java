@@ -15,9 +15,21 @@ import java.util.concurrent.CopyOnWriteArraySet;
  * 
  */
 public class RoutingTable extends Observable {
+	
+	/**
+	 * -1 is an illegal port number so we use it to signify an undefined node id.
+	 */
 	public static final int UNDEF_ID = -1;
-	public static final int MAX_DIST = 20001;
+	
+	/**
+	 * There is a maximum of 20 nodes, and the maximum distance between 2 nodes is 1000.
+	 * The longest path in the network is 19 hops, the longest possible path has length 19000.
+	 */
+	public static final int MAX_DIST = 19001;
 
+	/**
+	 * Reference to the main program.
+	 */
 	private final NetwProg netwProg;
 
 	/**
