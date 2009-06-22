@@ -222,18 +222,20 @@ public class NetwProg {
 	}
 	
 	/**
-	 * 
+	 * Print error messages.
 	 * @param message
 	 */
+	// TODO Check if this method is used consistently.
 	public void error(String message) {
 		System.err.println(id + ": " + message);
 	}
 
 	/**
-	 * Print debug messages 
+	 * Print debug messages.
 	 * 
 	 * @param message
 	 */
+	// TODO Check if this method is used consistently.
 	public void debug(String message) {
 		if (DEBUG) {
 			System.out.println(id + ": " + message);
