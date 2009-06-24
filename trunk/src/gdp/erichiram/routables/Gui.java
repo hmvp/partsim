@@ -115,7 +115,7 @@ public class Gui implements Runnable, Observer {
 							neighbourIdSpinnerModel.setList(new LinkedList<Integer>(netwProg.idsToChannels.keySet()));
 						}
 					} catch (Exception e) {
-						// TODO: 
+						// TODO: what's happening here?
 					}
 				}
 
