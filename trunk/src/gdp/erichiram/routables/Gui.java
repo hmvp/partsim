@@ -106,17 +106,13 @@ public class Gui implements Runnable, Observer {
 				}
 
 				if (observable instanceof NetwProg) {
-					try {
-						if (netwProg.idsToChannels.size() < 1) {
-							failIdSpinner.setEnabled(false);
-							failButton.setEnabled(false);
-						} else {
-							failIdSpinner.setEnabled(true);
-							failButton.setEnabled(true);
-							neighbourIdSpinnerModel.setList(new LinkedList<Integer>(netwProg.idsToChannels.keySet()));
-						}
-					} catch (Exception e) {
-						// TODO: what's happening here?
+					if (netwProg.idsToChannels.size() < 1) {
+						failIdSpinner.setEnabled(false);
+						failButton.setEnabled(false);
+					} else {
+						failIdSpinner.setEnabled(true);
+						failButton.setEnabled(true);
+						neighbourIdSpinnerModel.setList(new LinkedList<Integer>(netwProg.idsToChannels.keySet()));
 					}
 				}
 
@@ -224,6 +220,10 @@ public class Gui implements Runnable, Observer {
 		// Create fail ID spinner.
 		neighbourIdSpinnerModel = new SpinnerListModel();
 		failIdSpinner = new JSpinner(neighbourIdSpinnerModel);
+		
+		//we start without neighbours so we should disable until we have some
+		failIdSpinner.setEnabled(false);
+		failButton.setEnabled(false);
 		
 		// Add fail components to failPanel.
 		failPanel.add(failButton);
