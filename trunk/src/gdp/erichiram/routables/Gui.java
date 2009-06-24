@@ -119,9 +119,6 @@ public class Gui implements Runnable, Observer {
 					}
 				}
 
-				// TODO: remove this?
-				// graph.repaint();
-
 				// Repack the frame and move it to a (possibly) better spot.
 				frame.pack();
 				setNiceLocation(frame);
@@ -306,16 +303,6 @@ public class Gui implements Runnable, Observer {
 		// Add the tablePane to the infoPanel.
 		infoPanel.add(tablePanel, BorderLayout.WEST);
 		
-		// TODO: remove this code?
-		//graph = createGraphComponent();
-		//infoPane.add(graph , BorderLayout.EAST);
-		
 		return infoPanel;
 	}
-
-	// TODO: remove this one?
-//	private Component createGraphComponent() {
-//		
-//		return new GraphPanel(netwProg.routingTable.ndis, netwProg.id, netwProg.routingTable.neighbours);
-//	}
 }
