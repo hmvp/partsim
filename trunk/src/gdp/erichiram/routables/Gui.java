@@ -70,7 +70,6 @@ public class Gui implements Runnable, Observer {
 		
 		// Keep us posted about changes in the routingTable or the messagesSent.
 		netwProg.routingTable.addObserver(this);
-		netwProg.messagesSent.addObserver(this);
 		netwProg.addObserver(this);
 	}
 
