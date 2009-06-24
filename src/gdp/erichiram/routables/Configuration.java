@@ -7,5 +7,5 @@ package gdp.erichiram.routables;
  */
 public class Configuration {
 	final static String messagesSentString = "#msg: ";
-	final static int retryConnectionTime = 10000;
+	final static int retryConnectionTime = 1000;
 }
