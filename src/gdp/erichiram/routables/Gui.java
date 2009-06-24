@@ -7,6 +7,8 @@
 
 package gdp.erichiram.routables;
 
+import gdp.erichiram.routables.util.ObservableAtomicInteger;
+
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -99,8 +101,8 @@ public class Gui implements Runnable, Observer {
 
 			public void run() {
 
-				if (observable == netwProg.messagesSent) {
-					int messagesSent = netwProg.messagesSent.get();
+				if (observable instanceof ObservableAtomicInteger && obj instanceof Integer) {
+					int messagesSent = (Integer) obj;
 					messagesSentLabel.setText("Number of messages sent: " + messagesSent);
 				}
 
