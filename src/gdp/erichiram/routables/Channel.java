@@ -241,11 +241,16 @@ public class Channel implements Runnable, Comparable<Channel> {
 		}
 	}
 
+	/**
+	 * Close this channel.
+	 */
 	public void close() {
+		
+		// Stop listening.
 		running = false;
 
 		// It's possible ObjectInputStream#readObject() is preventing us from actually closing,
-		// so try to force it to close if it is.
+		// in that case force it to close.
 		try {
 			if(inputStream != null)
 				inputStream.close();
@@ -280,6 +285,10 @@ public class Channel implements Runnable, Comparable<Channel> {
 		return true;
 	}
 
+	/**
+	 * @see java.lang.Object#finalize()
+	 */
+	@Override
 	protected void finalize() {
 		try {
 			outputStream.close();
@@ -295,10 +304,17 @@ public class Channel implements Runnable, Comparable<Channel> {
 		}
 	}
 
+	/**
+	 * @see java.lang.Object#finalize()
+	 */
+	@Override
 	public String toString() {
 		return String.valueOf(id);
 	}
 
+	/**
+	 * @see java.lang.Comparable#compareTo
+	 */
 	public int compareTo(Channel o) {
 		return id - o.id;
 	}
