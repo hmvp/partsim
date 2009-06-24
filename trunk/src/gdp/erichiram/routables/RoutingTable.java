@@ -131,11 +131,15 @@ public class RoutingTable extends Observable {
 		}
 	}
 
-	private synchronized void recompute(int v) {
+	/**
+	 * Recompute the data for a node, as described in the Netchange algorithm by Tajibnapis.
+	 * @param node id of the node to be recomputed
+	 */
+	private synchronized void recompute(int node) {
 
 		boolean dChanged = false;
-		if (v == netwProg.id) {
-			dChanged = setDataForNode(v, netwProg.id, 0);
+		if (node == netwProg.id) {
+			dChanged = setDataForNode(node, netwProg.id, 0);
 		} else {
 			int d = MAX_DIST;
 			int w = UNDEF_ID;
@@ -143,7 +147,7 @@ public class RoutingTable extends Observable {
 			for (int s : neighboursToWeight.keySet()) {
 				
 				//distance( me , v ) = distance( me , w ) + distance( w , v )
-				int i = neighboursToWeight.get(s) + ndis.get(s).get(v);
+				int i = neighboursToWeight.get(s) + ndis.get(s).get(node);
 				
 				if (i <= d) {
 					d = i;
@@ -152,35 +156,48 @@ public class RoutingTable extends Observable {
 			}
 			
 			if (d < MAX_DIST) {
-				dChanged = setDataForNode(v, w, d);
+				dChanged = setDataForNode(node, w, d);
 			} else {
-				dChanged = setDataForNode(v, UNDEF_ID, MAX_DIST);
+				dChanged = setDataForNode(node, UNDEF_ID, MAX_DIST);
 			}
 		}
 		if (dChanged) {
 			for (int x : neighboursToWeight.keySet()) {
-				netwProg.send(x, new MyDist(v, D.get(v)));
+				netwProg.send(x, new MyDist(node, D.get(node)));
 			}
 		}
 
 	}
 	
+	/**
+	 * Receive a message.
+	 * @param m the received message
+	 */
 	public void receive(Message m)
 	{
 		q.offer(m);
 	}
 
-	private void mydist(int from, int node, int distance) {
+	/**
+	 * Process the contents of a MyDist message, as described in the Netchange algorithm by Tajibnapis.
+	 * @param from
+	 * @param to
+	 * @param distance
+	 */
+	private void mydist(int from, int to, int distance) {
 		checkNodeInitialized(from);
-		checkNodeInitialized(node);
+		checkNodeInitialized(to);
 
-		netwProg.debug("Processing mydist from: " + from + " for: " + node + " with distance: " + distance);
+		netwProg.debug("Processing mydist from: " + from + " for: " + to + " with distance: " + distance);
 
-		ndis.get(from).put(node, distance);
-		recompute(node);
+		ndis.get(from).put(to, distance);
+		recompute(to);
 	}
 
-
+	/**
+	 * Process the contents of a Fail message, as described in the Netchange algorithm by Tajibnapis.
+	 * @param neighbour id of the failed channel
+	 */
 	private void fail(int neighbour) {
 		netwProg.debug("Processing fail from: " + neighbour);
 
@@ -193,6 +210,11 @@ public class RoutingTable extends Observable {
 		}
 	}
 
+	/**
+	 * Process the contents of a Repair message, as described in the Netchange algorithm by Tajibnapis.
+	 * @param neighbour id of the channel to be repaired
+	 * @param weight	weight of the channel
+	 */
 	private void repair(int neighbour, int weight) {
 		netwProg.debug("Processing repair to: " + neighbour + " with weight: " + weight);
 
