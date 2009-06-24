@@ -1,12 +1,18 @@
 package gdp.erichiram.routables;
 
+import gdp.erichiram.routables.message.ChangeWeight;
+import gdp.erichiram.routables.message.Fail;
+import gdp.erichiram.routables.message.Message;
 import gdp.erichiram.routables.message.MyDist;
+import gdp.erichiram.routables.message.Repair;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Observable;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * This class contains the Netchange algorithm and the routing table.
@@ -63,6 +69,9 @@ public class RoutingTable extends Observable {
 	 */
 	private final ConcurrentHashMap<Integer, Map<Integer, Integer>> ndis = new ConcurrentHashMap<Integer, Map<Integer, Integer>>();
 
+	
+	private final BlockingQueue<Message> q = new LinkedBlockingQueue<Message>();
+	
 	/**
 	 * Initialize the routing table.
 	 * 
@@ -74,6 +83,32 @@ public class RoutingTable extends Observable {
 		nodes.add(netwProg.id);
 		ndis.put(netwProg.id, D);
 		setDataForNode(netwProg.id, netwProg.id, 0);
+		
+		new Thread(new Runnable(){
+			public void run() {
+				Message m;
+				while (true) {
+					try {
+						m = q.take();
+
+						if (m instanceof MyDist) {
+							MyDist mydist = (MyDist) m;
+							mydist(mydist.from, mydist.id, mydist.distance);
+						} else if (m instanceof Repair) {
+							Repair repair = (Repair) m;
+							repair(repair.neighbour, repair.weight);
+						} else if (m instanceof Fail) {
+							Fail fail = (Fail) m;
+							fail(fail.to);
+						} else if (m instanceof ChangeWeight) {
+							ChangeWeight cw = (ChangeWeight) m;
+							changeWeight(cw.node, cw.weight);
+						}
+					} catch (InterruptedException e1) {
+					}
+				}
+			}
+		}).start();
 	}
 	
 	private void checkNodeInitialized(int node)
@@ -129,19 +164,24 @@ public class RoutingTable extends Observable {
 		}
 
 	}
+	
+	public void receive(Message m)
+	{
+		q.offer(m);
+	}
 
-	public synchronized void receive(MyDist myDist) {
-		checkNodeInitialized(myDist.from);
-		checkNodeInitialized(myDist.id);
+	private void mydist(int from, int node, int distance) {
+		checkNodeInitialized(from);
+		checkNodeInitialized(node);
 
-		netwProg.debug("Processing mydist: " + myDist+ ".");
+		netwProg.debug("Processing mydist from: " + from + " for: " + node + " with distance: " + distance);
 
-		ndis.get(myDist.from).put(myDist.id, myDist.distance);
-		recompute(myDist.id);
+		ndis.get(from).put(node, distance);
+		recompute(node);
 	}
 
 
-	public synchronized void fail(int neighbour) {
+	private void fail(int neighbour) {
 		netwProg.debug("Processing fail from: " + neighbour);
 
 		neighboursToWeight.remove(neighbour);
@@ -153,7 +193,7 @@ public class RoutingTable extends Observable {
 		}
 	}
 
-	public synchronized void repair(int neighbour, int weight) {
+	private void repair(int neighbour, int weight) {
 		netwProg.debug("Processing repair to: " + neighbour + " with weight: " + weight);
 
 		//we do lazy initialization so we check now
@@ -167,7 +207,7 @@ public class RoutingTable extends Observable {
 	}
 
 
-	public synchronized void changeWeight(int node, int weight) {
+	private void changeWeight(int node, int weight) {
 		neighboursToWeight.put(node, weight);
 
 		for (int v : nodes) {
