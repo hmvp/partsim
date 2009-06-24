@@ -32,7 +32,6 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.table.AbstractTableModel;
 
 
 public class Gui implements Runnable, Observer {
@@ -42,19 +41,15 @@ public class Gui implements Runnable, Observer {
 	private SpinnerListModel neighbourIdSpinnerModel;
 	private JSpinner failIdSpinner;
 	private JButton failButton;
-	private JSpinner changeRepairIdSpinner;
-	private JSpinner changeRepairWeightSpinner;
-	private AbstractTableModel tableModel;
+	private TableModel tableModel;
 	private JFrame frame;
-
-	private JButton changeRepairButton;
-//	private Component graph;
 
 	public Gui(NetwProg netwProg) {
 		
 		this.netwProg = netwProg;
 		netwProg.routingTable.addObserver(this);
 		netwProg.messagesSent.addObserver(this);
+		netwProg.addObserver(this);
 	}
 
 	/**
@@ -155,14 +150,14 @@ public class Gui implements Runnable, Observer {
 			}
 		}
 		final SpinnerListModel changeRepairIdSpinnerModel = new SpinnerListModel(list);
-		changeRepairIdSpinner = new JSpinner(changeRepairIdSpinnerModel);
+		JSpinner changeRepairIdSpinner = new JSpinner(changeRepairIdSpinnerModel);
 
 		// Change weight / repair weight spinner.
 		final SpinnerNumberModel repairWeightSpinnerModel = new SpinnerNumberModel(1,1,9999,1);
-		changeRepairWeightSpinner = new JSpinner(repairWeightSpinnerModel);
+		JSpinner changeRepairWeightSpinner = new JSpinner(repairWeightSpinnerModel);
 		
 		// Change weight / repair button.
-		changeRepairButton = new JButton("change / repair");
+		JButton changeRepairButton = new JButton("change / repair");
 		changeRepairButton.addActionListener(new ActionListener(){
 
 			public void actionPerformed(ActionEvent actionevent) {
@@ -185,48 +180,8 @@ public class Gui implements Runnable, Observer {
 		JPanel infoPane = new JPanel();
 		infoPane.setLayout(new BoxLayout(infoPane, BoxLayout.Y_AXIS));
 		
-		tableModel = new AbstractTableModel() {
-
-			private static final long serialVersionUID = 3441755023701740847L;
-
-			private final String[] columnNames = { "Node", "Neighbour to use", "Length of path" };
-			private int[][] nodes = new int[1][3];
-
-			public String getColumnName(int col) {
-				return columnNames[col].toString();
-			}
-
-			public int getRowCount() {
-				return nodes.length;
-			}
-
-			public int getColumnCount() {
-				return columnNames.length;
-			}
-
-			public Object getValueAt(int row, int col) {
-				
-				if ( col == 1  && nodes[row][col] == RoutingTable.UNDEF_ID) {
-					return "UNDEFINED";
-				} else if ( col == 2  && nodes[row][col] == RoutingTable.MAX_DIST) {
-					return "MAX DIST";
-				} else {
-					return nodes[row][col];
-				}
-			}
-
-			public boolean isCellEditable(int row, int col) {
-				return false;
-			}
-
-			@Override
-			public void fireTableDataChanged() {
-				nodes = netwProg.routingTable.getNodesData();
-				super.fireTableDataChanged();
-			}
-			
-			
-		};
+		tableModel = new TableModel();
+		netwProg.routingTable.addObserver(tableModel);
 				
 		messagesSentLabel = new JLabel(Configuration.messagesSentString + netwProg.messagesSent.get());
 		infoPane.add(messagesSentLabel);
@@ -273,7 +228,7 @@ public class Gui implements Runnable, Observer {
 		initializeGui();
 	}
 
-	public void update(final Observable observable, Object obj) {
+	public void update(final Observable observable, final Object obj) {
 		
 		SwingUtilities.invokeLater(new Runnable(){
 			
@@ -283,10 +238,7 @@ public class Gui implements Runnable, Observer {
 					messagesSentLabel.setText(Configuration.messagesSentString + messagesSent);
 				}
 				
-				if (observable instanceof RoutingTable) {
-					if(tableModel != null)
-						tableModel.fireTableDataChanged();
-					
+				if (observable instanceof NetwProg) {
 					try{
 						if(netwProg.idsToSocketHandlers.size() < 1)
 						{
@@ -299,23 +251,7 @@ public class Gui implements Runnable, Observer {
 							failButton.setEnabled(true);
 							neighbourIdSpinnerModel.setList(new LinkedList<Integer>(netwProg.idsToSocketHandlers.keySet()));
 						}
-						
-						
-						if(netwProg.idsToSocketHandlers.size() > 20)
-						{
-							changeRepairWeightSpinner.setEnabled(false);
-							changeRepairIdSpinner.setEnabled(false);
-							changeRepairButton.setEnabled(false);
-						}
-						else
-						{
-							changeRepairWeightSpinner.setEnabled(true);
-							changeRepairIdSpinner.setEnabled(true);
-							changeRepairButton.setEnabled(true);
-						}
 					} catch (Exception e){}
-					
-					
 				}
 				
 				//graph.repaint();
