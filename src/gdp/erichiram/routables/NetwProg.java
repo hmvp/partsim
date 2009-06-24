@@ -8,11 +8,12 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Observable;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.swing.SwingUtilities;
 
-public class NetwProg {
+public class NetwProg extends Observable{
 
 	/**
 	 * @param args
@@ -124,6 +125,8 @@ public class NetwProg {
 				
 				// Start the socketHandler.
 				new Thread(socketHandler).start();
+				setChanged();
+				notifyObservers();
 				
 			} catch (IOException e) {
 				// The Socket just died while blocking during accept(), or
@@ -178,6 +181,8 @@ public class NetwProg {
 		} else {
 			startRepairConnection(id, weight);
 		}
+		setChanged();
+		notifyObservers();
 	}
 
 	/**
@@ -219,6 +224,8 @@ public class NetwProg {
 		} else {
 			debug("Connection failed earlier.");
 		}
+		setChanged();
+		notifyObservers();
 	}
 	
 	/**

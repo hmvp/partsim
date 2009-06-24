@@ -213,10 +213,15 @@ public class RoutingTable extends Observable {
 	 * @return is the distance changed?
 	 */
 	private boolean setDataForNode(int n, int preferred, Integer dist)
-	{
-		synchronized (this.D) {
-			NB.put(n, preferred);
-			return !dist.equals(D.put(n, dist));
+	{	
+		NB.put(n, preferred);
+		boolean ret = !dist.equals(D.put(n, dist));
+
+		if (ret) {
+			setChanged();
+			notifyObservers(new Integer[] { n, preferred, dist });
 		}
+
+		return ret;
 	}
 }
