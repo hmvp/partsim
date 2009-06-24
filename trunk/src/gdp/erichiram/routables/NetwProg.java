@@ -21,19 +21,28 @@ public class NetwProg extends Observable{
 	 */
 	public static void main(String[] args) {
 
-		// TODO: input checking.
+		if(args.length > 0)
+		{
+			try {
+				// Parse the arguments.
+				int argId = Integer.valueOf(args[0]);
+				Map<Integer, Integer> neighbours = new HashMap<Integer, Integer>(args.length);
+				for (int i = 1; i < args.length;) {
+					neighbours.put(Integer.valueOf(args[i++]), Integer.valueOf(args[i++]));
+				}
 		
-		// Parse the arguments.
-		int argId = Integer.valueOf(args[0]);
-		Map<Integer, Integer> neighbours = new HashMap<Integer, Integer>(args.length);
-		for (int i = 1; i < args.length;) {
-			neighbours.put(Integer.valueOf(args[i++]), Integer.valueOf(args[i++]));
+				// Create and start the node.
+				NetwProg netwProg = new NetwProg(argId, neighbours, false);
+				netwProg.debug("Starting.");
+				netwProg.run();
+				return;
+			} catch (NumberFormatException e)
+			{
+				System.out.println("De input bestond niet alleen uit getallen!");
+			}
 		}
-
-		// Create and start the node.
-		NetwProg netwProg = new NetwProg(argId, neighbours, false);
-		netwProg.debug("Starting.");
-		netwProg.run();
+		
+		System.out.println("Usage: NetwProg <process-id> (<process-id> <weight>)*");
 	}
 	
 	private final boolean slave;
