@@ -48,11 +48,6 @@ public class Channel implements Runnable, Comparable<Channel> {
 	 * True if we're still running, false otherwise.
 	 */
 	private boolean running = true;
-	
-	/**
-	 * True if the initialization is done.
-	 */
-	private boolean initializationDone = false;
 
 	/**
 	 * Construct a new Channel object for the specified NetwProg, port and channel weight.
@@ -133,7 +128,6 @@ public class Channel implements Runnable, Comparable<Channel> {
 				}
 			}
 		}
-		initializationDone = true;
 	}
 
 	
@@ -203,8 +197,6 @@ public class Channel implements Runnable, Comparable<Channel> {
 		}
 
 		netwProg.debug("Channel is done and starts closing: " + id);
-		// TODO: why is this increment here when no messages are being sent?
-		netwProg.messagesSent.increment();
 		netwProg.routingTable.receive(new Fail(id));
 		
 		// Clean up the streams and socket.
@@ -218,19 +210,14 @@ public class Channel implements Runnable, Comparable<Channel> {
 	public void send(Message message) {
 		if (running) {
 
-			// TODO: why are Message#from and Message#to overwritten here?
+			//set sender and destination here (mainly debug but mydists also need an sender)
 			message.from = netwProg.id;
 			message.to = id;
-
-			// TODO: can't we just check ( socket != null ) instead of ( !initializationDone )?
-			if (!initializationDone && !(message instanceof Repair))
-				throw new RuntimeException("Dat mag niet want we moeten eerst klaar zijn met repairen.");
 
 			netwProg.debug("Sending message to: " + id + " message: " + message);
 			try {
 				outputStream.writeObject(message);
 				outputStream.flush();
-				netwProg.messagesSent.increment();
 			} catch (IOException e) {
 				netwProg.error("Something went wrong when sending a message: " + e.getLocalizedMessage());
 				close();

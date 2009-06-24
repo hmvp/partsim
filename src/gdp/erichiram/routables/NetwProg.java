@@ -79,7 +79,7 @@ public class NetwProg extends Observable{
 	/**
 	 * The number of messages sent.
 	 */
-	public final ObservableAtomicInteger messagesSent = new ObservableAtomicInteger(0);
+	private final ObservableAtomicInteger messagesSent = new ObservableAtomicInteger(0);
 	
 	/**
 	 * The routing table for this node.
@@ -99,6 +99,8 @@ public class NetwProg extends Observable{
 		this.slave = slave;
 		routingTable = new RoutingTable(this);
 		gui = new Gui(this);
+		
+		messagesSent.addObserver(gui);
 	}
 
 	/**
@@ -166,6 +168,7 @@ public class NetwProg extends Observable{
 	 */
 	public void send(int id, Message message) {
 		idsToChannels.get(id).send(message);
+		messagesSent.increment();
 	}
 
 	/**
