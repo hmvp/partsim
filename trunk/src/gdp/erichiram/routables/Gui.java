@@ -222,7 +222,7 @@ public class Gui implements Runnable, Observer {
 		infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
 		
 		// Create a new TableModel.
-		tableModel = new RoutingTableTableModel();
+		tableModel = new RoutingTableTableModel(netwProg);
 		netwProg.routingTable.addObserver(tableModel);
 		
 		// Create a label for messagesSent.

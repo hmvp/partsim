@@ -90,7 +90,6 @@ public class NetwProg extends Observable{
 		this.slave = slave;
 		routingTable = new RoutingTable(this);
 		gui = new Gui(this);
-		routingTable.initialize();
 	}
 
 	/**
@@ -117,8 +116,6 @@ public class NetwProg extends Observable{
 			// Most likely the port has already been taken, print an error message.
 			System.err.println("Port " + id + " is already taken");
 		}
-		setChanged();
-		notifyObservers();
 		// Listen and start sockets if needed.
 		debug("Starting to listen");
 		while (serverSocket != null && !serverSocket.isClosed()) {
@@ -188,8 +185,6 @@ public class NetwProg extends Observable{
 		} else {
 			startRepairConnection(id, weight);
 		}
-		setChanged();
-		notifyObservers();
 	}
 
 	/**
@@ -213,6 +208,8 @@ public class NetwProg extends Observable{
 		Channel n = new Channel(this, neighbour, weight);
 		idsToChannels.put(neighbour, n);
 		new Thread(n).start();
+		setChanged();
+		notifyObservers();
 	}
 
 	/**

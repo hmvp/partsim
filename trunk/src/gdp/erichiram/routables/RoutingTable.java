@@ -70,10 +70,7 @@ public class RoutingTable extends Observable {
 	 */
 	public RoutingTable(NetwProg netwProg) {
 		this.netwProg = netwProg;
-	}
-	
-	public void initialize()
-	{
+
 		nodes.add(netwProg.id);
 		ndis.put(netwProg.id, D);
 		setDataForNode(netwProg.id, netwProg.id, 0);
@@ -178,6 +175,22 @@ public class RoutingTable extends Observable {
 		}
 
 		notifyObservers();
+	}
+	
+	/**
+	 * the first time the gui needs data it needs to get it all
+	 * @return
+	 */
+	public synchronized Integer[][] getNodesData() {
+		Integer[][] result = new Integer[NB.size()][];
+		int i = 0;
+		for (int n : NB.keySet()) {
+			synchronized (D) {
+				result[i++] = new Integer[] { n, NB.get(n), D.get(n) };
+			}
+		}
+
+		return result;
 	}
 	
 	/**

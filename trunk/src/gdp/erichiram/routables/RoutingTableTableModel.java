@@ -15,6 +15,14 @@ public class RoutingTableTableModel extends AbstractTableModel implements Observ
 	private final String[] columnNames = { "Node", "Neighbour to use", "Length of path" };
 	private Map<Integer, Integer[]> nodes = new HashMap<Integer, Integer[]>(20);
 
+	public RoutingTableTableModel(NetwProg netwProg) {
+		Integer[][] data = netwProg.routingTable.getNodesData();
+		for(Integer[] d : data)
+		{
+			nodes.put(d[0]-1100, d);
+		}
+	}
+
 	public String getColumnName(int col) {
 		return columnNames[col].toString();
 	}
@@ -45,7 +53,7 @@ public class RoutingTableTableModel extends AbstractTableModel implements Observ
 	public void update(final Observable observable, final Object message) {
 		SwingUtilities.invokeLater(new Runnable(){
 			public void run(){
-				if (observable instanceof RoutingTable && message instanceof Integer[]) {
+				if (observable instanceof RoutingTable && message instanceof Integer[]) {					
 					Integer[] array = (Integer[]) message;
 					nodes.put(array[0]-1100, array);
 					fireTableDataChanged();
