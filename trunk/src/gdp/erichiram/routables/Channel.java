@@ -14,8 +14,7 @@ import java.net.SocketException;
 
 /**
  * Handles connections to other nodes. Providing a channel over which messages are sent and received.
- * @author hiram, eric
- *
+ * @author Hiram van Paassen, Eric Broersma
  */
 public class Channel implements Runnable, Comparable<Channel> {
 	

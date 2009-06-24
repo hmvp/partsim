@@ -16,9 +16,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * This class contains the Netchange algorithm and the routing table.
- * 
- * @author hiram, eric
- * 
+ * @author Hiram van Paassen, Eric Broersma
  */
 public class RoutingTable extends Observable {
 	
