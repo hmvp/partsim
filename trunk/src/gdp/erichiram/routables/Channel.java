@@ -1,7 +1,7 @@
 package gdp.erichiram.routables;
 
+import gdp.erichiram.routables.message.Fail;
 import gdp.erichiram.routables.message.Message;
-import gdp.erichiram.routables.message.MyDist;
 import gdp.erichiram.routables.message.Repair;
 
 import java.io.EOFException;
@@ -121,7 +121,7 @@ public class Channel implements Runnable, Comparable<Channel> {
 	 */
 	public void run() {
 		initialize();
-		routingTable.repair(id, startingWeight);
+		routingTable.receive(new Repair(id, startingWeight));
 		netwProg.debug("Finished socket initialization for: " + id);
 
 		while (running) {
@@ -153,16 +153,16 @@ public class Channel implements Runnable, Comparable<Channel> {
 			}
 
 			// Relay the message to the RoutingTable.
-			if (object != null && object instanceof MyDist) {
-				MyDist message = (MyDist) object;
-
+			if (object != null && object instanceof Message) {
+				Message message = (Message) object;
+				
 				routingTable.receive(message);
 			}
 		}
 
 		netwProg.debug("Channel is done and starts closing: " + id);
 		netwProg.messagesSent.increment();
-		routingTable.fail(id);
+		routingTable.receive(new Fail(id));
 		finalize();
 	}
 

@@ -1,5 +1,6 @@
 package gdp.erichiram.routables;
 
+import gdp.erichiram.routables.message.ChangeWeight;
 import gdp.erichiram.routables.message.Message;
 import gdp.erichiram.routables.util.ObservableAtomicInteger;
 
@@ -195,7 +196,7 @@ public class NetwProg extends Observable{
 	 */
 	public void changeWeight(Integer id, Integer weight) {
 		debug("Changing the weight to " + id + " to " + weight);
-		routingTable.changeWeight(id, weight);
+		routingTable.receive(new ChangeWeight(id, weight));
 	}
 
 	/**
