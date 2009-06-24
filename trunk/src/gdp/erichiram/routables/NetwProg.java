@@ -147,7 +147,7 @@ public class NetwProg extends Observable{
 
 		// The Socket closed so we want to quit or we just crashed, either way we clean up and exit.
 		for (Channel s : idsToChannels.values()) {
-			s.die();
+			s.close();
 		}
 
 		// TODO: Is this really necessary?
@@ -232,7 +232,7 @@ public class NetwProg extends Observable{
 
 		// Kill the channel.
 		if ( channel != null) {
-			channel.die();
+			channel.close();
 		} else {
 			debug("Connection failed earlier.");
 		}

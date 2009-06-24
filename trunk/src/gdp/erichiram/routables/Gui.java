@@ -121,9 +121,8 @@ public class Gui implements Runnable, Observer {
 					}
 				}
 
-				// Repack the frame and move it to a (possibly) better spot.
+				// Repack the frame.
 				frame.pack();
-				setNiceLocation(frame);
 			}
 		});
 	}

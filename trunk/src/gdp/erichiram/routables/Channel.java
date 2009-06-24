@@ -12,28 +12,68 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketException;
 
+/**
+ * Handles connections to other nodes. Providing a channel over which messages are sent and received.
+ * @author hiram, eric
+ *
+ */
 public class Channel implements Runnable, Comparable<Channel> {
-
-	public final int id;
-	private RoutingTable routingTable;
-	private Socket socket;
-	private ObjectInputStream in;
-	private ObjectOutputStream out;
+	
+	/**
+	 * Reference to the main program.
+	 */
 	private final NetwProg netwProg;
-	private final int startingWeight;
-	private boolean running = true;
-	private boolean initDone = false;
 
-	public Channel(NetwProg netwProg, int port, int startingWeight) {
+	/**
+	 * Id of the neighbour this channel is connected with.
+	 */
+	public final int id;
+	
+	/**
+	 * Socket to send and receive.
+	 */
+	private Socket socket;
+	
+	/**
+	 * Streams to send and receive Objects through the socket.
+	 */
+	private ObjectInputStream inputStream;
+	private ObjectOutputStream outputStream;
+	
+	/**
+	 * Initial channel weight.
+	 */
+	private final int initialWeight;
+	
+	/**
+	 * True if we're still running, false otherwise.
+	 */
+	private boolean running = true;
+	
+	/**
+	 * True if the initialization is done.
+	 */
+	private boolean initializationDone = false;
+
+	/**
+	 * Construct a new Channel object for the specified NetwProg, port and channel weight.
+	 * @param netwProg 		Reference to the main program.
+	 * @param port			Port number of the node we're connecting with.
+	 * @param initialWeight	Initial weight for the channel.
+	 */
+	public Channel(NetwProg netwProg, int port, int initialWeight) {
 		this.netwProg = netwProg;
-		this.routingTable = netwProg.routingTable;
 		this.id = port;
-		this.startingWeight = startingWeight;
+		this.initialWeight = initialWeight;
 	}
 
+	/**
+	 * Construct a new Channel object for the specified NetwProg with the given socket.
+	 * @param netwProg 	Reference to the main program.
+	 * @param socket	Socket to use.
+	 */
 	public Channel(NetwProg netwProg, Socket socket) {
 		this.netwProg = netwProg;
-		this.routingTable = netwProg.routingTable;
 		this.socket = socket;
 
 		createStreams();
@@ -41,7 +81,7 @@ public class Channel implements Runnable, Comparable<Channel> {
 		int tempPort = 0;
 		int tempWeight = 0;
 		try {
-			Object object = in.readObject();
+			Object object = inputStream.readObject();
 			if (object instanceof Repair) {
 				Repair id = (Repair) object;
 
@@ -71,7 +111,7 @@ public class Channel implements Runnable, Comparable<Channel> {
 			tempWeight = w;
 		}
 		
-		startingWeight = tempWeight;
+		initialWeight = tempWeight;
 	}
 
 	private void initialize() {
@@ -84,7 +124,7 @@ public class Channel implements Runnable, Comparable<Channel> {
 					
 					createStreams();
 					
-					send(new Repair(netwProg.id, startingWeight));
+					send(new Repair(netwProg.id, initialWeight));
 				} catch (IOException e) {
 					netwProg.error(e.getLocalizedMessage() + " when connecting to " + id + ". Retrying in " + (Configuration.retryConnectionTime / 1000.0f) + " seconds.");
 					try {
@@ -94,12 +134,12 @@ public class Channel implements Runnable, Comparable<Channel> {
 				}
 			}
 		}
-		initDone = true;
+		initializationDone = true;
 	}
 
 	
 	/**
-	 * Create in and output streams in this channel.
+	 * Create in and output streams for this channel.
 	 */
 	private void createStreams() {
 
@@ -107,28 +147,29 @@ public class Channel implements Runnable, Comparable<Channel> {
 			// We have to create the OutputStream first because it will
 			// otherwise block until the OutputStream on the other side has
 			// flushed its serialization header.
-			out = new ObjectOutputStream(socket.getOutputStream());
-			out.flush();
+			outputStream = new ObjectOutputStream(socket.getOutputStream());
+			outputStream.flush();
 
-			in = new ObjectInputStream(socket.getInputStream());
+			inputStream = new ObjectInputStream(socket.getInputStream());
 		} catch (IOException e) {
 			netwProg.error("Could not create socket or get inputstream from socket: " + e.getLocalizedMessage());
 		}
 	}
 
 	/**
-	 * main loop, listens for messages
+	 * Listen for messages.
 	 */
 	public void run() {
 		initialize();
-		routingTable.receive(new Repair(id, startingWeight));
+		netwProg.routingTable.receive(new Repair(id, initialWeight));
 		netwProg.debug("Finished socket initialization for: " + id);
 
+		// Keep listening for messages.
 		while (running) {
 			Object object = null;
 			try {
 				// Read a message object from the InputStream.
-				object = in.readObject();
+				object = inputStream.readObject();
 			} catch (EOFException e) {
 				netwProg.debug("end of input, assume socket is dead");
 				running = false;
@@ -138,12 +179,14 @@ public class Channel implements Runnable, Comparable<Channel> {
 				running = false;
 				break;
 			} catch (IOException e) {
-				if (running)
+				if (running) {
 					netwProg.error("Something went wrong when receiving a message: " + e.toString());
+				}
 				break;
 			} catch (ClassNotFoundException e) {
-				if (running)
+				if (running) {
 					netwProg.error("Something strange is happening: " + e.toString());
+				}
 				break;
 			}
 
@@ -156,51 +199,56 @@ public class Channel implements Runnable, Comparable<Channel> {
 			if (object != null && object instanceof Message) {
 				Message message = (Message) object;
 				
-				routingTable.receive(message);
+				netwProg.routingTable.receive(message);
 			}
 		}
 
 		netwProg.debug("Channel is done and starts closing: " + id);
+		// TODO: why is this increment here when no messages are being sent?
 		netwProg.messagesSent.increment();
-		routingTable.receive(new Fail(id));
+		netwProg.routingTable.receive(new Fail(id));
+		
+		// Clean up the streams and socket.
 		finalize();
 	}
 
 	/**
-	 * 
-	 * @param message
+	 * Send a message through this channel.
+	 * @param message the message to send
 	 */
 	public void send(Message message) {
 		if (running) {
 
+			// TODO: why are Message#from and Message#to overwritten here?
 			message.from = netwProg.id;
 			message.to = id;
 
-			if (!initDone && !(message instanceof Repair))
-				throw new RuntimeException("Dat mag dus niet! want we moeten eerst klaar zijn met repairen!");
+			// TODO: can't we just check ( socket != null ) instead of ( !initializationDone )?
+			if (!initializationDone && !(message instanceof Repair))
+				throw new RuntimeException("Dat mag niet want we moeten eerst klaar zijn met repairen.");
 
 			netwProg.debug("Sending message to: " + id + " message: " + message);
 			try {
-				out.writeObject(message);
-				out.flush();
+				outputStream.writeObject(message);
+				outputStream.flush();
 				netwProg.messagesSent.increment();
 			} catch (IOException e) {
 				netwProg.error("Something went wrong when sending a message: " + e.getLocalizedMessage());
-				die();
+				close();
 			}
 		} else {
 			netwProg.debug("tried sending a message while dead. for: " + id);
 		}
 	}
 
-	public void die() {
+	public void close() {
 		running = false;
 
-		// We need to close the inputstream because readObject is blocking and
-		// we need it to stop
+		// It's possible ObjectInputStream#readObject() is preventing us from actually closing,
+		// so try to force it to close if it is.
 		try {
-			if(in != null)
-				in.close();
+			if(inputStream != null)
+				inputStream.close();
 		} catch (IOException e) {}
 	}
 
@@ -234,11 +282,11 @@ public class Channel implements Runnable, Comparable<Channel> {
 
 	protected void finalize() {
 		try {
-			out.close();
+			outputStream.close();
 		} catch (Exception e) {
 		}
 		try {
-			in.close();
+			inputStream.close();
 		} catch (Exception e) {
 		}
 		try {
