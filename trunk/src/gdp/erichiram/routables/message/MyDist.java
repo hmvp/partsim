@@ -1,5 +1,12 @@
 package gdp.erichiram.routables.message;
 
+/**
+ * Encode a MyDist message. This message is delivered to the RoutingTable after
+ * it is received from a neighbouring NetwProg that probably just recomputed its
+ * routing table.
+ * 
+ * @author eric, hiram
+ */
 public class MyDist extends Message {	
 	private static final long serialVersionUID = -1196856163917315605L;
 	
