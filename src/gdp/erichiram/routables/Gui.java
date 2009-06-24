@@ -37,8 +37,7 @@ import javax.swing.event.ChangeListener;
 
 /**
  * Runnable for the Swing GUI.
- * @author eric, hiram
- *
+ * @author Hiram van Paassen, Eric Broersma
  */
 public class Gui implements Runnable, Observer {
 	

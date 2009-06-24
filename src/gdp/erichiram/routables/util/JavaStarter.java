@@ -13,8 +13,7 @@ import java.util.Set;
 
 
 /**
- * @author hiram, eric
- *
+ * @author Hiram van Paassen, Eric Broersma
  */
 public class JavaStarter {
 

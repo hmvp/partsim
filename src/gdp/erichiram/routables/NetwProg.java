@@ -14,6 +14,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.swing.SwingUtilities;
 
+/**
+ * The main program of the application.
+ * @author Hiram van Paassen, Eric Broersma
+ */
 public class NetwProg extends Observable{
 
 	/**

@@ -2,8 +2,7 @@ package gdp.erichiram.routables;
 
 /**
  * Static configuration class containing some global variables.
- * @author hiram, eric
- *
+ * @author Hiram van Paassen, Eric Broersma
  */
 public class Configuration {
 	/**

@@ -3,6 +3,11 @@ package gdp.erichiram.routables.util;
 import java.util.Observable;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * This is an encapsulated AtomicInteger that inherits from Observable.
+ * @author Hiram van Paassen, Eric Broersma
+ *
+ */
 public class ObservableAtomicInteger extends Observable {
 
 	private static final long serialVersionUID = -347239202648154176L;

@@ -3,8 +3,7 @@ package gdp.erichiram.routables.message;
 /**
  * Encode a Fail message. This message is delivered to the RoutingTable when an
  * existing connection was destroyed through the GUI.
- * 
- * @author eric, hiram
+ * @author Hiram van Paassen, Eric Broersma
  */
 public class Fail extends Message {
 

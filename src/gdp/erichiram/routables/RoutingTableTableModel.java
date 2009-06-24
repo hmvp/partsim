@@ -10,8 +10,7 @@ import javax.swing.table.AbstractTableModel;
 
 /**
  * This model is used to show the information from RoutingTable in the GUI.
- * @author eric, hiram
- *
+ * @author Hiram van Paassen, Eric Broersma
  */
 public class RoutingTableTableModel extends AbstractTableModel implements Observer{
 

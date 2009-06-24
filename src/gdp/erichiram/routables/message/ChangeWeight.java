@@ -3,8 +3,7 @@ package gdp.erichiram.routables.message;
 /**
  * Encode a ChangeWeight message. This message is delivered to the RoutingTable
  * when the weight for an existing connection was changed through the GUI.
- * 
- * @author eric, hiram
+ * @author Hiram van Paassen, Eric Broersma
  */
 public class ChangeWeight extends Message {
 

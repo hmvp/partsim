@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 /**
  * Encode a general message.
- * @author eric, hiram
+ * @author Hiram van Paassen, Eric Broersma
  */
 public abstract class Message implements Serializable{
 	private static final long serialVersionUID = -7622270218128154257L;
