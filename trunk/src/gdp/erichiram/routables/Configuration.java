@@ -6,6 +6,13 @@ package gdp.erichiram.routables;
  *
  */
 public class Configuration {
-	final static String messagesSentString = "#msg: ";
+	/**
+	 * Time to wait before retrying to repair a non-existing connection.
+	 */
 	final static int retryConnectionTime = 1000;
+	
+	/**
+	 * Show debug output.
+	 */
+	final static boolean printDebug = true;
 }
