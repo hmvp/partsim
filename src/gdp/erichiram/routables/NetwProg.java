@@ -39,11 +39,6 @@ public class NetwProg extends Observable{
 	private final boolean slave;
 	
 	/**
-	 * Show debug output.
-	 */
-	final static boolean DEBUG = true;
-	
-	/**
 	 * Id for this node.
 	 */
 	public final int id;
@@ -252,7 +247,7 @@ public class NetwProg extends Observable{
 	 */
 	// TODO Check if this method is used consistently.
 	public void debug(String message) {
-		if (DEBUG) {
+		if (Configuration.printDebug) {
 			System.out.println(id + ": " + message);
 		}
 	}

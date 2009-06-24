@@ -101,7 +101,7 @@ public class Gui implements Runnable, Observer {
 
 				if (observable == netwProg.messagesSent) {
 					int messagesSent = netwProg.messagesSent.get();
-					messagesSentLabel.setText(Configuration.messagesSentString + messagesSent);
+					messagesSentLabel.setText("Number of messages sent: " + messagesSent);
 				}
 
 				if (observable instanceof NetwProg) {
@@ -289,7 +289,7 @@ public class Gui implements Runnable, Observer {
 		netwProg.routingTable.addObserver(tableModel);
 		
 		// Create a label for messagesSent.
-		messagesSentLabel = new JLabel(Configuration.messagesSentString + netwProg.messagesSent.get());
+		messagesSentLabel = new JLabel();
 		infoPanel.add(messagesSentLabel);
 
 		// Add a tablePanel to contain both the table and its header.
