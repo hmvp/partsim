@@ -99,7 +99,7 @@ public class RoutingTable extends Observable {
 							repair(repair.neighbour, repair.weight);
 						} else if (m instanceof Fail) {
 							Fail fail = (Fail) m;
-							fail(fail.to);
+							fail(fail.neighbour);
 						} else if (m instanceof ChangeWeight) {
 							ChangeWeight cw = (ChangeWeight) m;
 							changeWeight(cw.node, cw.weight);

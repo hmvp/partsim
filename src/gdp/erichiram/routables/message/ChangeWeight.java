@@ -12,4 +12,7 @@ public class ChangeWeight extends Message {
 
 	private static final long serialVersionUID = 8630877900338384631L;
 
+	public String toString() {
+		return super.toString() + " <changeWeight, " + node + ", " + weight + ">";
+	}
 }
