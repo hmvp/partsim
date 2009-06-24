@@ -179,7 +179,7 @@ public class Channel implements Runnable, Comparable<Channel> {
 			if (!initDone && !(message instanceof Repair))
 				throw new RuntimeException("Dat mag dus niet! want we moeten eerst klaar zijn met repairen!");
 
-			netwProg.debug("Sending message to :" + id + " message: " + message);
+			netwProg.debug("Sending message to: " + id + " message: " + message);
 			try {
 				out.writeObject(message);
 				out.flush();

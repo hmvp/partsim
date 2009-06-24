@@ -116,6 +116,7 @@ public class NetwProg extends Observable{
 			// Most likely the port has already been taken, print an error message.
 			System.err.println("Port " + id + " is already taken");
 		}
+		
 		// Listen and start sockets if needed.
 		debug("Starting to listen");
 		while (serverSocket != null && !serverSocket.isClosed()) {
@@ -208,6 +209,8 @@ public class NetwProg extends Observable{
 		Channel n = new Channel(this, neighbour, weight);
 		idsToChannels.put(neighbour, n);
 		new Thread(n).start();
+		
+		// Let our observers know we've changed.
 		setChanged();
 		notifyObservers();
 	}

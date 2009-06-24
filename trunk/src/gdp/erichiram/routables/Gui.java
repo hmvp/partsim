@@ -76,7 +76,7 @@ public class Gui implements Runnable, Observer {
 	/**
 	 * Initalize the GUI. 
 	 */
-	private void initializeGui() {
+	public void run() {
 		frame = createFrame();	
 
 		// Display the window.
@@ -279,39 +279,39 @@ public class Gui implements Runnable, Observer {
 //		return new GraphPanel(netwProg.routingTable.ndis, netwProg.id, netwProg.routingTable.neighbours);
 //	}
 
-	public void run() {
-		initializeGui();
-	}
-
 	public void update(final Observable observable, final Object obj) {
-		
-		SwingUtilities.invokeLater(new Runnable(){
-			
-			public void run(){
-				if ( observable == netwProg.messagesSent) {
+
+		// Use SwingUtilities.invokeLater to make sure the GUI has already been initialized before it's being updated.
+		SwingUtilities.invokeLater(new Runnable() {
+
+			public void run() {
+
+				if (observable == netwProg.messagesSent) {
 					int messagesSent = netwProg.messagesSent.get();
 					messagesSentLabel.setText(Configuration.messagesSentString + messagesSent);
 				}
-				
+
 				if (observable instanceof NetwProg) {
-					try{
-						if(netwProg.idsToChannels.size() < 1)
-						{
+					try {
+						if (netwProg.idsToChannels.size() < 1) {
 							failIdSpinner.setEnabled(false);
 							failButton.setEnabled(false);
-						}
-						else
-						{
+						} else {
 							failIdSpinner.setEnabled(true);
 							failButton.setEnabled(true);
 							neighbourIdSpinnerModel.setList(new LinkedList<Integer>(netwProg.idsToChannels.keySet()));
 						}
-					} catch (Exception e){}
+					} catch (Exception e) {
+						// TODO: 
+					}
 				}
-				
-				//graph.repaint();
+
+				// TODO: remove this?
+				// graph.repaint();
+
+				// Repack the frame and move it to a (possibly) better spot.
 				frame.pack();
-		        setNiceLocation(frame);
+				setNiceLocation(frame);
 			}
 		});
 	}
