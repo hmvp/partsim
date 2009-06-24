@@ -20,12 +20,12 @@ public class ObservableAtomicInteger extends Observable {
 	public synchronized final void set(int newValue) {
 		atomicInteger.set(newValue);
 		setChanged();
-		notifyObservers();
+		notifyObservers(get());
 	}
 
 	public synchronized void increment() {
 		atomicInteger.incrementAndGet();
 		setChanged();
-		notifyObservers();
+		notifyObservers(get());
 	}
 }
