@@ -113,7 +113,8 @@ public class NetwProg extends Observable{
 			// Most likely the port has already been taken, print an error message.
 			System.err.println("Port " + id + " is already taken");
 		}
-
+		setChanged();
+		notifyObservers();
 		// Listen and start sockets if needed.
 		debug("Starting to listen");
 		while (serverSocket != null && !serverSocket.isClosed()) {
