@@ -69,7 +69,12 @@ public class RoutingTable extends Observable {
 	 */
 	private final ConcurrentHashMap<Integer, Map<Integer, Integer>> ndis = new ConcurrentHashMap<Integer, Map<Integer, Integer>>();
 
-	
+	/**
+	 * Producer consumer queue. Channels put messages in the queue and
+	 * RoutingTable processes them asynchronously. This should lead to less
+	 * waiting, since the processing of one incoming message won't block the
+	 * processing of another incoming message.
+	 */
 	private final BlockingQueue<Message> q = new LinkedBlockingQueue<Message>();
 	
 	/**
@@ -82,8 +87,9 @@ public class RoutingTable extends Observable {
 
 		nodes.add(netwProg.id);
 		ndis.put(netwProg.id, D);
-		setDataForNode(netwProg.id, netwProg.id, 0);
+		setNodeData(netwProg.id, netwProg.id, 0);
 		
+		// Start a consumer thread to process messages for this RoutingTable.
 		new Thread(new Runnable(){
 			public void run() {
 				Message m;
@@ -111,6 +117,7 @@ public class RoutingTable extends Observable {
 		}).start();
 	}
 	
+	// TODO add javadoc, maybe this name should be more prescriptive of what the method does
 	private void checkNodeInitialized(int node)
 	{
 		// If we don't know the node.
@@ -127,41 +134,42 @@ public class RoutingTable extends Observable {
 				ndis.get(v).put(node, MAX_DIST);
 			}
 
-			setDataForNode(node, UNDEF_ID, MAX_DIST);
+			setNodeData(node, UNDEF_ID, MAX_DIST);
 		}
 	}
 
 	/**
 	 * Recompute the data for a node, as described in the Netchange algorithm by Tajibnapis.
-	 * @param node id of the node to be recomputed
+	 * @param node id of the node to be recomputed (called v in the paper)
 	 */
 	private synchronized void recompute(int node) {
 
-		boolean dChanged = false;
+		boolean distancedChanged = false;
 		if (node == netwProg.id) {
-			dChanged = setDataForNode(node, netwProg.id, 0);
+			// Try to change our preferred neighbour table.
+			distancedChanged = setNodeData(node, netwProg.id, 0);
 		} else {
-			int d = MAX_DIST;
-			int w = UNDEF_ID;
-			//determine closest neighbour to v and its distance to v
-			for (int s : neighboursToWeight.keySet()) {
+			int estimatedDistance = MAX_DIST;
+			int preferredNeighbour = UNDEF_ID;
+			
+			// Determine the closest neighbour to node and its distance.
+			for (int neighbour : neighboursToWeight.keySet()) {
 				
-				//distance( me , v ) = distance( me , w ) + distance( w , v )
-				int i = neighboursToWeight.get(s) + ndis.get(s).get(node);
+				// distance(this, v) = distance(this, w) + distance(w, v)
+				int newDistance = neighboursToWeight.get(neighbour) + ndis.get(neighbour).get(node);
 				
-				if (i <= d) {
-					d = i;
-					w = s;
+				// If we get a better distance.
+				if (newDistance < estimatedDistance) {
+					estimatedDistance = newDistance;
+					preferredNeighbour = neighbour;
 				}
 			}
-			
-			if (d < MAX_DIST) {
-				dChanged = setDataForNode(node, w, d);
-			} else {
-				dChanged = setDataForNode(node, UNDEF_ID, MAX_DIST);
-			}
+
+			// Try to change our preferred neighbour table.
+			distancedChanged = setNodeData(node, preferredNeighbour, estimatedDistance);
 		}
-		if (dChanged) {
+		
+		if (distancedChanged) {
 			for (int x : neighboursToWeight.keySet()) {
 				netwProg.send(x, new MyDist(node, D.get(node)));
 			}
@@ -228,20 +236,20 @@ public class RoutingTable extends Observable {
 		}
 	}
 
-
 	private void changeWeight(int node, int weight) {
 		neighboursToWeight.put(node, weight);
 
 		for (int v : nodes) {
 			recompute(v);
 		}
-
-		notifyObservers();
 	}
-	
+
 	/**
-	 * the first time the gui needs data it needs to get it all
-	 * @return
+	 * Returns all node data.
+	 * 
+	 * @return An array of Integer[3] arrays each containing a node id, its
+	 *         preferred neighbour and the distance of the shortest path to the
+	 *         node id from this node.
 	 */
 	public synchronized Integer[][] getNodesData() {
 		Integer[][] result = new Integer[NB.size()][];
@@ -254,24 +262,27 @@ public class RoutingTable extends Observable {
 
 		return result;
 	}
-	
-	/**
-	 * private method to set D and ND together to avoid inconsistencies
-	 * we also notify the gui that something has changed and tell it what has changed
-	 * @param n node for which the data is set
-	 * @param preferred preferred neighbour for the node.
-	 * @param dist distance to the node
-	 * @return is the distance changed?
-	 */
-	private boolean setDataForNode(int n, int preferred, Integer dist)
-	{	
-		NB.put(n, preferred);
-		boolean ret = !dist.equals(D.put(n, dist));
 
-		if (ret) {
+	/**
+	 * Sets D and NB together to avoid inconsistencies. We also notify the GUI
+	 * that something has changed and tell it what has changed.
+	 * 
+	 * @param node	id of the node for which the data is set
+	 * @param preferredNeighbour id of the preferred neighbour for the node.
+	 * @param distance distance to the node
+	 * @return true if the distance in NB changed, false otherwise
+	 */
+	// TODO: deze methode is niet meer synchronised, is het dan nog nodig om
+	// "Sets D and NB together to avoid inconsistencies"?
+	private boolean setNodeData(int node, int preferredNeighbour, Integer distance)
+	{	
+		NB.put(node, preferredNeighbour);
+		boolean changed = !distance.equals(D.put(node, distance));
+
+		if (changed) {
 			setChanged();
-			notifyObservers(new Integer[] { n, preferred, dist });
+			notifyObservers(new Integer[] { node, preferredNeighbour, distance });
 		}
-		return ret;
+		return changed;
 	}
 }
