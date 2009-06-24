@@ -20,6 +20,8 @@ public class NetwProg extends Observable{
 	 */
 	public static void main(String[] args) {
 
+		// TODO: input checking.
+		
 		// Parse the arguments.
 		int argId = Integer.valueOf(args[0]);
 		Map<Integer, Integer> neighbours = new HashMap<Integer, Integer>(args.length);

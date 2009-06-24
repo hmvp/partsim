@@ -33,27 +33,48 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-
+/**
+ * Runnable for the Swing GUI.
+ * @author eric, hiram
+ *
+ */
 public class Gui implements Runnable, Observer {
 	
+	/**
+	 * Reference to the main program.
+	 */
 	private NetwProg netwProg;
+	
+	/**
+	 * GUI elements.
+	 */
+	private JFrame frame;
 	private JLabel messagesSentLabel = new JLabel();
-	private SpinnerListModel neighbourIdSpinnerModel;
 	private JSpinner failIdSpinner;
 	private JButton failButton;
-	private TableModel tableModel;
-	private JFrame frame;
-
+	
+	/**
+	 * GUI element models.
+	 */
+	private RoutingTableTableModel tableModel;
+	private SpinnerListModel neighbourIdSpinnerModel;
+	
+	/**
+	 * Constructor.
+	 * @param netwProg Reference to the main program.
+	 */
 	public Gui(NetwProg netwProg) {
 		
 		this.netwProg = netwProg;
+		
+		// Keep us posted about changes in the routingTable or the messagesSent.
 		netwProg.routingTable.addObserver(this);
 		netwProg.messagesSent.addObserver(this);
 		netwProg.addObserver(this);
 	}
 
 	/**
-	 * initalize the Gui, 
+	 * Initalize the GUI. 
 	 */
 	private void initializeGui() {
 		frame = createFrame();	
@@ -61,15 +82,21 @@ public class Gui implements Runnable, Observer {
 		// Display the window.
 		frame.pack();
 		frame.setVisible(true);
-		
+	
+		// Compute a nice location for the GUI frame, based on its height, width and netwProg.id.
         setNiceLocation(frame);
 	}
 
+	/**
+	 * Create the frame for the GUI and all of its subcomponents.
+	 * @return frame of the GUI
+	 */
 	private JFrame createFrame() {
-		JFrame frame = new JFrame("NetwProg " + netwProg.id);
 		
-		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		// Create the frame and set its caption, layout manager and window closing code.
+		JFrame frame = new JFrame("NetwProg " + netwProg.id);
 		frame.setLayout(new BorderLayout());
+		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frame.addWindowListener(new java.awt.event.WindowAdapter() {
 		    public void windowClosing(WindowEvent winEvt) {
 		        // closing netwProg
@@ -77,9 +104,10 @@ public class Gui implements Runnable, Observer {
 		    }
 		});
 		
-		frame.add(createParamPane(), BorderLayout.PAGE_START);
-		frame.add(createInfoPane(), BorderLayout.LINE_END);
-		frame.add(createNetworkPane(), BorderLayout.CENTER);
+		// Create and add subcomponents.
+		frame.add(createParamPanel(), BorderLayout.PAGE_START);
+		frame.add(createInfoPanel(), BorderLayout.LINE_END);
+		frame.add(createNetworkPanel(), BorderLayout.CENTER);
 
 		return frame;
 	}
@@ -90,36 +118,42 @@ public class Gui implements Runnable, Observer {
 	 */
 	private void setNiceLocation(JFrame frame) {
 		
-		// Set the index of this frame based on NetwProg.id
+		// Set the index of this frame based on NetwProg.id.
 		int index = netwProg.id - 1100;
 		
-		// A variable containing the menu bar height
+		// A variable containing the menu bar height (Mac OS X and Linux Gnome only).
 		int menuBarHeight = 22;
 		
-		// Get the height and width of this frame
+		// Get the height and width of this frame.
 		int width = frame.getWidth();
 		int height = frame.getHeight();
 		
-		// Decide how many windows fit next to each other on the current screen
+		// Decide how many windows fit next to each other on the current screen.
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();		
 		int numberOfWindowsPerRow = (int) Math.floor(screenSize.getWidth() / width);
 		
-		// Calculate the x and y positions for this window
+		// Calculate the x and y positions for this window.
 		int x = (index % numberOfWindowsPerRow) * width;
 		int y = (int) (Math.floor(index / numberOfWindowsPerRow) * height);
 
-		// Set the location (modified by the menuBarHeight)
+		// Set the location (modified by the menuBarHeight).
 	    frame.setLocation(x, menuBarHeight + y); 
 	}
 
-	private Component createNetworkPane() {
-		JPanel networkPane = new JPanel();
-		networkPane.setLayout(new BoxLayout(networkPane, BoxLayout.Y_AXIS));
+	/**
+	 * Create the network panel GUI component.
+	 * @return the network panel
+	 */
+	private Component createNetworkPanel() {
 		
-		// Fail button panel.
+		// Create the network panel and set its layout manager.
+		JPanel networkPanel = new JPanel();
+		networkPanel.setLayout(new BoxLayout(networkPanel, BoxLayout.Y_AXIS));
+		
+		// Create fail button panel.
 		JPanel failPanel = new JPanel();
 
-		// Fail button.
+		// Create fail button.
 		failButton = new JButton("fail");
 		failButton.addActionListener(new ActionListener(){
 
@@ -129,18 +163,18 @@ public class Gui implements Runnable, Observer {
 			
 		});
 
-		// Fail ID spinner.
+		// Create fail ID spinner.
 		neighbourIdSpinnerModel = new SpinnerListModel();
 		failIdSpinner = new JSpinner(neighbourIdSpinnerModel);
 		
-		// Add components to failPanel.
+		// Add fail components to failPanel.
 		failPanel.add(failButton);
 		failPanel.add(failIdSpinner);
 
-		// Change weight / repair button panel.
+		// Create change weight / repair button panel.
 		JPanel changeRepairPanel = new JPanel();
 
-		// Change weight / repair ID spinner.
+		// Initialize change weight / repair ID spinner.
 		List<Integer> list = new ArrayList<Integer>();
 		for(Integer i = 1100; i < 1121 ; i++)
 		{
@@ -152,11 +186,11 @@ public class Gui implements Runnable, Observer {
 		final SpinnerListModel changeRepairIdSpinnerModel = new SpinnerListModel(list);
 		JSpinner changeRepairIdSpinner = new JSpinner(changeRepairIdSpinnerModel);
 
-		// Change weight / repair weight spinner.
+		// Create change weight / repair weight spinner.
 		final SpinnerNumberModel repairWeightSpinnerModel = new SpinnerNumberModel(1,1,9999,1);
 		JSpinner changeRepairWeightSpinner = new JSpinner(repairWeightSpinnerModel);
 		
-		// Change weight / repair button.
+		// Create change weight / repair button.
 		JButton changeRepairButton = new JButton("change / repair");
 		changeRepairButton.addActionListener(new ActionListener(){
 
@@ -165,43 +199,65 @@ public class Gui implements Runnable, Observer {
 			}
 		});
 		
-		// Add components to changeRepairPanel.	
+		// Add change weight / repair components to changeRepairPanel.	
 		changeRepairPanel.add(changeRepairButton);
 		changeRepairPanel.add(changeRepairIdSpinner);
 		changeRepairPanel.add(changeRepairWeightSpinner);	
 
-		networkPane.add(failPanel);
-		networkPane.add(changeRepairPanel);
+		// Add the fail panel and the change weight / repair panel to the network panel.
+		networkPanel.add(failPanel);
+		networkPanel.add(changeRepairPanel);
 		
-		return networkPane;
+		return networkPanel;
 	}
 
-	private Component createInfoPane() {
-		JPanel infoPane = new JPanel();
-		infoPane.setLayout(new BoxLayout(infoPane, BoxLayout.Y_AXIS));
-		
-		tableModel = new TableModel();
-		netwProg.routingTable.addObserver(tableModel);
-				
-		messagesSentLabel = new JLabel(Configuration.messagesSentString + netwProg.messagesSent.get());
-		infoPane.add(messagesSentLabel);
+	/**
+	 * Create the information panel GUI component.
+	 * @return the information panel
+	 */
+	private Component createInfoPanel() {
 
-		JPanel tablePane = new JPanel();		
-		tablePane.setLayout(new BorderLayout());
+		// Create the information panel and set its layout manager.
+		JPanel infoPanel = new JPanel();
+		infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
 		
+		// Create a new TableModel.
+		tableModel = new RoutingTableTableModel();
+		netwProg.routingTable.addObserver(tableModel);
+		
+		// Create a label for messagesSent.
+		messagesSentLabel = new JLabel(Configuration.messagesSentString + netwProg.messagesSent.get());
+		infoPanel.add(messagesSentLabel);
+
+		// Add a tablePanel to contain both the table and its header.
+		JPanel tablePanel = new JPanel();		
+		tablePanel.setLayout(new BorderLayout());
+		
+		// Create a table backed by tableModel.
 		JTable routingTable = new JTable(tableModel);
-		tablePane.add(routingTable.getTableHeader(), BorderLayout.PAGE_START);
-		tablePane.add(routingTable, BorderLayout.CENTER);	
 		
-		infoPane.add(tablePane, BorderLayout.WEST);		
+		// Add the table and its header to tablePane.
+		tablePanel.add(routingTable.getTableHeader(), BorderLayout.PAGE_START);
+		tablePanel.add(routingTable, BorderLayout.CENTER);	
+		
+		// Add the tablePane to the infoPanel.
+		infoPanel.add(tablePanel, BorderLayout.WEST);
+		
+		// TODO: remove this code?
 		//graph = createGraphComponent();
 		//infoPane.add(graph , BorderLayout.EAST);
 		
-		return infoPane;
+		return infoPanel;
 	}
 
-	private Component createParamPane() {
-		JPanel p = new JPanel();
+	/**
+	 * Create the parameters panel GUI component.
+	 * @return the parameters panel
+	 */
+	private Component createParamPanel() {
+
+		// Create the parameter panel.
+		JPanel paramPanel = new JPanel();
 		
 		final SpinnerNumberModel tModel = new SpinnerNumberModel(0,0,9999,1);
 		JSpinner tSpin = new JSpinner(tModel);
@@ -212,13 +268,12 @@ public class Gui implements Runnable, Observer {
 			}
 			
 		});
-		p.add(tSpin);
+		paramPanel.add(tSpin);
 		
-		
-		return p;
+		return paramPanel;
 	}
 
-
+	// TODO: remove this one?
 //	private Component createGraphComponent() {
 //		
 //		return new GraphPanel(netwProg.routingTable.ndis, netwProg.id, netwProg.routingTable.neighbours);

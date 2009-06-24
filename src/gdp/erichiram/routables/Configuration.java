@@ -1,9 +1,10 @@
 package gdp.erichiram.routables;
 
+/**
+ * Static configuration class containing some global variables.
+ * @author hiram, eric
+ *
+ */
 public class Configuration {
-
-	final static int height = 100;
-	final static int width = 100;
-	final static int guiSpeed = 100;
 	final static String messagesSentString = "#msg: ";
 }
