@@ -111,14 +111,23 @@ public class RoutingTable extends Observable {
 							changeWeight(cw.node, cw.weight);
 						}
 					} catch (InterruptedException e) {
-						// TODO: what's happening here?
+						//we catch interupted exception since it probably will not happen
+						//and we should just continue here
 					}
 				}
 			}
 		}).start();
 	}
 	
-	// TODO Add javadoc! And maybe the method name should be more prescriptive of what the method does exactly.
+	/**
+	 * check if i have seen this node before
+	 * if not then i do lazy initialization and set everything at Max. Dist.
+	 * 
+	 * We need to do this since we don't know all the nodes at startup. 
+	 * and just assume we are alone. This works just as good as the original algoritm
+	 * that does this at startup for every known node (and thus assumes knowledge of those nodes)
+	 * @param node
+	 */
 	private void checkNodeInitialized(int node)
 	{
 		// If we don't know the node.
@@ -238,8 +247,13 @@ public class RoutingTable extends Observable {
 		}
 	}
 
-	// TODO see if we can merge this one with RoutingTable.repair(int,int), cause of the similarities
-	// @see #repair(int, int)
+	/**
+	 * change the weight of an connection to your neighbours
+	 * We need to recompute every connection for this to work 
+	 * as described in the Netchange algorithm
+	 * @param node
+	 * @param weight
+	 */
 	private void changeWeight(int node, int weight) {
 		neighboursToWeight.put(node, weight);
 
@@ -249,8 +263,10 @@ public class RoutingTable extends Observable {
 	}
 
 	/**
-	 * Returns all node data.
+	 * Returns all node data. we synchronize on D to avoid getting inconsistent data for a node
 	 * 
+	 * Note: this method is used only once during initialization so the blocking that can occur
+	 * will only occur once.
 	 * @return An array of Integer[3] arrays each containing a node id, its
 	 *         preferred neighbour and the distance of the shortest path to the
 	 *         node id from this node.
@@ -268,7 +284,7 @@ public class RoutingTable extends Observable {
 	}
 
 	/**
-	 * Sets D and NB together to avoid inconsistencies. We also notify the GUI
+	 * Sets D and NB synchronized together to avoid inconsistencies. We also notify the GUI
 	 * that something has changed and tell it what has changed.
 	 * 
 	 * @param node	id of the node for which the data is set
@@ -276,17 +292,20 @@ public class RoutingTable extends Observable {
 	 * @param distance distance to the node
 	 * @return true if the distance in NB changed, false otherwise
 	 */
-	// TODO: deze methode is niet meer synchronised, is het dan nog nodig om
-	// "Sets D and NB together to avoid inconsistencies"?
 	private boolean setNodeData(int node, int preferredNeighbour, Integer distance)
 	{	
-		NB.put(node, preferredNeighbour);
-		boolean changed = !distance.equals(D.put(node, distance));
-
+		boolean changed;
+		
+		synchronized (D) {
+			NB.put(node, preferredNeighbour);
+			changed = !distance.equals(D.put(node, distance));
+		}
+		
 		if (changed) {
 			setChanged();
 			notifyObservers(new Integer[] { node, preferredNeighbour, distance });
 		}
+		
 		return changed;
 	}
 }
