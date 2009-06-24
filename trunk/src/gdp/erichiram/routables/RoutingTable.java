@@ -96,7 +96,7 @@ public class RoutingTable extends Observable {
 		}
 	}
 
-	public synchronized void recompute(int v) {
+	private synchronized void recompute(int v) {
 
 		boolean dChanged = false;
 		if (v == netwProg.id) {
@@ -138,8 +138,6 @@ public class RoutingTable extends Observable {
 
 		ndis.get(myDist.from).put(myDist.id, myDist.distance);
 		recompute(myDist.id);
-
-		notifyObservers();
 	}
 
 
@@ -153,8 +151,6 @@ public class RoutingTable extends Observable {
 			if(NB.get(n) == neighbour)
 				recompute(n);
 		}
-
-		notifyObservers();
 	}
 
 	public synchronized void repair(int neighbour, int weight) {
@@ -168,20 +164,8 @@ public class RoutingTable extends Observable {
 		for (int v : nodes) {
 			netwProg.send(neighbour, new MyDist(v, D.get(v)));
 		}
-
-		notifyObservers();
 	}
 
-	/**
-	 * This override prevents us from having to call setChanged() every time we call notifyObservers().
-	 * 
-	 * @see java.util.Observable#notifyObservers()
-	 */
-	@Override
-	public void notifyObservers() {
-		setChanged();
-		super.notifyObservers();
-	}
 
 	public synchronized void changeWeight(int node, int weight) {
 		neighboursToWeight.put(node, weight);
@@ -191,18 +175,6 @@ public class RoutingTable extends Observable {
 		}
 
 		notifyObservers();
-	}
-
-	public synchronized int[][] getNodesData() {
-		int[][] result = new int[NB.size()][];
-		int i = 0;
-		for (int n : NB.keySet()) {
-			synchronized (D) {
-				result[i++] = new int[] { n, NB.get(n), D.get(n) };
-			}
-		}
-
-		return result;
 	}
 	
 	/**
@@ -221,7 +193,6 @@ public class RoutingTable extends Observable {
 			setChanged();
 			notifyObservers(new Integer[] { n, preferred, dist });
 		}
-
 		return ret;
 	}
 }
