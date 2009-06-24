@@ -53,14 +53,14 @@ public class NetwProg extends Observable{
 	public final Map<Integer, Integer> neighbours;
 
 	/**
-	 * To bootstrap the socketHandlers we use a serverSocket to listen for incoming connections.
+	 * To bootstrap the channels we use a serverSocket to listen for incoming connections.
 	 */
 	private ServerSocket serverSocket;
 	
 	/**
-	 * A map containing node ids and their respective socketHandlers.
+	 * A map containing node ids and their respective channels.
 	 */
-	final Map<Integer, SocketHandler> idsToSocketHandlers = new ConcurrentHashMap<Integer, SocketHandler>();
+	final Map<Integer, Channel> idsToChannels = new ConcurrentHashMap<Integer, Channel>();
 	
 	/**
 	 * Time a socket sleeps before processing messages, in milliseconds.
@@ -123,15 +123,15 @@ public class NetwProg extends Observable{
 		debug("Starting to listen");
 		while (serverSocket != null && !serverSocket.isClosed()) {
 			try {
-				// Create a socketHandler for every incoming connections.
+				// Create a channel for every incoming connections.
 				Socket clientSocket = serverSocket.accept();
-				SocketHandler socketHandler = new SocketHandler(this, clientSocket);
+				Channel channel = new Channel(this, clientSocket);
 				
-				// Add the socketHandler to a map for easy access.
-				idsToSocketHandlers.put(socketHandler.id, socketHandler);
+				// Add the channel to a map for easy access.
+				idsToChannels.put(channel.id, channel);
 				
-				// Start the socketHandler.
-				new Thread(socketHandler).start();
+				// Start the channel.
+				new Thread(channel).start();
 				setChanged();
 				notifyObservers();
 				
@@ -143,7 +143,7 @@ public class NetwProg extends Observable{
 		}
 
 		// The Socket closed so we want to quit or we just crashed, either way we clean up and exit.
-		for (SocketHandler s : idsToSocketHandlers.values()) {
+		for (Channel s : idsToChannels.values()) {
 			s.die();
 		}
 
@@ -158,7 +158,7 @@ public class NetwProg extends Observable{
 	 * @param message	Message to be sent.
 	 */
 	public void send(int id, Message message) {
-		idsToSocketHandlers.get(id).send(message);
+		idsToChannels.get(id).send(message);
 	}
 
 	/**
@@ -183,7 +183,7 @@ public class NetwProg extends Observable{
 			return;
 		}
 		
-		if (idsToSocketHandlers.containsKey(id) ) {
+		if (idsToChannels.containsKey(id) ) {
 			changeWeight(id, weight);
 		} else {
 			startRepairConnection(id, weight);
@@ -209,9 +209,9 @@ public class NetwProg extends Observable{
 	 */
 	public synchronized void startRepairConnection(int neighbour, int weight) {
 
-		debug("Starting client socketHandler for " + neighbour);
-		SocketHandler n = new SocketHandler(this, neighbour, weight);
-		idsToSocketHandlers.put(neighbour, n);
+		debug("Starting client channel for " + neighbour);
+		Channel n = new Channel(this, neighbour, weight);
+		idsToChannels.put(neighbour, n);
 		new Thread(n).start();
 	}
 
@@ -222,12 +222,12 @@ public class NetwProg extends Observable{
 	public void failConnection(int neighbour) {
 		debug("Failing connection to " + neighbour);
 		
-		// Remove the socketHandler from the idsToSocketHandlers map.
-		SocketHandler socketHandler = idsToSocketHandlers.remove(neighbour);
+		// Remove the channel from the idsToChannels map.
+		Channel channel = idsToChannels.remove(neighbour);
 
-		// Kill the socketHandler.
-		if ( socketHandler != null) {
-			socketHandler.die();
+		// Kill the channel.
+		if ( channel != null) {
+			channel.die();
 		} else {
 			debug("Connection failed earlier.");
 		}
