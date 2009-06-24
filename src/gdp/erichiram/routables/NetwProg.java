@@ -125,7 +125,7 @@ public class NetwProg extends Observable{
 			
 		} catch (IOException e) {
 			// Most likely the port has already been taken, print an error message.
-			System.err.println("Port " + id + " is already taken");
+			error("Port is already taken");
 		}
 		
 		// Listen and start sockets if needed.
@@ -251,7 +251,6 @@ public class NetwProg extends Observable{
 	 * Print error messages.
 	 * @param message
 	 */
-	// TODO Check if this method is used consistently.
 	public void error(String message) {
 		System.err.println(id + ": " + message);
 	}
@@ -261,7 +260,6 @@ public class NetwProg extends Observable{
 	 * 
 	 * @param message
 	 */
-	// TODO Check if this method is used consistently.
 	public void debug(String message) {
 		if (Configuration.printDebug) {
 			System.out.println(id + ": " + message);
