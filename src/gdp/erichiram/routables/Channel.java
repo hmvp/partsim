@@ -12,7 +12,7 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketException;
 
-public class SocketHandler implements Runnable, Comparable<SocketHandler> {
+public class Channel implements Runnable, Comparable<Channel> {
 
 	public final int id;
 	private RoutingTable routingTable;
@@ -24,14 +24,14 @@ public class SocketHandler implements Runnable, Comparable<SocketHandler> {
 	private boolean running = true;
 	private boolean initDone = false;
 
-	public SocketHandler(NetwProg netwProg, int port, int startingWeight) {
+	public Channel(NetwProg netwProg, int port, int startingWeight) {
 		this.netwProg = netwProg;
 		this.routingTable = netwProg.routingTable;
 		this.id = port;
 		this.startingWeight = startingWeight;
 	}
 
-	public SocketHandler(NetwProg netwProg, Socket socket) {
+	public Channel(NetwProg netwProg, Socket socket) {
 		this.netwProg = netwProg;
 		this.routingTable = netwProg.routingTable;
 		this.socket = socket;
@@ -86,9 +86,9 @@ public class SocketHandler implements Runnable, Comparable<SocketHandler> {
 					
 					send(new Repair(netwProg.id, startingWeight));
 				} catch (IOException e) {
-					netwProg.error("Something went wrong when connecting to: " + id + " error: " + e.getLocalizedMessage());
+					netwProg.error(e.getLocalizedMessage() + " when connecting to " + id + ". Retrying in " + (Configuration.retryConnectionTime / 1000.0f) + " seconds.");
 					try {
-						Thread.sleep(100);
+						Thread.sleep(Configuration.retryConnectionTime);
 					} catch (InterruptedException e1) {}
 				
 				}
@@ -99,7 +99,7 @@ public class SocketHandler implements Runnable, Comparable<SocketHandler> {
 
 	
 	/**
-	 * create in and output streams in this sockethandler
+	 * Create in and output streams in this channel.
 	 */
 	private void createStreams() {
 
@@ -160,7 +160,7 @@ public class SocketHandler implements Runnable, Comparable<SocketHandler> {
 			}
 		}
 
-		netwProg.debug("sockethandler is done and start closing: " + id);
+		netwProg.debug("Channel is done and starts closing: " + id);
 		netwProg.messagesSent.increment();
 		routingTable.fail(id);
 		finalize();
@@ -226,7 +226,7 @@ public class SocketHandler implements Runnable, Comparable<SocketHandler> {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		SocketHandler other = (SocketHandler) obj;
+		Channel other = (Channel) obj;
 		if (id != other.id)
 			return false;
 		return true;
@@ -251,7 +251,7 @@ public class SocketHandler implements Runnable, Comparable<SocketHandler> {
 		return String.valueOf(id);
 	}
 
-	public int compareTo(SocketHandler o) {
+	public int compareTo(Channel o) {
 		return id - o.id;
 	}
 }

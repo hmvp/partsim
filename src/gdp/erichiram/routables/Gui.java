@@ -295,7 +295,7 @@ public class Gui implements Runnable, Observer {
 				
 				if (observable instanceof NetwProg) {
 					try{
-						if(netwProg.idsToSocketHandlers.size() < 1)
+						if(netwProg.idsToChannels.size() < 1)
 						{
 							failIdSpinner.setEnabled(false);
 							failButton.setEnabled(false);
@@ -304,7 +304,7 @@ public class Gui implements Runnable, Observer {
 						{
 							failIdSpinner.setEnabled(true);
 							failButton.setEnabled(true);
-							neighbourIdSpinnerModel.setList(new LinkedList<Integer>(netwProg.idsToSocketHandlers.keySet()));
+							neighbourIdSpinnerModel.setList(new LinkedList<Integer>(netwProg.idsToChannels.keySet()));
 						}
 					} catch (Exception e){}
 				}
