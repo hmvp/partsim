@@ -37,10 +37,9 @@ public class RoutingTableTableModel extends AbstractTableModel implements Observ
 
 	public Object getValueAt(int row, int col) {
 		
-		if ( col == 1  && nodes.get(nodes.keySet().toArray(new Integer[0])[row])[col] == RoutingTable.UNDEF_ID) {
-			return "undefined";
-		} else if ( col == 2  && nodes.get(nodes.keySet().toArray(new Integer[0])[row])[col] == RoutingTable.MAX_DIST) {
-			return "max distance";
+		if (	( col == 1  && nodes.get(nodes.keySet().toArray(new Integer[0])[row])[col] == RoutingTable.UNDEF_ID)
+		|| 		( col == 2  && nodes.get(nodes.keySet().toArray(new Integer[0])[row])[col] == RoutingTable.MAX_DIST) ){
+			return "-";
 		} else {
 			return nodes.get(nodes.keySet().toArray(new Integer[0])[row])[col];
 		}
