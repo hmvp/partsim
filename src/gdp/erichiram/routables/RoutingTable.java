@@ -92,32 +92,35 @@ public class RoutingTable extends Observable {
 		// Start a consumer thread to process messages for this RoutingTable.
 		new Thread(new Runnable(){
 			public void run() {
-				Message m;
 				while (true) {
 					try {
-						m = q.take();
+						
+						// Get the next message, if any.
+						Message message = q.take();
 
-						if (m instanceof MyDist) {
-							MyDist mydist = (MyDist) m;
+						// Process the specific message in a way that makes sense.
+						if (message instanceof MyDist) {
+							MyDist mydist = (MyDist) message;
 							mydist(mydist.from, mydist.id, mydist.distance);
-						} else if (m instanceof Repair) {
-							Repair repair = (Repair) m;
+						} else if (message instanceof Repair) {
+							Repair repair = (Repair) message;
 							repair(repair.neighbour, repair.weight);
-						} else if (m instanceof Fail) {
-							Fail fail = (Fail) m;
+						} else if (message instanceof Fail) {
+							Fail fail = (Fail) message;
 							fail(fail.neighbour);
-						} else if (m instanceof ChangeWeight) {
-							ChangeWeight cw = (ChangeWeight) m;
+						} else if (message instanceof ChangeWeight) {
+							ChangeWeight cw = (ChangeWeight) message;
 							changeWeight(cw.node, cw.weight);
 						}
-					} catch (InterruptedException e1) {
+					} catch (InterruptedException e) {
+						// TODO: what's happening here?
 					}
 				}
 			}
 		}).start();
 	}
 	
-	// TODO add javadoc, maybe this name should be more prescriptive of what the method does
+	// TODO Add javadoc! And maybe the method name should be more prescriptive of what the method does exactly.
 	private void checkNodeInitialized(int node)
 	{
 		// If we don't know the node.
@@ -125,15 +128,15 @@ public class RoutingTable extends Observable {
 			
 			// Add the node.
 			nodes.add(node);
-			Object x = ndis.put(node, new HashMap<Integer, Integer>());
-			if (x != null)
-				throw new RuntimeException("cannot be initialized already");
+			ndis.put(node, new HashMap<Integer, Integer>());
 
+			// Fill the ndis table.
 			for (int v : nodes) {
 				ndis.get(node).put(v, MAX_DIST);
 				ndis.get(v).put(node, MAX_DIST);
 			}
 
+			// Try to set node data.
 			setNodeData(node, UNDEF_ID, MAX_DIST);
 		}
 	}
@@ -145,14 +148,14 @@ public class RoutingTable extends Observable {
 	private synchronized void recompute(int node) {
 
 		boolean distancedChanged = false;
+		
 		if (node == netwProg.id) {
 			// Try to change our preferred neighbour table.
 			distancedChanged = setNodeData(node, netwProg.id, 0);
 		} else {
+			// Determine the closest neighbour to node and its distance.
 			int estimatedDistance = MAX_DIST;
 			int preferredNeighbour = UNDEF_ID;
-			
-			// Determine the closest neighbour to node and its distance.
 			for (int neighbour : neighboursToWeight.keySet()) {
 				
 				// distance(this, v) = distance(this, w) + distance(w, v)
@@ -169,6 +172,7 @@ public class RoutingTable extends Observable {
 			distancedChanged = setNodeData(node, preferredNeighbour, estimatedDistance);
 		}
 		
+		// If we know something new, inform our neighbours of the fact.
 		if (distancedChanged) {
 			for (int x : neighboursToWeight.keySet()) {
 				netwProg.send(x, new MyDist(node, D.get(node)));
@@ -179,11 +183,11 @@ public class RoutingTable extends Observable {
 	
 	/**
 	 * Receive a message.
-	 * @param m the received message
+	 * @param message the received message
 	 */
-	public void receive(Message m)
+	public void receive(Message message)
 	{
-		q.offer(m);
+		q.offer(message);
 	}
 
 	/**
@@ -236,6 +240,8 @@ public class RoutingTable extends Observable {
 		}
 	}
 
+	// TODO see if we can merge this one with RoutingTable.repair(int,int), cause of the similarities
+	// @see #repair(int, int)
 	private void changeWeight(int node, int weight) {
 		neighboursToWeight.put(node, weight);
 
