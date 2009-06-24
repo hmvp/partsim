@@ -8,7 +8,7 @@ import java.util.Observer;
 import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
 
-public class TableModel extends AbstractTableModel implements Observer{
+public class RoutingTableTableModel extends AbstractTableModel implements Observer{
 
 	private static final long serialVersionUID = 3441755023701740847L;
 
@@ -30,9 +30,9 @@ public class TableModel extends AbstractTableModel implements Observer{
 	public Object getValueAt(int row, int col) {
 		
 		if ( col == 1  && nodes.get(nodes.keySet().toArray(new Integer[0])[row])[col] == RoutingTable.UNDEF_ID) {
-			return "UNDEFINED";
+			return "Undefined";
 		} else if ( col == 2  && nodes.get(nodes.keySet().toArray(new Integer[0])[row])[col] == RoutingTable.MAX_DIST) {
-			return "MAX DIST";
+			return "Max. distance";
 		} else {
 			return nodes.get(nodes.keySet().toArray(new Integer[0])[row])[col];
 		}
