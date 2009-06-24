@@ -70,7 +70,10 @@ public class RoutingTable extends Observable {
 	 */
 	public RoutingTable(NetwProg netwProg) {
 		this.netwProg = netwProg;
-
+	}
+	
+	public void initialize()
+	{
 		nodes.add(netwProg.id);
 		ndis.put(netwProg.id, D);
 		setDataForNode(netwProg.id, netwProg.id, 0);
@@ -179,6 +182,7 @@ public class RoutingTable extends Observable {
 	
 	/**
 	 * private method to set D and ND together to avoid inconsistencies
+	 * we also notify the gui that something has changed and tell it what has changed
 	 * @param n node for which the data is set
 	 * @param preferred preferred neighbour for the node.
 	 * @param dist distance to the node

@@ -77,6 +77,8 @@ public class NetwProg extends Observable{
 	 */
 	public final RoutingTable routingTable;
 
+	private Gui gui;
+
 	/**
 	 * @param argId			id for this node
 	 * @param neighbours	mapping of neighbours to distances
@@ -87,6 +89,8 @@ public class NetwProg extends Observable{
 		this.neighbours = new ConcurrentHashMap<Integer, Integer>(neighbours);
 		this.slave = slave;
 		routingTable = new RoutingTable(this);
+		gui = new Gui(this);
+		routingTable.initialize();
 	}
 
 	/**
@@ -95,7 +99,7 @@ public class NetwProg extends Observable{
 	public void run() {
 		// Setting up the GUI.
 		debug("Starting GUI");
-		SwingUtilities.invokeLater(new Gui(this));
+		SwingUtilities.invokeLater(gui);
 
 		try {
 			// Start a listening socket.
