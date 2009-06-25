@@ -44,15 +44,29 @@ gdp.erichiram.routable.util:
 
 Hieronder volgt een beschrijving van de interacties van de verschillende onderdelen van het programma.
 
-// ...
+[BLAHAHAHAHAHA]
 
 
 
 3. UITVOEREN VAN HET PROGRAMMA
 
-Voer het volgende commando uit:
+Voer de volgende commando's uit.
 
-//java -jar Routables.jar
+Onder Windows:
+
+start java -jar NetwProg.jar 1103   1102  20   1100  2
+start java -jar NetwProg.jar 1102   1101   3   1104 10   1103 100
+start java -jar NetwProg.jar 1100   1104  10   1103  5
+start java -jar NetwProg.jar 1104   1102   4   1101 12   1100   4
+java -jar NetwProg.jar       1101   1102   7   1104 5
+
+Onder Linux/Mac OS X:
+
+java -jar NetwProg.jar 1103   1102  20   1100  2 &
+java -jar NetwProg.jar 1102   1101   3   1104 10   1103 100 &
+java -jar NetwProg.jar 1100   1104  10   1103  5 &
+java -jar NetwProg.jar 1104   1102   4   1101 12   1100   4 &
+java -jar NetwProg.jar 1101   1102   7   1104 5
 
 
 
