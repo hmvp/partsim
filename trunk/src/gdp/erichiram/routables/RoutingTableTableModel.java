@@ -19,7 +19,7 @@ public class RoutingTableTableModel extends AbstractTableModel implements Observ
 	/**
 	 * List of column names.
 	 */
-	private final String[] columnNames = { "Node", "Neighbour to use", "Length of path" };
+	private final String[] columnNames = { "Node", "Preferred neighbour", "|Shortest path|" };
 	
 	/**
 	 * Cache for nodes data.
