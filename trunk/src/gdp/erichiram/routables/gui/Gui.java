@@ -134,7 +134,7 @@ public class Gui implements Runnable, Observer {
 		// Set the index of this frame based on NetwProg.id.
 		int index = netwProg.id - 1100;
 		
-		// A variable containing the menu bar height (Mac OS X and Linux Gnome only).
+		// A variable containing the menu bar height (Mac OS X and certain Linux window managers only).
 		int menuBarHeight = 22;
 		
 		// Get the height and width of this frame.
@@ -181,58 +181,25 @@ public class Gui implements Runnable, Observer {
 	 * Create the network panel GUI component.
 	 * @return the network panel
 	 */
-	// TODO: split this up
 	private Component createNetworkPanel() {
 		
 		// Create the network panel and set its layout manager.
 		JPanel networkPanel = new JPanel();
 		networkPanel.setLayout(new BoxLayout(networkPanel, BoxLayout.Y_AXIS));
 		
-		// Create t spinner panel.
-		JPanel tSpinnerPanel = new JPanel();
-
-		// Create a label for messagesSent.
-		JLabel tSpinnerLabel = new JLabel("T");
-		tSpinnerPanel.add(tSpinnerLabel);
+		// Add the t spinner panel, the fail panel and the change weight / repair panel to the network panel.
+		networkPanel.add(createTSpinnerPanel());
+		networkPanel.add(createFailPanel());
+		networkPanel.add(createChangeWeightRepairPanel());
 		
-		// Create a model and spinner for NetwProg.t.
-		final SpinnerNumberModel tModel = new SpinnerNumberModel(0,0,9999,1);
-		JSpinner tSpin = new JSpinner(tModel);
-		tSpin.addChangeListener(new ChangeListener(){
+		return networkPanel;
+	}
 
-			public void stateChanged(ChangeEvent e) {
-				netwProg.setT((Integer) tModel.getNumber());
-			}
-			
-		});
-		tSpinnerPanel.add(tSpin);
-		
-		// Create fail button panel.
-		JPanel failPanel = new JPanel();
-
-		// Create fail button.
-		failButton = new JButton("Fail");
-		failButton.addActionListener(new ActionListener(){
-
-			public void actionPerformed(ActionEvent actionEvent) {
-				netwProg.failConnection((Integer)neighbourIdSpinnerModel.getValue());
-			}
-			
-		});
-
-		// Create fail ID spinner.
-		neighbourIdSpinnerModel = new SpinnerListModel();
-		failIdSpinner = new JSpinner(neighbourIdSpinnerModel);
-		
-		//we start without neighbours so we should disable until we have some
-		failIdSpinner.setEnabled(false);
-		failButton.setEnabled(false);
-		
-		// Add fail components to failPanel.
-		failPanel.add(failButton);
-		failPanel.add(failIdSpinner);
-
-		// Create change weight / repair button panel.
+	/**
+	 * Create the Change Weight/Repair panel.
+	 * @return the Change Weight/Repair panel
+	 */
+	private JPanel createChangeWeightRepairPanel() {
 		JPanel changeRepairPanel = new JPanel();
 
 		// Initialize change weight / repair ID spinner.
@@ -263,34 +230,93 @@ public class Gui implements Runnable, Observer {
 		// Add change weight / repair components to changeRepairPanel.	
 		changeRepairPanel.add(changeRepairButton);
 		changeRepairPanel.add(changeRepairIdSpinner);
-		changeRepairPanel.add(changeRepairWeightSpinner);	
+		changeRepairPanel.add(changeRepairWeightSpinner);
+		return changeRepairPanel;
+	}
 
-		// Add the t spinner panel, the fail panel and the change weight / repair panel to the network panel.
-		networkPanel.add(tSpinnerPanel);
-		networkPanel.add(failPanel);
-		networkPanel.add(changeRepairPanel);
+	/**
+	 * Create the Fail panel.
+	 * @return the Fail panel
+	 */
+	private JPanel createFailPanel() {
+		JPanel failPanel = new JPanel();
+
+		// Create fail button.
+		failButton = new JButton("Fail");
+		failButton.addActionListener(new ActionListener(){
+
+			public void actionPerformed(ActionEvent actionEvent) {
+				netwProg.failConnection((Integer)neighbourIdSpinnerModel.getValue());
+			}
+			
+		});
+
+		// Create fail ID spinner.
+		neighbourIdSpinnerModel = new SpinnerListModel();
+		failIdSpinner = new JSpinner(neighbourIdSpinnerModel);
 		
-		return networkPanel;
+		//we start without neighbours so we should disable until we have some
+		failIdSpinner.setEnabled(false);
+		failButton.setEnabled(false);
+		
+		// Add fail components to failPanel.
+		failPanel.add(failButton);
+		failPanel.add(failIdSpinner);
+		return failPanel;
+	}
+
+	/**
+	 * Create the T spinner panel.
+	 * @return the T spinner panel
+	 */
+	private JPanel createTSpinnerPanel() {
+		JPanel tSpinnerPanel = new JPanel();
+
+		// Create a label for messagesSent.
+		JLabel tSpinnerLabel = new JLabel("T");
+		tSpinnerPanel.add(tSpinnerLabel);
+		
+		// Create a model and spinner for NetwProg.t.
+		final SpinnerNumberModel tModel = new SpinnerNumberModel(0,0,9999,1);
+		JSpinner tSpin = new JSpinner(tModel);
+		tSpin.addChangeListener(new ChangeListener(){
+
+			public void stateChanged(ChangeEvent e) {
+				netwProg.setT((Integer) tModel.getNumber());
+			}
+			
+		});
+		tSpinnerPanel.add(tSpin);
+		return tSpinnerPanel;
 	}
 
 	/**
 	 * Create the information panel GUI component.
 	 * @return the information panel
 	 */
-	// TODO: split this up
 	private Component createInfoPanel() {
 
 		// Create the information panel and set its layout manager.
 		JPanel infoPanel = new JPanel();
 		infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
 		
+		// Add the label for messagesSent to the infoPanel.
+		infoPanel.add(messagesSentLabel = new JLabel());
+				
+		// Add the tablePane to the infoPanel.
+		infoPanel.add(createTablePanel(), BorderLayout.WEST);
+		
+		return infoPanel;
+	}
+
+	/**
+	 * Create the table panel.
+	 * @return the table panel
+	 */
+	private JPanel createTablePanel() {
 		// Create a new TableModel.
 		tableModel = new RoutingTableTableModel(netwProg);
 		netwProg.routingTable.addObserver(tableModel);
-		
-		// Create a label for messagesSent.
-		messagesSentLabel = new JLabel();
-		infoPanel.add(messagesSentLabel);
 
 		// Add a tablePanel to contain both the table and its header.
 		JPanel tablePanel = new JPanel();		
@@ -301,11 +327,7 @@ public class Gui implements Runnable, Observer {
 		
 		// Add the table and its header to tablePane.
 		tablePanel.add(routingTable.getTableHeader(), BorderLayout.PAGE_START);
-		tablePanel.add(routingTable, BorderLayout.CENTER);	
-		
-		// Add the tablePane to the infoPanel.
-		infoPanel.add(tablePanel, BorderLayout.WEST);
-		
-		return infoPanel;
+		tablePanel.add(routingTable, BorderLayout.CENTER);
+		return tablePanel;
 	}
 }
