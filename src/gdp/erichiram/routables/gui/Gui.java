@@ -5,8 +5,9 @@
  * @author Hiram van Paassen, Eric Broersma
  */
 
-package gdp.erichiram.routables;
+package gdp.erichiram.routables.gui;
 
+import gdp.erichiram.routables.NetwProg;
 import gdp.erichiram.routables.util.ObservableAtomicInteger;
 
 import java.awt.BorderLayout;
