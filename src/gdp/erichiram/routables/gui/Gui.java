@@ -77,6 +77,7 @@ public class Gui implements Runnable, Observer {
 
 	/**
 	 * Initalize the GUI. 
+	 * @see http://java.sun.com/docs/books/tutorial/uiswing/concurrency/index.html
 	 */
 	public void run() {
 		frame = createFrame();	
