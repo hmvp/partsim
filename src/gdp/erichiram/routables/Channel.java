@@ -118,6 +118,7 @@ public class Channel implements Runnable, Comparable<Channel> {
 					
 					createStreams();
 					
+					// Send the other node a Repair message.
 					send(new Repair(netwProg.id, initialWeight));
 				} catch (IOException e) {
 					netwProg.error(e.getLocalizedMessage() + " when connecting to " + id + ". Retrying in " + (Configuration.retryConnectionTime / 1000.0f) + " seconds.");
