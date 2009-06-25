@@ -80,7 +80,7 @@ public class NetwProg extends Observable{
 	/**
 	 * The number of messages sent.
 	 */
-	private final ObservableAtomicInteger messagesSent = new ObservableAtomicInteger(0);
+	public final ObservableAtomicInteger messagesSent = new ObservableAtomicInteger(0);
 	
 	/**
 	 * The routing table for this node.
@@ -168,8 +168,15 @@ public class NetwProg extends Observable{
 	 * @param message	Message to be sent.
 	 */
 	public void send(int id, Message message) {
-		idsToChannels.get(id).send(message);
-		messagesSent.increment();
+		Channel channel = idsToChannels.get(id);
+		
+		//We need to check if the channel is in the set
+		//If it isn't or if its closing we ignore the message and continue
+		//This is ok according to the netchange pdf
+		if(channel != null)
+		{
+			channel.send(message);
+		}
 	}
 
 	/**
@@ -235,8 +242,8 @@ public class NetwProg extends Observable{
 	public void failConnection(int neighbour) {
 		debug("Failing connection to " + neighbour);
 		
-		// Remove the channel from the idsToChannels map.
-		Channel channel = idsToChannels.remove(neighbour);
+		// get the channel from the idsToChannels map.
+		Channel channel = idsToChannels.get(neighbour);
 
 		// Kill the channel.
 		if ( channel != null) {
@@ -244,6 +251,9 @@ public class NetwProg extends Observable{
 		} else {
 			debug("Connection failed earlier.");
 		}
+		
+		idsToChannels.remove(neighbour);
+		
 		setChanged();
 		notifyObservers(idsToChannels.keySet());
 	}

@@ -4,13 +4,11 @@ import gdp.erichiram.routables.message.Fail;
 import gdp.erichiram.routables.message.Message;
 import gdp.erichiram.routables.message.Repair;
 
-import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.net.SocketException;
 
 /**
  * Handles connections to other nodes. Providing a channel over which messages are sent and received.
@@ -207,6 +205,7 @@ public class Channel implements Runnable, Comparable<Channel> {
 			try {
 				outputStream.writeObject(message);
 				outputStream.flush();
+				netwProg.messagesSent.increment();
 			} catch (IOException e) {
 				netwProg.error("Something went wrong when sending a message: " + e.getLocalizedMessage());
 				close();

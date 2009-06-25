@@ -5,6 +5,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * This is an encapsulated AtomicInteger that inherits from Observable.
+ * it is ok that the methods are not synchronized since it is not important that 
+ * the observers get the value for that increment but the most uptodat value.
+ * AtomicInteger is ofcourse in itself already thread safe.
  * @author Hiram van Paassen, Eric Broersma
  *
  */
@@ -18,17 +21,17 @@ public class ObservableAtomicInteger extends Observable {
 		atomicInteger = new AtomicInteger(value);
 	}
 
-	public synchronized final int get() {
+	public final int get() {
 		return atomicInteger.get();
 	}
 
-	public synchronized final void set(int newValue) {
+	public final void set(int newValue) {
 		atomicInteger.set(newValue);
 		setChanged();
 		notifyObservers(get());
 	}
 
-	public synchronized void increment() {
+	public void increment() {
 		atomicInteger.incrementAndGet();
 		setChanged();
 		notifyObservers(get());
