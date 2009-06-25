@@ -57,7 +57,7 @@ public class NetwProg extends Observable{
 	public final int id;
 	
 	/**
-	 * The neighbours of this node.
+	 * The initial neighbours of this node. used to initialize with asymmetric weights
 	 */
 	public final Map<Integer, Integer> neighbours;
 
@@ -69,7 +69,7 @@ public class NetwProg extends Observable{
 	/**
 	 * A map containing node ids and their respective channels.
 	 */
-	final Map<Integer, Channel> idsToChannels = new ConcurrentHashMap<Integer, Channel>();
+	private final Map<Integer, Channel> idsToChannels = new ConcurrentHashMap<Integer, Channel>();
 	
 	/**
 	 * Time a socket sleeps before processing messages, in milliseconds.
@@ -142,7 +142,7 @@ public class NetwProg extends Observable{
 				// Start the channel.
 				new Thread(channel).start();
 				setChanged();
-				notifyObservers();
+				notifyObservers(idsToChannels.keySet());
 				
 			} catch (IOException e) {
 				// The Socket just died while blocking during accept(), or
@@ -224,7 +224,7 @@ public class NetwProg extends Observable{
 		
 		// Let our observers know we've changed.
 		setChanged();
-		notifyObservers();
+		notifyObservers(idsToChannels.keySet());
 	}
 
 	/**
@@ -244,7 +244,7 @@ public class NetwProg extends Observable{
 			debug("Connection failed earlier.");
 		}
 		setChanged();
-		notifyObservers();
+		notifyObservers(idsToChannels.keySet());
 	}
 	
 	/**
