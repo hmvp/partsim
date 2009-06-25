@@ -1,6 +1,3 @@
-/**
- * 
- */
 package gdp.erichiram.routables.util;
 
 import gdp.erichiram.routables.NetwProg;
