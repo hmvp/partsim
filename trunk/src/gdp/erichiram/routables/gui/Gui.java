@@ -99,6 +99,7 @@ public class Gui implements Runnable, Observer {
 		// Use SwingUtilities.invokeLater to make sure the GUI has already been initialized before it's being updated.
 		SwingUtilities.invokeLater(new Runnable() {
 
+			@SuppressWarnings("unchecked")
 			public void run() {
 
 				if (observable instanceof ObservableAtomicInteger && obj instanceof Integer) {
