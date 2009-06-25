@@ -50,7 +50,13 @@ gdp.erichiram.routable.util:
 
 Hieronder volgt een beschrijving van de interacties van de verschillende onderdelen van het programma.
 
-[BLAHAHAHAHAHA]
+NetwProg start de GUI, de routing table, en opent op basis van zijn parameters Channel-objecten voor connecties naar anderen en gaat vervolgens luisteren naar inkomende connecties. Voor een inkomende connectie wordt een nieuw Channel-object aangemaakt. 
+
+GUI observeert de routing table en het aantal verzonden berichten, en update zichzelf zo vaak mogelijk. Wanneer de T-spinner wordt veranderd wordt de bijbehorende variabele aangepast, en wanneer er op de "Fail"- of "Change Weight/Repair"-knop wordt gedrukt, wordt er intern een bijpassend bericht (een Fail-, ChangeWeight- of Repair-bericht) verstuurd. Dat bericht wordt in de message queue van het RoutingTable-object geplaatst en daar verwerkt.
+
+RoutingTable start een consumer-thread voor de message queue. Bij het verwerken van de berichten wordt het Netchange-algoritme uitgevoerd om de routing table te updaten.
+
+Channel-objecten draaien in een eigen thread en luisteren naar berichten. Binnenkomende berichten (Fail, Repair of MyDist) worden in de message queue van het RoutingTable-object geplaatst en daar verwerkt.
 
 
 
