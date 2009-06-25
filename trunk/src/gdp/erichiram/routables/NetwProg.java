@@ -1,5 +1,6 @@
 package gdp.erichiram.routables;
 
+import gdp.erichiram.routables.gui.Gui;
 import gdp.erichiram.routables.message.ChangeWeight;
 import gdp.erichiram.routables.message.Message;
 import gdp.erichiram.routables.util.ObservableAtomicInteger;

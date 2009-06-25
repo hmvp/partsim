@@ -1,4 +1,7 @@
-package gdp.erichiram.routables;
+package gdp.erichiram.routables.gui;
+
+import gdp.erichiram.routables.NetwProg;
+import gdp.erichiram.routables.RoutingTable;
 
 import java.util.HashMap;
 import java.util.Map;
