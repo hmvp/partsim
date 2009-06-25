@@ -154,39 +154,27 @@ public class Channel implements Runnable, Comparable<Channel> {
 	 */
 	public void run() {
 		initialize();
-		netwProg.routingTable.receive(new Repair(id, initialWeight));
+		
+		//only if we are really running
+		if(running)
+			netwProg.routingTable.receive(new Repair(id, initialWeight));
 		netwProg.debug("Finished socket initialization for: " + id);
 
 		// Keep listening for messages.
 		while (running) {
 			Object object = null;
+			
 			try {
 				// Read a message object from the InputStream.
 				object = inputStream.readObject();
-			} catch (EOFException e) {
-				netwProg.debug("end of input, assume socket is dead");
-				running = false;
-				break;
-			} catch (SocketException e) {
-				netwProg.debug("socket is closing");
-				running = false;
-				break;
-			} catch (IOException e) {
-				if (running) {
-					netwProg.error("Something went wrong when receiving a message: " + e.toString());
-				}
-				break;
-			} catch (ClassNotFoundException e) {
-				if (running) {
-					netwProg.error("Something strange is happening: " + e.toString());
-				}
-				break;
+			} catch (Exception e) {
+				netwProg.debug("something went wrong, we assume we can close. Error:" + e.getLocalizedMessage());
+				netwProg.failConnection(id);
 			}
 
 			try {
 				Thread.sleep(netwProg.getT());
-			} catch (InterruptedException e) {
-			}
+			} catch (InterruptedException e) {}
 
 			// Relay the message to the RoutingTable.
 			if (object != null && object instanceof Message) {

@@ -21,6 +21,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.Set;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -104,14 +105,15 @@ public class Gui implements Runnable, Observer {
 					messagesSentLabel.setText("Number of messages sent: " + messagesSent);
 				}
 
-				if (observable instanceof NetwProg) {
-					if (netwProg.idsToChannels.size() < 1) {
+				if (observable instanceof NetwProg && obj instanceof Set) {
+					Set<Integer> s = (Set<Integer>) obj;
+					if (s.size() < 1) {
 						failIdSpinner.setEnabled(false);
 						failButton.setEnabled(false);
 					} else {
 						failIdSpinner.setEnabled(true);
 						failButton.setEnabled(true);
-						neighbourIdSpinnerModel.setList(new LinkedList<Integer>(netwProg.idsToChannels.keySet()));
+						neighbourIdSpinnerModel.setList(new LinkedList<Integer>(s));
 					}
 				}
 
