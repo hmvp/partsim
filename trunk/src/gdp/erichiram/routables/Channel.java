@@ -114,24 +114,31 @@ public class Channel implements Runnable, Comparable<Channel> {
 		}
 	}
 
+	/**
+	 * Creates a socket if this is a client side node.
+	 */
 	private void initialize() {
-		if (socket == null) {//only if we are a client
-			// we try to connect until we succeed
+		
+		// If we are a client.
+		if (socket == null) {
+			
+			// We try to connect until we succeed.
 			while (socket == null && running) {
 				try {
-					// create a socket and connect it to the specified port on the loopback interface
+					// Create a socket and connect it to the specified port on the loopback interface.
 					socket = new Socket(InetAddress.getLocalHost(), id);
 					
+					// Create the object streams.
 					createStreams();
 					
 					// Send the other node a Repair message.
 					send(new Repair(netwProg.id, initialWeight));
 				} catch (IOException e) {
+					// Something went wrong. Perhaps the other node isn't up yet, so let the user know we're working on it.
 					netwProg.error(e.getLocalizedMessage() + " when connecting to " + id + ". Retrying in " + (Configuration.retryConnectionTime / 1000.0f) + " seconds.");
 					try {
 						Thread.sleep(Configuration.retryConnectionTime);
 					} catch (InterruptedException e1) {}
-				
 				}
 			}
 		}
