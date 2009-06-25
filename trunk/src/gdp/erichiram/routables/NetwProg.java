@@ -58,9 +58,10 @@ public class NetwProg extends Observable{
 	public final int id;
 	
 	/**
-	 * The initial neighbours of this node. used to initialize with asymmetric weights
+	 * The initial neighbours of this node.
+	 * Used to initialize with asymmetric weights.
 	 */
-	public final Map<Integer, Integer> neighbours;
+	public final Map<Integer, Integer> neighboursToWeights;
 
 	/**
 	 * To bootstrap the channels we use a serverSocket to listen for incoming connections.
@@ -91,12 +92,12 @@ public class NetwProg extends Observable{
 
 	/**
 	 * @param argId			id for this node
-	 * @param neighbours	mapping of neighbours to distances
+	 * @param neighboursToWeights	mapping of neighbours to distances
 	 * @param slave			is this node running in slave (debugging) mode
 	 */
-	public NetwProg(int argId, Map<Integer, Integer> neighbours, boolean slave) {
+	public NetwProg(int argId, Map<Integer, Integer> neighboursToWeights, boolean slave) {
 		this.id = argId;
-		this.neighbours = new ConcurrentHashMap<Integer, Integer>(neighbours);
+		this.neighboursToWeights = new ConcurrentHashMap<Integer, Integer>(neighboursToWeights);
 		this.slave = slave;
 		routingTable = new RoutingTable(this);
 		gui = new Gui(this);
@@ -118,9 +119,9 @@ public class NetwProg extends Observable{
 			serverSocket = new ServerSocket(id);
 
 			// Try to connect to everyone with a higher id using startRepairConnection.
-			for (int neighbour : neighbours.keySet()) {
-				if (neighbour > id) {
-					startRepairConnection(neighbour, neighbours.get(neighbour));
+			for (int neighbour : neighboursToWeights.keySet()) {
+				if (id < neighbour) {
+					startRepairConnection(neighbour, neighboursToWeights.get(neighbour));
 				}
 			}
 			
@@ -138,7 +139,7 @@ public class NetwProg extends Observable{
 				Channel channel = new Channel(this, clientSocket);
 				
 				// Add the channel to a map for easy access.
-				idsToChannels.put(channel.id, channel);
+				idsToChannels.put(channel.getId(), channel);
 				
 				// Start the channel.
 				new Thread(channel).start();

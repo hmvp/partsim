@@ -24,7 +24,7 @@ public class Channel implements Runnable, Comparable<Channel> {
 	/**
 	 * Id of the neighbour this channel is connected with.
 	 */
-	public final int id;
+	private final int id;
 	
 	/**
 	 * Socket to send and receive.
@@ -70,40 +70,48 @@ public class Channel implements Runnable, Comparable<Channel> {
 
 		createStreams();
 
-		int tempPort = 0;
-		int tempWeight = 0;
+		Object object = null;
 		try {
-			Object object = inputStream.readObject();
-			if (object instanceof Repair) {
-				Repair id = (Repair) object;
-
-				tempPort = id.neighbour;
-				tempWeight = id.weight;
-			}
+			object = inputStream.readObject();
 		} catch (Exception e) {
+			
+			// Something went wrong, close the socket.
 			try {
 				socket.close();
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
 		}
-		id = tempPort;
-
-		// als we nog aan het initializeren zijn dan hebben we info om
-		// connecties op te starten
-		// die qua weights niet symetrisch zijn, die info moeten we dus gebuiken
-		// we verwijderen alleen en checken wat we verwijderd hebben.
-		// ondanks dat we zeker weten dat deze neighbour dit specefieke id
-		// opvraagt
-		// spelen we toch op zeker door niet eerst te checken en dan pas te
-		// removen.
-		Integer w = netwProg.neighbours.remove(id);
-		if (w != null)
-		{
-			tempWeight = w;
-		}
 		
-		initialWeight = tempWeight;
+		if (object instanceof Repair) {
+			Repair repair = (Repair) object;
+
+			// Get the socket ID.
+			id = repair.neighbour;
+
+			// If we got the weight for this connection through the command line, use it.
+			// Otherwise use the weight we got from the Repair message from the other node.
+			Integer weight = netwProg.neighboursToWeights.remove(id);
+			if (weight != null) {
+				initialWeight = weight;
+			} else {
+				initialWeight = repair.weight;
+			}
+		} else {
+			// Something went wrong.
+			// Add some senseless values which probably won't get used anyway because the socket is already closed.
+			id = RoutingTable.UNDEF_ID;
+			initialWeight = 1000;
+
+			// Just to be sure, we close the socket.
+			if ( !socket.isClosed() ) {
+				try {
+					socket.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
 	}
 
 	private void initialize() {
@@ -291,5 +299,9 @@ public class Channel implements Runnable, Comparable<Channel> {
 	 */
 	public int compareTo(Channel o) {
 		return id - o.id;
+	}
+
+	public int getId() {
+		return id;
 	}
 }
